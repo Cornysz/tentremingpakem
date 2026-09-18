@@ -25,26 +25,64 @@
       <p class="eyebrow"><span></span> SEGERA HADIR <span></span></p>
       <h1>Tentrem<br><span><i>ing</i> Pakem<span class="period">.</span></span></h1>
       <p class="description"><i>Sugeng rawuh.</i></p>
-      <button class="discover" type="button" aria-haspopup="dialog">Kenalan dengan Pakem <span aria-hidden="true">＋</span></button><br>
-      <a class="instagram" href="https://www.instagram.com/tentremingpakem/" target="_blank" rel="noopener noreferrer">Ikuti perjalanan kami <span aria-hidden="true">↗</span><span class="sr-only"> di Instagram, membuka tab baru</span></a>
+      <div class="actions">
+        <button class="discover" type="button" aria-haspopup="dialog" aria-controls="pakem-story">
+          <span class="button-flower" aria-hidden="true">✳</span>
+          <span>Kenalan dengan Pakem</span>
+          <span class="button-arrow" aria-hidden="true">↗</span>
+        </button>
+        <a class="instagram" href="https://www.instagram.com/tentremingpakem/" target="_blank" rel="noopener noreferrer"><span class="instagram-glyph" aria-hidden="true"></span><span>Ikuti cerita kami</span><span aria-hidden="true">↗</span><span class="sr-only"> di Instagram, membuka tab baru</span></a>
+      </div>
     </main>
     <footer>
-
-
       <p class="footer-right">© TENTREM ING PAKEM 2026</p>
     </footer>
   </div>
   <button class="motion-toggle" type="button" aria-pressed="false" aria-label="Jeda animasi" title="Jeda animasi"><span class="motion-icon" aria-hidden="true"></span></button>
   <dialog id="pakem-story" aria-labelledby="story-title">
-    <button class="close-dialog" type="button" aria-label="Tutup cerita Pakem">×</button>
-    <div class="story-image" role="img" aria-label="Ilustrasi suasana pagi di lereng Merapi"></div>
-    <div class="story-copy">
-      <p class="story-label">SLEMAN · DAERAH ISTIMEWA YOGYAKARTA</p>
-      <h2 id="story-title">Lebih dekat<br><i>dengan Pakem.</i></h2>
-      <p>Di sisi utara Sleman, Pakem menjadi bagian dari bentang lereng Merapi. Di sini, lanskap pegunungan bertemu keseharian masyarakat Jogja.</p>
-      <div class="story-facts"><article><span>01 / ALAM</span><h3>Di kaki Merapi</h3><p>Kawasan lereng Merapi membentang dari jalur Tempel–Turi–Pakem–Cangkringan hingga puncak gunung.</p></article><article><span>02 / KESEHARIAN</span><h3>Ruang perjumpaan</h3><p>Pasar Pakem menjadi tempat bertemunya perdagangan, kuliner, dan kehidupan masyarakat setempat.</p></article></div>
-      <p class="story-end">Di sinilah kami akan belajar, mendengar, dan tumbuh bersama.</p>
-      <div class="sources">Baca tentang Pakem: <a href="https://slemankab.go.id/profil-kabupaten-sleman/geografi/karakteristik-wilayah/" target="_blank" rel="noopener noreferrer">Lereng Merapi ↗</a><a href="https://perindag.slemankab.go.id/pasar-pakem-pusat-tradisi-ekonomi-dan-wisata-lereng-merapi/" target="_blank" rel="noopener noreferrer">Pasar Pakem ↗</a></div>
+    <button class="close-dialog" type="button" aria-label="Tutup cerita Pakem"><span aria-hidden="true">×</span></button>
+    <div class="postcard">
+      <div class="postcard-view" aria-hidden="true">
+        <img class="postcard-photo" src="assets/pakem.webp" alt="" width="1672" height="941">
+        <div class="postcard-tint"></div>
+        <span class="postmark">DARI PAKEM<span>✳</span>DENGAN HATI</span>
+        <img class="postcard-bird" src="assets/bird.png" alt="" width="130" height="150">
+        <div class="photo-caption"><span>SEBUAH KARTU POS DARI</span><span class="photo-place">Pakem.</span><span class="photo-caption-small">Sleman, Yogyakarta</span></div>
+        <span class="photo-sticker">monggo,<br><i>kenalan dulu.</i></span>
+      </div>
+      <div class="story-content">
+        <p class="story-eyebrow">DEKAT DI MATA, HANGAT DI CERITA</p>
+        <h2 id="story-title">Sedikit tentang<br><i>tempat kami singgah.</i></h2>
+        <div class="story-tabs" role="tablist" aria-label="Cerita tentang Pakem">
+          <button id="tab-alam" role="tab" aria-selected="true" aria-controls="panel-alam" tabindex="0"><span aria-hidden="true">01</span> Alam</button>
+          <button id="tab-hari" role="tab" aria-selected="false" aria-controls="panel-hari" tabindex="-1"><span aria-hidden="true">02</span> Keseharian</button>
+          <button id="tab-kami" role="tab" aria-selected="false" aria-controls="panel-kami" tabindex="-1"><span aria-hidden="true">03</span> Kami</button>
+        </div>
+        <div class="story-panels">
+          <section id="panel-alam" class="story-panel" role="tabpanel" aria-labelledby="tab-alam" tabindex="0">
+            <p class="chapter-label">LERENG, KABUT, DAN CERITA PAGI</p>
+            <h3>Jogja punya sisi<br><i>yang lebih tenang.</i></h3>
+            <p>Di utara Sleman, Pakem menjadi bagian dari bentang lereng Merapi. Lanskap pegunungan di sini adalah latar bagi cerita keseharian warga.</p>
+            <p class="story-note"><span aria-hidden="true">✳</span> Yuk, kenalan dengan Jogja dari sisi utara.</p>
+            <a class="source-link" href="https://slemankab.go.id/profil-kabupaten-sleman/geografi/karakteristik-wilayah/" target="_blank" rel="noopener noreferrer">Tentang wilayahnya <span aria-hidden="true">↗</span></a>
+          </section>
+          <section id="panel-hari" class="story-panel" role="tabpanel" aria-labelledby="tab-hari" tabindex="0" hidden>
+            <p class="chapter-label">BERTEMU DI TENGAH KESEHARIAN</p>
+            <h3>Bukan cuma tempat.<br><i>Juga perjumpaan.</i></h3>
+            <p>Di Pasar Pakem, perdagangan, kuliner, dan kehidupan warga saling bertemu. Dari ruang sehari-hari seperti ini, kita bisa mengenal sebuah tempat lebih dekat.</p>
+            <p class="story-note"><span aria-hidden="true">✳</span> Cerita baik sering dimulai dari sapaan kecil.</p>
+            <a class="source-link" href="https://perindag.slemankab.go.id/pasar-pakem-pusat-tradisi-ekonomi-dan-wisata-lereng-merapi/" target="_blank" rel="noopener noreferrer">Mengenal Pasar Pakem <span aria-hidden="true">↗</span></a>
+          </section>
+          <section id="panel-kami" class="story-panel" role="tabpanel" aria-labelledby="tab-kami" tabindex="0" hidden>
+            <p class="chapter-label">KKN PPM UGM · PERIODE 3 · 2026</p>
+            <h3>Datang untuk belajar.<br><i>Tumbuh bersama.</i></h3>
+            <p>Kami adalah Tentrem ing Pakem. Di sini, kami ingin mendengar, mengenal, dan melangkah bersama warga. Cerita perjalanan kami akan segera hadir.</p>
+            <p class="story-note"><span aria-hidden="true">✳</span> Mampir lagi, ya. Ini baru awal ceritanya.</p>
+            <a class="source-link" href="https://www.instagram.com/tentremingpakem/" target="_blank" rel="noopener noreferrer">Sapa kami di Instagram <span aria-hidden="true">↗</span></a>
+          </section>
+        </div>
+        <div class="story-navigation"><span class="story-count" aria-hidden="true">01 <span>/ 03</span></span><button class="next-story" type="button">Cerita berikutnya <span aria-hidden="true">→</span></button></div>
+      </div>
     </div>
   </dialog>
   <script src="script.js" defer></script>

@@ -4,16 +4,17 @@ Website statis satu halaman untuk KKN PPM UGM Periode 3, 2026.
 
 ## Memasang ke repo dan Vercel
 
-Salin index.html, style.css, script.js, vercel.json, dan folder assets ke root repo Cornysz/tentremingpakem. index.html menggantikan file lama. Commit ke branch yang terhubung ke Vercel; bila integrasi otomatis aktif, Vercel akan menjalankan deployment. Tidak memerlukan npm, framework, atau build command. Untuk project baru pilih Framework Preset: Other dan direktori output root proyek.
+Repo Cornysz/tentremingpakem sudah terhubung dengan Vercel. Simpan index.html, style.css, script.js, vercel.json, dan folder assets di root repo. Setiap commit ke branch main memicu deployment production otomatis. Tidak memerlukan npm, framework, atau build command. Untuk project baru pilih Framework Preset: Other dan direktori output root proyek.
 
-Domain dan pengaturan DNS tidak perlu diubah. Deployment belum dilakukan dari sesi ini karena autentikasi GitHub ditolak.
+Domain dan pengaturan DNS tidak perlu diubah. Vercel otomatis memasangkan deployment production yang berhasil ke www.tentremingpakem.com.
 
 ## Isi
 
 - Background dawn lanskap terinspirasi Pakem, dibuat dengan Imagegen. Ini visual ilustratif, bukan foto dokumentasi atau representasi geografis yang presisi.
 - Burung bergerak dan parallax halus pada perangkat dengan mouse.
 - Tombol jeda animasi dan dukungan prefers-reduced-motion.
-- Dialog Kenalan dengan Pakem, dapat ditutup dengan tombol, Escape, atau klik di luar panel.
+- Kartu pos Kenalan dengan Pakem dengan animasi buka/tutup, burung, dekorasi kertas, dan tiga tab cerita: Alam, Keseharian, Kami. Mendukung keyboard, Escape, atau klik di luar panel.
+- Tombol ajakan dengan bunga berputar dan percikan bintang kecil; FAB ikon pause/play tanpa teks.
 - Tautan Instagram @tentremingpakem.
 - Tidak menggunakan analytics, cookies, formulir atau layanan berbayar.
 
