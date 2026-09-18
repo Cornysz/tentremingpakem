@@ -13,7 +13,8 @@ const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
 motionButton.addEventListener('click', () => {
   const paused = document.body.classList.toggle('motion-paused');
   motionButton.setAttribute('aria-pressed', String(paused));
-  motionButton.innerHTML = paused ? 'Lanjutkan animasi <span aria-hidden="true">▷</span>' : 'Jeda animasi <span aria-hidden="true">Ⅱ</span>';
+  motionButton.setAttribute('aria-label', paused ? 'Lanjutkan animasi' : 'Jeda animasi');
+  motionButton.title = paused ? 'Lanjutkan animasi' : 'Jeda animasi';
 });
 if (matchMedia('(hover: hover) and (pointer: fine)').matches) {
   window.addEventListener('pointermove', event => {

@@ -9,3 +9,89 @@
 /* Readable metadata over the landscape. */
 .brand,.location,.location span{font-size:12px;letter-spacing:1.3px}.brand,.location{text-shadow:0 1px 9px #fff9e5,0 0 20px #fff9e5}.eyebrow{font-size:12px}.instagram{font-size:12px;padding:8px 14px;border:0;border-radius:24px;background:#f4f0dcbd;backdrop-filter:blur(8px);gap:18px}.footer-left,.footer-right,.footer-right span{font-size:11px;letter-spacing:1px}.motion-toggle{font-size:12px}.story-copy>p:not(.story-label),.story-facts p{font-size:16px}.story-label,.story-facts article>span,.sources{font-size:12px}.story-copy{padding-top:54px}.story-label{line-height:1.6}@media(max-width:700px){.brand,.location,.location span{font-size:10px;letter-spacing:.7px}.eyebrow{font-size:11px}.footer-left,.footer-right,.footer-right span{font-size:10px}.motion-toggle{font-size:11px}.scene>img{object-position:62% 65%}.story-label{font-size:11px}.story-copy{padding-top:26px}.instagram{font-size:12px}.page{min-height:max(740px,100svh)}}
 footer{border:0;display:flex;justify-content:flex-start;padding-top:0}.footer-right{text-align:left;font-size:10px}.motion-toggle{bottom:24px}main{padding-bottom:80px}@media(max-width:700px){main{padding-bottom:210px}.motion-toggle{bottom:21px}.footer-right{font-size:8px;max-width:150px;line-height:1.7}.page{min-height:max(700px,100svh)}}
+
+/* Refined actions: one clear primary button and a quiet text link. */
+.discover {
+  min-height: 48px;
+  padding: 12px 18px 12px 22px;
+  gap: 26px;
+  border: 1px solid rgba(245, 242, 226, .24);
+  border-radius: 8px;
+  background: #344333;
+  color: #faf6e9;
+  font-size: 14px;
+  font-weight: 400;
+  letter-spacing: .15px;
+  box-shadow: 0 4px 16px rgba(24, 38, 24, .12);
+  backdrop-filter: none;
+  transition: background .2s ease, transform .2s ease, box-shadow .2s ease;
+}
+.discover:hover {
+  background: #263626;
+  box-shadow: 0 6px 20px rgba(24, 38, 24, .2);
+  transform: translateY(-2px);
+}
+.discover > span {
+  display: grid;
+  place-items: center;
+  width: 25px;
+  height: 25px;
+  border-left: 1px solid rgba(250, 246, 233, .24);
+  padding-left: 11px;
+  font: 18px/1 Arial, sans-serif;
+}
+.instagram {
+  min-height: 44px;
+  margin-top: 10px;
+  padding: 10px 3px;
+  gap: 12px;
+  background: none;
+  backdrop-filter: none;
+  border: 0;
+  border-radius: 0;
+  color: #243222;
+  font-size: 13px;
+  letter-spacing: .1px;
+  text-shadow: 0 1px 7px #f3efdc, 0 0 15px #f3efdc;
+  text-decoration: underline;
+  text-decoration-color: #52614b80;
+  text-underline-offset: 6px;
+  text-decoration-thickness: 1px;
+}
+.instagram > span[aria-hidden] { font-size: 17px; }
+.instagram:hover { color: #142511; text-decoration-color: currentColor; }
+@media (max-width: 700px) {
+  .discover { font-size: 13px; min-height: 46px; padding: 11px 17px 11px 20px; gap: 22px; }
+  .instagram { font-size: 12px; margin-top: 8px; }
+}
+
+/* Icon-only floating motion control. Accessible name lives in aria-label. */
+.motion-toggle {
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: rgba(36, 53, 32, .8);
+  box-shadow: 0 3px 12px #12251020;
+}
+.motion-toggle:hover { background: #263626; }
+.motion-toggle .motion-icon {
+  display: block;
+  width: 11px;
+  height: 13px;
+  margin: 0;
+  border-left: 3px solid currentColor;
+  border-right: 3px solid currentColor;
+}
+.motion-toggle[aria-pressed="true"] .motion-icon {
+  width: 0;
+  height: 0;
+  border-top: 7px solid transparent;
+  border-bottom: 7px solid transparent;
+  border-left: 11px solid currentColor;
+  border-right: 0;
+  margin-left: 3px;
+}
+@media (prefers-reduced-motion: reduce) { .motion-toggle { display: none; } }
