@@ -52,7 +52,8 @@ function selectStory(index, moveFocus = false) {
   });
   if (moveFocus) tabs[currentStory].focus({ preventScroll: true });
   document.querySelector('.story-count').innerHTML = `0${currentStory + 1} <span>/ 03</span>`;
-  nextButton.innerHTML = currentStory === 2 ? 'Kembali ke alam <span aria-hidden="true">↺</span>' : 'Cerita berikutnya <span aria-hidden="true">→</span>';
+  nextButton.querySelector('.next-story-label').textContent = currentStory === 2 ? 'Kembali ke alam' : 'Cerita berikutnya';
+  nextButton.classList.toggle('is-restart', currentStory === 2);
   postcardPhoto.style.objectPosition = ['62% 65%', '40% 85%', '78% 55%'][currentStory];
   if (motionAllowed()) {
     panelAnimation = panels[currentStory].animate([
@@ -99,7 +100,7 @@ function sparkle() {
   [-1, 1].forEach((side, i) => {
     const spark = document.createElement('span');
     spark.className = 'spark';
-    spark.textContent = '✦';
+    spark.appendChild(document.querySelector('#spark-icon').content.cloneNode(true));
     spark.setAttribute('aria-hidden', 'true');
     spark.style.left = `${rect.left + rect.width / 2 + side * (rect.width / 2 + 5)}px`;
     spark.style.top = `${rect.top + 12 + i * 12}px`;

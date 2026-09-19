@@ -15,6 +15,7 @@ Domain dan pengaturan DNS tidak perlu diubah. Vercel otomatis memasangkan deploy
 - Tombol jeda animasi dan dukungan prefers-reduced-motion.
 - Kartu pos Kenalan dengan Pakem dengan animasi buka/tutup, burung, dekorasi kertas, dan tiga tab cerita: Alam, Keseharian, Kami. Mendukung keyboard, Escape, atau klik di luar panel.
 - Tombol ajakan dengan bunga berputar dan percikan bintang kecil; FAB ikon pause/play tanpa teks.
+- Ikon SVG tidak bergantung pada font atau emoji iOS. Logo header, favicon PNG, dan Apple Touch Icon menggunakan logo asli tim.
 - Tautan Instagram @tentremingpakem.
 - Tidak menggunakan analytics, cookies, formulir atau layanan berbayar.
 
