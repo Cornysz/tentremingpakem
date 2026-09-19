@@ -1,6 +1,7 @@
 const dialog = document.querySelector('#pakem-story');
 const discover = document.querySelector('.discover');
-const closeButton = dialog.querySelector('.close-dialog');
+const brand = document.querySelector('.brand');
+const philosophyDialog = document.querySelector('#logo-philosophy');
 const motionButton = document.querySelector('.motion-toggle');
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
 const tabs = [...dialog.querySelectorAll('[role="tab"]')];
@@ -8,39 +9,56 @@ const panels = [...dialog.querySelectorAll('[role="tabpanel"]')];
 const nextButton = dialog.querySelector('.next-story');
 const postcardPhoto = dialog.querySelector('.postcard-photo');
 let currentStory = 0;
-let closeTimer;
+let logoAnimation;
 let panelAnimation;
 const motionAllowed = () => !reducedMotion.matches && !document.body.classList.contains('motion-paused');
 
-function openStory() {
-  if (dialog.open) return;
-  clearTimeout(closeTimer);
-  dialog.classList.remove('is-closing');
-  dialog.showModal();
-  document.body.classList.add('story-open');
-  dialog.querySelector('.postcard').scrollTop = 0;
-  closeButton.focus({ preventScroll: true });
-}
-function closeStory() {
-  if (!dialog.open || dialog.classList.contains('is-closing')) return;
-  const finish = () => {
-    dialog.close();
-    dialog.classList.remove('is-closing');
-    document.body.classList.remove('story-open');
-    discover.focus({ preventScroll: true });
+// Both previews share focus management, animated dismissal, and backdrop behavior.
+function connectDialog(modal, trigger, surfaceSelector) {
+  let closeTimer;
+  const closeButton = modal.querySelector('.close-dialog');
+  const close = () => {
+    if (!modal.open || modal.classList.contains('is-closing')) return;
+    const finish = () => {
+      modal.close();
+      modal.classList.remove('is-closing');
+      document.body.classList.remove('story-open');
+      trigger.focus({ preventScroll: true });
+    };
+    if (!motionAllowed()) return finish();
+    modal.classList.add('is-closing');
+    closeTimer = setTimeout(finish, 240);
   };
-  if (!motionAllowed()) return finish();
-  dialog.classList.add('is-closing');
-  closeTimer = setTimeout(finish, 240);
+  trigger.addEventListener('click', () => {
+    if (document.querySelector('dialog[open]')) return;
+    clearTimeout(closeTimer);
+    modal.classList.remove('is-closing');
+    modal.showModal();
+    document.body.classList.add('story-open');
+    modal.querySelector(surfaceSelector).scrollTop = 0;
+    closeButton.focus({ preventScroll: true });
+    if (trigger === brand && motionAllowed()) {
+      logoAnimation?.cancel();
+      logoAnimation = brand.querySelector('.brand-logo').animate([
+        { transform: 'rotate(0) scale(1)' },
+        { transform: 'rotate(-12deg) scale(.9)', offset: .22 },
+        { transform: 'rotate(8deg) scale(1.12)', offset: .6 },
+        { transform: 'rotate(0) scale(1)' }
+      ], { duration: 550, easing: 'cubic-bezier(.22,1,.36,1)' });
+    }
+  });
+  closeButton.addEventListener('click', close);
+  modal.addEventListener('cancel', event => { event.preventDefault(); close(); });
+  modal.addEventListener('click', event => {
+    if (event.target !== modal) return;
+    const rect = modal.getBoundingClientRect();
+    if (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom) close();
+  });
+  return close;
 }
-discover.addEventListener('click', openStory);
-closeButton.addEventListener('click', closeStory);
-dialog.addEventListener('cancel', event => { event.preventDefault(); closeStory(); });
-dialog.addEventListener('click', event => {
-  if (event.target !== dialog) return;
-  const rect = dialog.getBoundingClientRect();
-  if (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom) closeStory();
-});
+connectDialog(dialog, discover, '.postcard');
+const closePhilosophy = connectDialog(philosophyDialog, brand, '.philosophy-card');
+philosophyDialog.querySelector('.return-to-pakem').addEventListener('click', closePhilosophy);
 
 function selectStory(index, moveFocus = false) {
   panelAnimation?.cancel();
@@ -80,12 +98,12 @@ motionButton.addEventListener('click', () => {
   motionButton.setAttribute('aria-pressed', String(paused));
   motionButton.setAttribute('aria-label', paused ? 'Lanjutkan animasi' : 'Jeda animasi');
   motionButton.title = paused ? 'Lanjutkan animasi' : 'Jeda animasi';
-  if (paused) panelAnimation?.finish();
+  if (paused) { panelAnimation?.finish(); logoAnimation?.finish(); }
 });
 if (matchMedia('(hover: hover) and (pointer: fine)').matches) {
   let frame;
   window.addEventListener('pointermove', event => {
-    if (!motionAllowed() || dialog.open) return;
+    if (!motionAllowed() || document.body.classList.contains('story-open')) return;
     cancelAnimationFrame(frame);
     frame = requestAnimationFrame(() => {
       document.documentElement.style.setProperty('--scene-x', `${(event.clientX / innerWidth - .5) * -10}px`);
@@ -112,4 +130,4 @@ function sparkle() {
 }
 discover.addEventListener('pointerenter', sparkle);
 discover.addEventListener('focus', sparkle);
-reducedMotion.addEventListener('change', () => { if (!motionAllowed()) panelAnimation?.finish(); });
+reducedMotion.addEventListener('change', () => { if (!motionAllowed()) { panelAnimation?.finish(); logoAnimation?.finish(); } });
