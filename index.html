@@ -13,7 +13,7 @@
   <link rel="icon" type="image/svg+xml" href="favicon-round.svg?v=20260919-gradient">
   <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=20260919-gradient">
   <link rel="preload" as="image" href="assets/pakem.webp">
-  <link rel="stylesheet" href="style.css?v=20260919-gradient">
+  <link rel="stylesheet" href="style.css?v=20260920-journal">
 </head>
 <body>
   <div class="scene" aria-hidden="true"><img src="assets/pakem.webp" alt="" width="1672" height="941" fetchpriority="high"><div class="veil"></div></div>
@@ -48,46 +48,57 @@
   <dialog id="pakem-story" aria-labelledby="story-title">
     <button class="close-dialog" type="button" aria-label="Tutup cerita Pakem"><span aria-hidden="true"><svg class="icon icon-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m6 6 12 12M6 18 18 6"/></svg></span></button>
     <div class="postcard">
-      <div class="postcard-view" aria-hidden="true">
-        <img class="postcard-photo" src="assets/pakem.webp" alt="" width="1672" height="941">
-        <div class="postcard-tint"></div>
-        <span class="postmark">DARI PAKEM<span><svg class="icon icon-flower" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 3v18M3 12h18M5.64 5.64l12.72 12.72M5.64 18.36L18.36 5.64"/></svg></span>DENGAN HATI</span>
-        <img class="postcard-bird" src="assets/bird.png" alt="" width="130" height="150">
-        <div class="photo-caption"><span>SEBUAH KARTU POS DARI</span><span class="photo-place">Pakem.</span><span class="photo-caption-small">Sleman, Yogyakarta</span></div>
-        <span class="photo-sticker">monggo,<br><i>kenalan dulu.</i></span>
+      <div class="postcard-view journal-view">
+        <p class="journal-postmark"><span>CATATAN PERJALANAN</span><span aria-hidden="true">KKN · 2026</span></p>
+        <figure class="journal-spread" data-journey-photo="0">
+          <div class="journal-photo-paper"><img src="perjalanan-12-september-2026.jpg" alt="Selfie bersama anggota KKN saat Bakti Kampus pada 12 September 2026" width="1280" height="962" loading="lazy" decoding="async"></div>
+          <figcaption><span class="chapter-label">12 SEPTEMBER 2026</span><span class="journal-photo-title">Awal cerita.</span><span>Bakti Kampus &amp; pertemuan pertama</span></figcaption>
+        </figure>
+        <figure class="journal-spread" data-journey-photo="1" hidden>
+          <div class="journal-collage">
+            <img src="perjalanan-14-september-2026-01.jpg" alt="Anggota tim membaca dan mendiskusikan bahan persiapan KKN bersama" width="1199" height="960" loading="lazy" decoding="async">
+            <img src="perjalanan-14-september-2026-02.jpg" alt="Diskusi tim KKN di sekeliling meja pada pertemuan 14 September" width="1200" height="960" loading="lazy" decoding="async">
+            <img src="perjalanan-14-september-2026-03.jpg" alt="Suasana anggota tim saling mengenal dan berbagi cerita saat pertemuan" width="1199" height="960" loading="lazy" decoding="async">
+          </div>
+          <figcaption><span class="chapter-label">14 SEPTEMBER 2026</span><span class="journal-photo-title">Makin dekat.</span><span>Satu meja, mulai satu cerita.</span></figcaption>
+        </figure>
+        <figure class="journal-spread journal-waiting" data-journey-photo="2" hidden>
+          <div class="journal-next-page" aria-hidden="true"><img src="assets/bird.png" alt="" width="130" height="150"><span>bersambung...</span><span class="journal-writing-line"></span><span class="journal-writing-line"></span><span class="journal-writing-line"></span></div>
+          <figcaption><span class="chapter-label">HALAMAN BERIKUTNYA</span><span class="journal-photo-title">Masih berlanjut.</span><span>Ruang untuk cerita yang akan datang.</span></figcaption>
+        </figure>
       </div>
       <div class="story-content">
-        <p class="story-eyebrow">DEKAT DI MATA, HANGAT DI CERITA</p>
-        <h2 id="story-title">Sedikit tentang<br><i>tempat kami singgah.</i></h2>
-        <div class="story-tabs" role="tablist" aria-label="Cerita tentang Pakem">
-          <button id="tab-alam" role="tab" aria-selected="true" aria-controls="panel-alam" tabindex="0"><span aria-hidden="true">01</span> Alam</button>
-          <button id="tab-hari" role="tab" aria-selected="false" aria-controls="panel-hari" tabindex="-1"><span aria-hidden="true">02</span> Keseharian</button>
-          <button id="tab-kami" role="tab" aria-selected="false" aria-controls="panel-kami" tabindex="-1"><span aria-hidden="true">03</span> Kami</button>
+        <p class="story-eyebrow">DARI PERTEMUAN, MENJADI PERJALANAN</p>
+        <h2 id="story-title">Catatan kecil<br><i>perjalanan kami.</i></h2>
+        <div class="story-tabs" role="tablist" aria-label="Catatan perjalanan KKN">
+          <button id="tab-12-september" role="tab" aria-selected="true" aria-controls="panel-12-september" tabindex="0"><span aria-hidden="true">01</span> 12 Sep</button>
+          <button id="tab-14-september" role="tab" aria-selected="false" aria-controls="panel-14-september" tabindex="-1"><span aria-hidden="true">02</span> 14 Sep</button>
+          <button id="tab-selanjutnya" role="tab" aria-selected="false" aria-controls="panel-selanjutnya" tabindex="-1"><span aria-hidden="true">…</span> Nanti, ya</button>
         </div>
         <div class="story-panels">
-          <section id="panel-alam" class="story-panel" role="tabpanel" aria-labelledby="tab-alam" tabindex="0">
-            <p class="chapter-label">LERENG, KABUT, DAN CERITA PAGI</p>
-            <h3>Jogja punya sisi<br><i>yang lebih tenang.</i></h3>
-            <p>Di utara Sleman, Pakem menjadi bagian dari bentang lereng Merapi. Lanskap pegunungan di sini adalah latar bagi cerita keseharian warga.</p>
-            <p class="story-note"><span aria-hidden="true"><svg class="icon icon-flower" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 3v18M3 12h18M5.64 5.64l12.72 12.72M5.64 18.36L18.36 5.64"/></svg></span> Yuk, kenalan dengan Jogja dari sisi utara.</p>
-            <a class="source-link" href="https://slemankab.go.id/profil-kabupaten-sleman/geografi/karakteristik-wilayah/" target="_blank" rel="noopener noreferrer">Tentang wilayahnya <span aria-hidden="true"><svg class="icon icon-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 18 18 6M6 6h12v12"/></svg></span></a>
+          <section id="panel-12-september" class="story-panel" role="tabpanel" aria-labelledby="tab-12-september" tabindex="0">
+            <p class="chapter-label"><time datetime="2026-09-12">12 SEPTEMBER 2026</time> · BAKTI KAMPUS</p>
+            <h3>Pertama kali<br><i>duduk bersama.</i></h3>
+            <p>Cerita kami dimulai di Bakti Kampus. Di sela bersih-bersih kampus, kami berkumpul untuk pertama kalinya, saling mengenal, lalu memilih Kormanit.</p>
+            <p class="story-note">“Belum sampai Pakem, tapi ceritanya sudah dimulai.”</p>
+            <p class="journey-connection">Dua hari kemudian, kami kembali duduk bersama.</p>
           </section>
-          <section id="panel-hari" class="story-panel" role="tabpanel" aria-labelledby="tab-hari" tabindex="0" hidden>
-            <p class="chapter-label">BERTEMU DI TENGAH KESEHARIAN</p>
-            <h3>Bukan cuma tempat.<br><i>Juga perjumpaan.</i></h3>
-            <p>Di Pasar Pakem, perdagangan, kuliner, dan kehidupan warga saling bertemu. Dari ruang sehari-hari seperti ini, kita bisa mengenal sebuah tempat lebih dekat.</p>
-            <p class="story-note"><span aria-hidden="true"><svg class="icon icon-flower" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 3v18M3 12h18M5.64 5.64l12.72 12.72M5.64 18.36L18.36 5.64"/></svg></span> Cerita baik sering dimulai dari sapaan kecil.</p>
-            <a class="source-link" href="https://perindag.slemankab.go.id/pasar-pakem-pusat-tradisi-ekonomi-dan-wisata-lereng-merapi/" target="_blank" rel="noopener noreferrer">Mengenal Pasar Pakem <span aria-hidden="true"><svg class="icon icon-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 18 18 6M6 6h12v12"/></svg></span></a>
+          <section id="panel-14-september" class="story-panel" role="tabpanel" aria-labelledby="tab-14-september" tabindex="0" hidden>
+            <p class="chapter-label"><time datetime="2026-09-14">14 SEPTEMBER 2026</time> · PERTEMUAN KEDUA</p>
+            <h3>Perlahan menjadi<br><i>satu tim.</i></h3>
+            <p>Obrolan berlanjut sambil menyusun bagan tim KKN. Kami meluangkan waktu untuk bonding dan saling mengenal lebih dekat. Lewat sosialisasi dan berbagi pengalaman KKN sebelumnya, kami mulai membayangkan perjalanan yang akan dijalani bersama.</p>
+            <p class="story-note">“Mulai mengenal siapa yang akan berjalan bersama.”</p>
+            <p class="journey-connection">Dari sini, cerita kami masih akan berlanjut.</p>
           </section>
-          <section id="panel-kami" class="story-panel" role="tabpanel" aria-labelledby="tab-kami" tabindex="0" hidden>
-            <p class="chapter-label">KKN PPM UGM · PERIODE 3 · 2026</p>
-            <h3>Datang untuk belajar.<br><i>Tumbuh bersama.</i></h3>
-            <p>Kami adalah Tentrem ing Pakem. Di sini, kami ingin mendengar, mengenal, dan melangkah bersama warga. Cerita perjalanan kami akan segera hadir.</p>
-            <p class="story-note"><span aria-hidden="true"><svg class="icon icon-flower" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 3v18M3 12h18M5.64 5.64l12.72 12.72M5.64 18.36L18.36 5.64"/></svg></span> Mampir lagi, ya. Ini baru awal ceritanya.</p>
-            <a class="source-link" href="https://www.instagram.com/tentremingpakem/" target="_blank" rel="noopener noreferrer">Sapa kami di Instagram <span aria-hidden="true"><svg class="icon icon-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 18 18 6M6 6h12v12"/></svg></span></a>
+          <section id="panel-selanjutnya" class="story-panel" role="tabpanel" aria-labelledby="tab-selanjutnya" tabindex="0" hidden>
+            <p class="chapter-label">MASIH ADA HALAMAN BERIKUTNYA</p>
+            <h3>Cerita berikutnya?<br><i>Tunggu, ya.</i></h3>
+            <p>Baru dua kali bertemu, masih banyak cerita yang menunggu. Catatan berikutnya belum ada di sini. Nanti, kalau sudah waktunya, kami ceritakan lagi.</p>
+            <p class="story-note">“Perjalanannya belum selesai. Mampir lagi, ya.”</p>
+            <a class="source-link" href="https://www.instagram.com/tentremingpakem/" target="_blank" rel="noopener noreferrer">Ikuti cerita kami di Instagram <span aria-hidden="true"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M4 12h16m-6-6 6 6-6 6"/></svg></span></a>
           </section>
         </div>
-        <div class="story-navigation"><span class="story-count" aria-hidden="true">01 <span>/ 03</span></span><button class="next-story" type="button"><span class="next-story-label">Cerita berikutnya</span><span class="next-story-icon" aria-hidden="true"><svg class="icon icon-next" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 12h16m-6-6 6 6-6 6"/></svg><svg class="icon icon-restart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 10a8 8 0 1 1 .8 6M4 4v6h6"/></svg></span></button></div>
+        <div class="story-navigation"><span class="story-count" aria-hidden="true">01 <span>/ 03</span></span><button class="next-story" type="button"><span class="next-story-label">Dua hari kemudian</span><span class="next-story-icon" aria-hidden="true"><svg class="icon icon-next" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 12h16m-6-6 6 6-6 6"/></svg><svg class="icon icon-restart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 10a8 8 0 1 1 .8 6M4 4v6h6"/></svg></span></button></div>
       </div>
     </div>
   </dialog>
@@ -111,6 +122,6 @@
     </div>
   </dialog>
   <template id="spark-icon"><svg class="icon icon-spark" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false"><path d="M12 1c1.4 7.2 3.8 9.6 11 11-7.2 1.4-9.6 3.8-11 11C10.6 15.8 8.2 13.4 1 12 8.2 10.6 10.6 8.2 12 1Z"/></svg></template>
-  <script src="script.js?v=20260919-gradient" defer></script>
+  <script src="script.js?v=20260920-journal" defer></script>
 </body>
 </html>

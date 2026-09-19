@@ -13,7 +13,7 @@ Domain dan pengaturan DNS tidak perlu diubah. Vercel otomatis memasangkan deploy
 - Background dawn lanskap terinspirasi Pakem, dibuat dengan Imagegen. Ini visual ilustratif, bukan foto dokumentasi atau representasi geografis yang presisi.
 - Burung bergerak dan parallax halus pada perangkat dengan mouse.
 - Tombol jeda animasi dan dukungan prefers-reduced-motion.
-- Kartu pos Kenalan dengan Pakem dengan animasi buka/tutup, burung, dekorasi kertas, dan tiga tab cerita: Alam, Keseharian, Kami. Mendukung keyboard, Escape, atau klik di luar panel.
+- Kartu pos Kenalan dengan Pakem kini berisi jurnal KKN: Bakti Kampus dan pertemuan pertama pada 12 September 2026, pertemuan kedua pada 14 September 2026, serta halaman cerita berikutnya yang belum tersedia. Foto selfie utama dan kolase tiga foto dokumentasi disediakan oleh tim. Pergantian halaman, teks penghubung, dan navigasi tanggal menyambungkan perjalanan. Mendukung keyboard, Escape, atau klik di luar panel.
 - Tombol ajakan dengan bunga berputar dan percikan bintang kecil; FAB ikon pause/play tanpa teks.
 - Ikon SVG tidak bergantung pada font atau emoji iOS. Logo header, favicon PNG, dan Apple Touch Icon menggunakan logo gradasi terbaru dari tim (19 September 2026).
 - Logo header membuka preview Filosofi Logo — Segera Hadir, dengan animasi logo, daun, orbit, dan bintang SVG. Mendukung jeda gerakan, reduced motion, keyboard, Escape, serta pengembalian fokus.

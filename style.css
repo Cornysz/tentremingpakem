@@ -71,3 +71,20 @@ body.motion-paused .brand-mark,body.motion-paused .brand-hint,body.motion-paused
 @keyframes logo-invitation{0%,100%{transform:scale(1);opacity:.4}50%{transform:scale(1.1);opacity:.85}}
 body.motion-paused .brand.is-idle-hint .brand-mark,body.motion-paused .brand.is-idle-hint .brand-mark::after{animation:none}
 @media(max-width:760px){.brand.is-idle-hint .brand-hint{top:calc(100% + 4px);font-size:10px;padding:8px 10px}.brand.is-idle-hint .brand-hint::before{left:18px}}
+
+/* The same postcard, now carrying the team's own dated journal. */
+.journal-view{display:flex;flex-direction:column;justify-content:center;gap:25px;padding:29px 25px;background:var(--paper);border-right:1px solid var(--line)}
+.journal-postmark{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0;padding-bottom:14px;border-bottom:1px dashed var(--line);font-size:8px;letter-spacing:1.4px;color:#71795f}
+.journal-spread{margin:0;transform-origin:10% 50%}
+.journal-photo-paper{padding:7px;background:#faf7ed;border:1px solid var(--line);box-shadow:0 5px 16px #24352012;transform:rotate(-2deg)}
+.journal-photo-paper img,.journal-collage img{display:block;width:100%;height:auto}
+.journal-collage{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:7px;background:#faf7ed;border:1px solid var(--line);box-shadow:0 5px 16px #24352012;transform:rotate(1deg)}
+.journal-collage img:first-child{grid-column:1/-1}.journal-collage img{align-self:center}
+.journal-spread figcaption{display:flex;flex-direction:column;gap:9px;margin-top:27px;color:#626c58;font-size:11px;line-height:1.5}
+.journal-spread figcaption .chapter-label{margin:0}.journal-photo-title{font:italic 43px/1.05 Georgia,serif;letter-spacing:-1.5px;color:var(--ink)}
+.story-panel>p.journey-connection{position:relative;margin:22px 0 0;padding-left:18px;border-left:1px dashed #bec8ad;font-size:11px;line-height:1.6;color:#7a8269}
+.journey-connection::before{content:"";position:absolute;left:-3px;top:5px;width:5px;height:5px;border-radius:50%;background:#87634c}
+.journal-next-page{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;min-height:260px;padding:35px;background:#faf7ed;border:1px solid var(--line);box-shadow:0 5px 16px #24352012;transform:rotate(-2deg);font:italic 27px Georgia,serif;color:var(--accent)}
+.journal-next-page img{width:35px;height:auto;animation:postcard-bird 8s ease-in-out infinite}.journal-writing-line{width:80%;height:1px;background:var(--line)}.journal-writing-line:last-child{width:50%;align-self:flex-start;margin-left:10%}
+body.motion-paused .journal-next-page img{animation-play-state:paused}
+@media(max-width:760px){.journal-view{height:auto;min-height:0;padding:25px 25px 20px;gap:20px;border-right:0;border-bottom:1px solid var(--line)}.journal-postmark{padding-right:30px;font-size:7px;letter-spacing:1px}.journal-spread figcaption{margin-top:20px;gap:6px}.journal-photo-title{font-size:35px}.journal-collage{gap:6px}.journal-next-page{min-height:210px}.story-panel>p.journey-connection{font-size:11px}}

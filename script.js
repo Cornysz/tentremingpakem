@@ -7,10 +7,11 @@ const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
 const tabs = [...dialog.querySelectorAll('[role="tab"]')];
 const panels = [...dialog.querySelectorAll('[role="tabpanel"]')];
 const nextButton = dialog.querySelector('.next-story');
-const postcardPhoto = dialog.querySelector('.postcard-photo');
+const journalPhotos = [...dialog.querySelectorAll('[data-journey-photo]')];
 let currentStory = 0;
 let logoAnimation;
 let panelAnimation;
+let photoAnimation;
 const motionAllowed = () => !reducedMotion.matches && !document.body.classList.contains('motion-paused');
 
 // Both previews share focus management, animated dismissal, and backdrop behavior.
@@ -62,6 +63,8 @@ philosophyDialog.querySelector('.return-to-pakem').addEventListener('click', clo
 
 function selectStory(index, moveFocus = false) {
   panelAnimation?.cancel();
+  photoAnimation?.cancel();
+  const previousStory = currentStory;
   currentStory = (index + tabs.length) % tabs.length;
   tabs.forEach((tab, i) => {
     tab.setAttribute('aria-selected', String(i === currentStory));
@@ -70,14 +73,20 @@ function selectStory(index, moveFocus = false) {
   });
   if (moveFocus) tabs[currentStory].focus({ preventScroll: true });
   document.querySelector('.story-count').innerHTML = `0${currentStory + 1} <span>/ 03</span>`;
-  nextButton.querySelector('.next-story-label').textContent = currentStory === 2 ? 'Kembali ke alam' : 'Cerita berikutnya';
+  nextButton.querySelector('.next-story-label').textContent = ['Dua hari kemudian', 'Lalu, apa lagi?', 'Baca dari awal'][currentStory];
   nextButton.classList.toggle('is-restart', currentStory === 2);
-  postcardPhoto.style.objectPosition = ['62% 65%', '40% 85%', '78% 55%'][currentStory];
+  journalPhotos.forEach((photo, i) => { photo.hidden = i !== currentStory; });
+  dialog.querySelector('.postcard').scrollTo({ top: 0, behavior: motionAllowed() ? 'smooth' : 'instant' });
+  const direction = currentStory >= previousStory ? 1 : -1;
   if (motionAllowed()) {
     panelAnimation = panels[currentStory].animate([
-      { opacity: 0, transform: 'translateY(13px)' },
+      { opacity: 0, transform: `translateX(${direction * 16}px)` },
       { opacity: 1, transform: 'translateY(0)' }
     ], { duration: 420, easing: 'cubic-bezier(.22,1,.36,1)' });
+    photoAnimation = journalPhotos[currentStory].animate([
+      { opacity: 0, transform: `translateX(${direction * 20}px) rotate(${direction * 1.5}deg)` },
+      { opacity: 1, transform: 'translateX(0) rotate(0)' }
+    ], { duration: 520, easing: 'cubic-bezier(.22,1,.36,1)' });
   }
 }
 tabs.forEach((tab, index) => {
@@ -98,7 +107,7 @@ motionButton.addEventListener('click', () => {
   motionButton.setAttribute('aria-pressed', String(paused));
   motionButton.setAttribute('aria-label', paused ? 'Lanjutkan animasi' : 'Jeda animasi');
   motionButton.title = paused ? 'Lanjutkan animasi' : 'Jeda animasi';
-  if (paused) { panelAnimation?.finish(); logoAnimation?.finish(); }
+  if (paused) { panelAnimation?.finish(); photoAnimation?.finish(); logoAnimation?.finish(); }
 });
 if (matchMedia('(hover: hover) and (pointer: fine)').matches) {
   let frame;
@@ -130,7 +139,7 @@ function sparkle() {
 }
 discover.addEventListener('pointerenter', sparkle);
 discover.addEventListener('focus', sparkle);
-reducedMotion.addEventListener('change', () => { if (!motionAllowed()) { panelAnimation?.finish(); logoAnimation?.finish(); } });
+reducedMotion.addEventListener('change', () => { if (!motionAllowed()) { panelAnimation?.finish(); photoAnimation?.finish(); logoAnimation?.finish(); } });
 
 // A one-time, quiet invitation after 2.5 seconds without interaction.
 (() => {
