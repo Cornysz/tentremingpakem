@@ -61,3 +61,11 @@ body.motion-paused .brand-mark,body.motion-paused .brand-hint,body.motion-paused
 @media(max-width:760px){.philosophy-card{padding:31px 23px 25px}.philosophy-card h2{font-size:38px}.brand-hint{font-size:9px}}
 @media(max-height:670px){.logo-garden{height:164px;transform:scale(.86);margin:-3px auto -10px}.philosophy-card{padding-top:27px;padding-bottom:21px}.philosophy-note{margin:10px 0 17px}}
 @media(prefers-reduced-motion:reduce){.brand:hover .brand-mark,.brand:focus-visible .brand-mark{transform:none}}
+
+/* A small idle hint, attached to the logo rather than covering the page. */
+.brand.is-idle-hint .brand-hint{opacity:1;transform:translateY(0);pointer-events:auto;border-color:#c7cfb6;font-size:11px;padding:9px 12px;box-shadow:0 5px 16px #24352012}
+.brand.is-idle-hint .brand-hint::before{content:"";position:absolute;left:22px;top:-5px;width:8px;height:8px;background:#f6f1e4;border-left:1px solid #c7cfb6;border-top:1px solid #c7cfb6;transform:rotate(45deg)}
+.brand.is-idle-hint .brand-mark::after{opacity:1;transform:scale(1);animation:logo-invitation 1.8s ease-in-out 2}
+@keyframes logo-invitation{0%,100%{transform:scale(1);opacity:.4}50%{transform:scale(1.1);opacity:.85}}
+body.motion-paused .brand.is-idle-hint .brand-mark::after{animation:none}
+@media(max-width:760px){.brand.is-idle-hint .brand-hint{top:calc(100% + 4px);font-size:10px;padding:8px 10px}.brand.is-idle-hint .brand-hint::before{left:18px}}

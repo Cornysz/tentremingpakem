@@ -18,6 +18,7 @@ Domain dan pengaturan DNS tidak perlu diubah. Vercel otomatis memasangkan deploy
 - Ikon SVG tidak bergantung pada font atau emoji iOS. Logo header, favicon PNG, dan Apple Touch Icon menggunakan logo asli tim.
 - Logo header membuka preview Filosofi Logo — Segera Hadir, dengan animasi logo, daun, orbit, dan bintang SVG. Mendukung jeda gerakan, reduced motion, keyboard, Escape, serta pengembalian fokus.
 - Favicon bulat tersedia sebagai SVG dan PNG dengan sudut transparan.
+- Petunjuk kecil di dekat logo muncul setelah 8 detik idle, sekali per sesi tab, lalu hilang setelah 6 detik atau saat berinteraksi. Tidak muncul ketika dialog terbuka, tab disembunyikan, atau logo sudah diklik.
 - Tautan Instagram @tentremingpakem.
 - Tidak menggunakan analytics, cookies, formulir atau layanan berbayar.
 

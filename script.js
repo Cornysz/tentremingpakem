@@ -131,3 +131,47 @@ function sparkle() {
 discover.addEventListener('pointerenter', sparkle);
 discover.addEventListener('focus', sparkle);
 reducedMotion.addEventListener('change', () => { if (!motionAllowed()) { panelAnimation?.finish(); logoAnimation?.finish(); } });
+
+// A one-time, quiet invitation after eight seconds without interaction.
+(() => {
+  const storageKey = 'pakem-logo-hint-seen';
+  let seen = false;
+  let idleTimer;
+  let hideTimer;
+  try { seen = sessionStorage.getItem(storageKey) === '1'; } catch { /* Storage can be unavailable. */ }
+
+  const hideHint = () => {
+    clearTimeout(hideTimer);
+    brand.classList.remove('is-idle-hint');
+  };
+  const rememberHint = () => {
+    seen = true;
+    clearTimeout(idleTimer);
+    try { sessionStorage.setItem(storageKey, '1'); } catch { /* Keep the in-memory fallback. */ }
+  };
+  const scheduleHint = () => {
+    clearTimeout(idleTimer);
+    if (seen || document.hidden) return;
+    idleTimer = setTimeout(() => {
+      if (document.hidden || document.querySelector('dialog[open]')) return;
+      const rect = brand.getBoundingClientRect();
+      if (rect.top < 0 || rect.bottom > innerHeight) return;
+      rememberHint();
+      brand.classList.add('is-idle-hint');
+      hideTimer = setTimeout(hideHint, 6000);
+    }, 8000);
+  };
+  const onActivity = event => {
+    // Keep the invitation under the pointer until its click reaches the logo.
+    if (brand.classList.contains('is-idle-hint') && brand.contains(event.target)) return;
+    hideHint();
+    scheduleHint();
+  };
+  ['pointermove', 'pointerdown', 'keydown', 'scroll'].forEach(type => {
+    window.addEventListener(type, onActivity, { passive: true, capture: true });
+  });
+  brand.addEventListener('click', () => { rememberHint(); hideHint(); });
+  document.addEventListener('visibilitychange', () => { hideHint(); scheduleHint(); });
+  document.querySelectorAll('dialog').forEach(modal => modal.addEventListener('close', scheduleHint));
+  scheduleHint();
+})();
