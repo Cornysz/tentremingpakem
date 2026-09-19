@@ -15,10 +15,10 @@ Domain dan pengaturan DNS tidak perlu diubah. Vercel otomatis memasangkan deploy
 - Tombol jeda animasi dan dukungan prefers-reduced-motion.
 - Kartu pos Kenalan dengan Pakem dengan animasi buka/tutup, burung, dekorasi kertas, dan tiga tab cerita: Alam, Keseharian, Kami. Mendukung keyboard, Escape, atau klik di luar panel.
 - Tombol ajakan dengan bunga berputar dan percikan bintang kecil; FAB ikon pause/play tanpa teks.
-- Ikon SVG tidak bergantung pada font atau emoji iOS. Logo header, favicon PNG, dan Apple Touch Icon menggunakan logo asli tim.
+- Ikon SVG tidak bergantung pada font atau emoji iOS. Logo header, favicon PNG, dan Apple Touch Icon menggunakan logo gradasi terbaru dari tim (19 September 2026).
 - Logo header membuka preview Filosofi Logo — Segera Hadir, dengan animasi logo, daun, orbit, dan bintang SVG. Mendukung jeda gerakan, reduced motion, keyboard, Escape, serta pengembalian fokus.
 - Favicon bulat tersedia sebagai SVG dan PNG dengan sudut transparan.
-- Petunjuk kecil di dekat logo muncul setelah 8 detik idle, sekali per sesi tab, lalu hilang setelah 6 detik atau saat berinteraksi. Tidak muncul ketika dialog terbuka, tab disembunyikan, atau logo sudah diklik.
+- Petunjuk singkat “Ketuk logo, lihat filosofinya.” muncul setelah 2,5 detik idle bersama dua goyangan kecil pada logo, sekali per sesi tab, lalu hilang setelah 6 detik atau saat berinteraksi. Tidak muncul ketika dialog terbuka, tab disembunyikan, atau logo sudah diklik. Goyangan mengikuti tombol jeda dan prefers-reduced-motion.
 - Tautan Instagram @tentremingpakem.
 - Tidak menggunakan analytics, cookies, formulir atau layanan berbayar.
 

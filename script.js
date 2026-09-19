@@ -132,7 +132,7 @@ discover.addEventListener('pointerenter', sparkle);
 discover.addEventListener('focus', sparkle);
 reducedMotion.addEventListener('change', () => { if (!motionAllowed()) { panelAnimation?.finish(); logoAnimation?.finish(); } });
 
-// A one-time, quiet invitation after eight seconds without interaction.
+// A one-time, quiet invitation after 2.5 seconds without interaction.
 (() => {
   const storageKey = 'pakem-logo-hint-seen';
   let seen = false;
@@ -159,7 +159,7 @@ reducedMotion.addEventListener('change', () => { if (!motionAllowed()) { panelAn
       rememberHint();
       brand.classList.add('is-idle-hint');
       hideTimer = setTimeout(hideHint, 6000);
-    }, 8000);
+    }, 2500);
   };
   const onActivity = event => {
     // Keep the invitation under the pointer until its click reaches the logo.
