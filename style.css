@@ -89,4 +89,9 @@ body.motion-paused .brand.is-idle-hint .brand-mark,body.motion-paused .brand.is-
 body.motion-paused .journal-next-page img{animation-play-state:paused}
 @media(max-width:760px){.journal-view{height:auto;min-height:0;padding:25px 25px 20px;gap:20px;border-right:0;border-bottom:1px solid var(--line)}.journal-postmark{padding-right:30px;font-size:7px;letter-spacing:1px}.journal-spread figcaption{margin-top:20px;gap:6px}.journal-photo-title{font-size:35px}.journal-collage{gap:6px}.journal-next-page{min-height:210px}.story-panel>p.journey-connection{font-size:11px}}
 
-.journal-collage-pair{transform:rotate(-1deg)}.journal-collage-pair img+img{grid-column:1/-1;width:72%;justify-self:end}
+/* Two separate photo prints with a small, deliberate overlap. */
+.journal-collage-pair{grid-template-columns:1fr;gap:0;padding:8px 5px 13px;background:transparent;border:0;box-shadow:none;transform:none;isolation:isolate}
+.journal-collage-pair img{position:relative;grid-column:1;align-self:start;border:6px solid #faf7ed;border-bottom-width:15px;box-shadow:0 0 0 1px #dcdcca,0 6px 16px #24352020}
+.journal-collage-pair img:first-child{width:94%;justify-self:start;transform:rotate(-2deg);z-index:1}
+.journal-collage-pair img+img{grid-column:1;width:76%;justify-self:end;margin-top:-26px;transform:rotate(3deg);z-index:2}
+@media(max-width:760px){.journal-collage-pair{gap:0;padding:6px 5px 12px}.journal-collage-pair img{border-width:5px;border-bottom-width:12px}.journal-collage-pair img+img{margin-top:-22px}}
