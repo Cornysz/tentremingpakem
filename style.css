@@ -88,3 +88,5 @@ body.motion-paused .brand.is-idle-hint .brand-mark,body.motion-paused .brand.is-
 .journal-next-page img{width:35px;height:auto;animation:postcard-bird 8s ease-in-out infinite}.journal-writing-line{width:80%;height:1px;background:var(--line)}.journal-writing-line:last-child{width:50%;align-self:flex-start;margin-left:10%}
 body.motion-paused .journal-next-page img{animation-play-state:paused}
 @media(max-width:760px){.journal-view{height:auto;min-height:0;padding:25px 25px 20px;gap:20px;border-right:0;border-bottom:1px solid var(--line)}.journal-postmark{padding-right:30px;font-size:7px;letter-spacing:1px}.journal-spread figcaption{margin-top:20px;gap:6px}.journal-photo-title{font-size:35px}.journal-collage{gap:6px}.journal-next-page{min-height:210px}.story-panel>p.journey-connection{font-size:11px}}
+
+.journal-collage-pair{transform:rotate(-1deg)}.journal-collage-pair img+img{grid-column:1/-1;width:72%;justify-self:end}
