@@ -13,7 +13,9 @@ Domain dan pengaturan DNS tidak perlu diubah. Vercel otomatis memasangkan deploy
 - Background dawn lanskap terinspirasi Pakem, dibuat dengan Imagegen. Ini visual ilustratif, bukan foto dokumentasi atau representasi geografis yang presisi.
 - Burung bergerak dan parallax halus pada perangkat dengan mouse.
 - Tombol jeda animasi dan dukungan prefers-reduced-motion.
-- Kartu pos Kenalan dengan Pakem kini berisi jurnal KKN: Bakti Kampus dan pertemuan pertama pada 12 September 2026, pertemuan kedua pada 14 September 2026, serta halaman cerita berikutnya yang belum tersedia. Foto selfie utama dan kolase tiga foto dokumentasi disediakan oleh tim. Pergantian halaman, teks penghubung, dan navigasi tanggal menyambungkan perjalanan. Mendukung keyboard, Escape, atau klik di luar panel.
+- Kartu pos Kenalan dengan Pakem kini berisi jurnal KKN: Bakti Kampus dan pertemuan pertama pada 12 September 2026, pertemuan kedua pada 14 September 2026, audiensi di Kapanewon Pakem serta penandatanganan surat kesediaan lokasi di Kalurahan Candibinangun dan Purwobinangun pada 29 September 2026, serta halaman cerita berikutnya yang belum tersedia. Semua foto dokumentasi disediakan oleh tim. Pergantian halaman, teks penghubung, tombol kembali dan lanjut, serta navigasi tanggal menyambungkan perjalanan. Mendukung keyboard, Escape, atau klik di luar panel.
+- Animasi pembuka setiap kali halaman dibuka: kabut pagi terangkat dari lanskap, kata Tentrem, ing, dan Pakem muncul bergantian dari samar menjadi tajam, lalu titik cokelat mendarat paling akhir. Durasinya sekitar dua detik dan tidak berjalan bila perangkat meminta gerakan dikurangi.
+- Setiap foto jurnal bisa diklik atau diketuk untuk pratinjau besar. Fotonya membesar dari posisinya di kolase, lengkap dengan tanggal dan keterangan. Panah, tombol panah keyboard, dan swipe berpindah antar foto dalam bab yang sama. Tutup lewat tombol, Escape, atau klik area gelap; fokus kembali ke foto asal.
 - Tombol ajakan dengan bunga berputar dan percikan bintang kecil; FAB ikon pause/play tanpa teks.
 - Ikon SVG tidak bergantung pada font atau emoji iOS. Logo header, favicon PNG, dan Apple Touch Icon menggunakan logo gradasi terbaru dari tim (19 September 2026).
 - Logo header membuka preview Filosofi Logo — Segera Hadir, dengan animasi logo, daun, orbit, dan bintang SVG. Mendukung jeda gerakan, reduced motion, keyboard, Escape, serta pengembalian fokus.
@@ -22,6 +24,16 @@ Domain dan pengaturan DNS tidak perlu diubah. Vercel otomatis memasangkan deploy
 - Tautan Instagram @tentremingpakem.
 - Gambar pratinjau tautan `assets/og-image.jpg` (1200×630, JPEG) untuk WhatsApp dan media sosial. Isinya hero situs yang dirender ulang: latar, logo, dan judul. Tulisan Segera Hadir sengaja tidak dimasukkan, jadi gambarnya tetap berlaku setelah situs resmi dibuka. Bila gambarnya diganti, naikkan juga nilai `?v=` pada `og:image` di index.html.
 - Tidak menggunakan analytics, cookies, formulir atau layanan berbayar.
+
+## Menambah bab jurnal
+
+Semua perubahan ada di index.html. Sisipkan tiga blok berurutan, selalu sebelum halaman "Nanti, ya":
+
+1. Tab di `.story-tabs`, misalnya `<button id="tab-5-oktober" role="tab" aria-selected="false" aria-controls="panel-5-oktober" tabindex="-1">`.
+2. Panel di `.story-panels` dengan `data-next`, yaitu tulisan tombol menuju bab sesudahnya.
+3. Foto di `.journal-view`: `figure.journal-spread` dengan `hidden`. Kelas `journal-collage-pair` untuk dua foto bertumpuk, `journal-collage` untuk tiga foto.
+
+Penghitung halaman dan tulisan tombol berikutnya dihitung otomatis dari urutan itu. Foto di dalam `.journal-collage` otomatis bisa diperbesar, dan keterangan pratinjaunya diambil dari teks `alt` foto. Jangan lupa perbarui juga kalimat `journey-connection` dan `data-next` pada bab sebelumnya supaya ceritanya tetap nyambung.
 
 ## Sumber informasi Pakem
 

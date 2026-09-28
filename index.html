@@ -23,7 +23,7 @@
   <link rel="icon" type="image/svg+xml" href="favicon-round.svg?v=20260919-gradient">
   <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=20260919-gradient">
   <link rel="preload" as="image" href="assets/pakem.webp">
-  <link rel="stylesheet" href="style.css?v=20260929-tidy">
+  <link rel="stylesheet" href="style.css?v=20260929-journal">
 </head>
 <body>
   <div class="scene" aria-hidden="true"><img src="assets/pakem.webp" alt="" width="1672" height="941" fetchpriority="high"><div class="veil"></div></div>
@@ -39,7 +39,7 @@
     </header>
     <main>
       <p class="eyebrow"><span></span> SEGERA HADIR <span></span></p>
-      <h1>Tentrem<br><span><i>ing</i> Pakem<span class="period">.</span></span></h1>
+      <h1><span class="title-word">Tentrem</span><br><span class="title-line"><i class="title-word">ing</i> <span class="title-word">Pakem</span><span class="period">.</span></span></h1>
       <p class="description"><i>Sugeng rawuh.</i></p>
       <div class="actions">
         <button class="discover" type="button" aria-haspopup="dialog" aria-controls="pakem-story">
@@ -75,7 +75,14 @@
           </div>
           <figcaption><span class="chapter-label">14 SEPTEMBER 2026</span><span class="journal-photo-title">Makin dekat.</span><span>Satu meja, mulai satu cerita.</span></figcaption>
         </figure>
-        <figure class="journal-spread journal-waiting" data-journey-photo="2" hidden>
+        <figure class="journal-spread" data-journey-photo="2" hidden>
+          <div class="journal-collage journal-collage-pair">
+            <img src="perjalanan-29-september-2026-01.webp" alt="Foto bersama anggota KKN di depan Ruang Pelayanan Umum Kalurahan Candibinangun" width="1600" height="1200" loading="lazy" decoding="async">
+            <img src="perjalanan-29-september-2026-02.webp" alt="Foto bersama anggota KKN di ruang tamu kantor, di bawah lambang Garuda Pancasila" width="1280" height="720" loading="lazy" decoding="async">
+          </div>
+          <figcaption><span class="chapter-label">29 SEPTEMBER 2026</span><span class="journal-photo-title">Sampai di Pakem.</span><span>Audiensi &amp; surat kesediaan lokasi</span></figcaption>
+        </figure>
+        <figure class="journal-spread journal-waiting" data-journey-photo="3" hidden>
           <div class="journal-next-page" aria-hidden="true"><img src="assets/bird.png" alt="" width="130" height="150"><span>bersambung...</span><span class="journal-writing-line"></span><span class="journal-writing-line"></span><span class="journal-writing-line"></span></div>
           <figcaption><span class="chapter-label">HALAMAN BERIKUTNYA</span><span class="journal-photo-title">Masih berlanjut.</span><span>Ruang untuk cerita yang akan datang.</span></figcaption>
         </figure>
@@ -85,33 +92,53 @@
         <div class="story-tabs" role="tablist" aria-label="Catatan perjalanan KKN">
           <button id="tab-12-september" role="tab" aria-selected="true" aria-controls="panel-12-september" tabindex="0"><span aria-hidden="true">01</span> 12 Sep</button>
           <button id="tab-14-september" role="tab" aria-selected="false" aria-controls="panel-14-september" tabindex="-1"><span aria-hidden="true">02</span> 14 Sep</button>
+          <button id="tab-29-september" role="tab" aria-selected="false" aria-controls="panel-29-september" tabindex="-1"><span aria-hidden="true">03</span> 29 Sep</button>
           <button id="tab-selanjutnya" role="tab" aria-selected="false" aria-controls="panel-selanjutnya" tabindex="-1"><span aria-hidden="true">…</span> Nanti, ya</button>
         </div>
         <div class="story-panels">
-          <section id="panel-12-september" class="story-panel" role="tabpanel" aria-labelledby="tab-12-september" tabindex="0">
+          <section id="panel-12-september" class="story-panel" role="tabpanel" aria-labelledby="tab-12-september" tabindex="0" data-next="Dua hari kemudian">
             <p class="chapter-label"><time datetime="2026-09-12">12 SEPTEMBER 2026</time> · BAKTI KAMPUS</p>
             <h3>Pertama kali<br><i>duduk bersama.</i></h3>
             <p>Cerita kami dimulai di Bakti Kampus. Di sela bersih-bersih kampus dan saling berkenalan, kami bertemu untuk pertama kalinya dengan Ibu Sonia Dora Febri Esa, S.T.P., M.Sc., dosen pembimbing lapangan (DPL) kami. Beliau berbagi informasi tentang pelaksanaan KKN. Dari pertemuan itu, kami akhirnya tahu: Pakem akan menjadi tempat kami belajar dan menjalani cerita bersama.<br><br>Hari itu, kami juga mulai menata tim melalui pembagian subunit serta pemilihan Kormasit dan Kormanit. Pertemuan ditutup dengan terpilihnya Raden Raghda Hassa Parardhya Cornika sebagai Kormanit kami. Dari yang awalnya baru saling mengenal, perlahan kami punya arah untuk melangkah bersama.</p>
             <p class="story-note">“Belum sampai Pakem, tapi ceritanya sudah dimulai.”</p>
             <p class="journey-connection">Dua hari kemudian, kami kembali duduk bersama.</p>
           </section>
-          <section id="panel-14-september" class="story-panel" role="tabpanel" aria-labelledby="tab-14-september" tabindex="0" hidden>
+          <section id="panel-14-september" class="story-panel" role="tabpanel" aria-labelledby="tab-14-september" tabindex="0" data-next="Setengah bulan kemudian" hidden>
             <p class="chapter-label"><time datetime="2026-09-14">14 SEPTEMBER 2026</time> · PERTEMUAN KEDUA</p>
             <h3>Perlahan menjadi<br><i>satu tim.</i></h3>
             <p>Obrolan berlanjut sambil menyusun bagan tim KKN. Kami meluangkan waktu untuk bonding dan saling mengenal lebih dekat. Lewat sosialisasi dan berbagi pengalaman KKN sebelumnya, kami mulai membayangkan perjalanan yang akan dijalani bersama.</p>
             <p class="story-note">“Mulai mengenal siapa yang akan berjalan bersama.”</p>
+            <p class="journey-connection">Setengah bulan kemudian, kami berangkat ke Pakem.</p>
+          </section>
+          <section id="panel-29-september" class="story-panel" role="tabpanel" aria-labelledby="tab-29-september" tabindex="0" data-next="Lalu, apa lagi?" hidden>
+            <p class="chapter-label"><time datetime="2026-09-29">29 SEPTEMBER 2026</time> · AUDIENSI DI PAKEM</p>
+            <h3>Kulo nuwun,<br><i>Pakem.</i></h3>
+            <p>Kali ini, kami benar-benar berangkat ke Pakem. Tujuan pertama kami adalah Kapanewon Pakem untuk beraudiensi. Setelah itu, kami berbagi tugas sesuai subunit: sebagian menuju Kalurahan Candibinangun, sebagian lagi ke Kalurahan Purwobinangun.<br><br>Di masing-masing kalurahan, kami bertemu dengan sekretaris kalurahan. Pertemuan itu ditutup dengan penandatanganan surat kesediaan lokasi KKN. Hanya selembar surat, tapi sejak hari itu, langkah kami menuju Pakem terasa makin nyata.</p>
+            <p class="story-note">“Kami mengetuk pintu, Pakem menjawab: monggo.”</p>
             <p class="journey-connection">Dari sini, cerita kami masih akan berlanjut.</p>
           </section>
-          <section id="panel-selanjutnya" class="story-panel" role="tabpanel" aria-labelledby="tab-selanjutnya" tabindex="0" hidden>
+          <section id="panel-selanjutnya" class="story-panel" role="tabpanel" aria-labelledby="tab-selanjutnya" tabindex="0" data-next="Baca dari awal" hidden>
             <p class="chapter-label">MASIH ADA HALAMAN BERIKUTNYA</p>
             <h3>Cerita berikutnya?<br><i>Tunggu, ya.</i></h3>
-            <p>Baru dua kali bertemu, masih banyak cerita yang menunggu. Catatan berikutnya belum ada di sini. Nanti, kalau sudah waktunya, kami ceritakan lagi.</p>
+            <p>Baru mengetuk pintu Pakem, masih banyak cerita yang menunggu. Catatan berikutnya belum ada di sini. Nanti, kalau sudah waktunya, kami ceritakan lagi.</p>
             <p class="story-note">“Perjalanannya belum selesai. Mampir lagi, ya.”</p>
             <a class="source-link" href="https://www.instagram.com/tentremingpakem/" target="_blank" rel="noopener noreferrer">Ikuti cerita kami di Instagram <span aria-hidden="true"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M4 12h16m-6-6 6 6-6 6"/></svg></span></a>
           </section>
         </div>
-        <div class="story-navigation"><span class="story-count" aria-hidden="true">01 <span>/ 03</span></span><button class="next-story" type="button"><span class="next-story-label">Dua hari kemudian</span><span class="next-story-icon" aria-hidden="true"><svg class="icon icon-next" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 12h16m-6-6 6 6-6 6"/></svg><svg class="icon icon-restart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 10a8 8 0 1 1 .8 6M4 4v6h6"/></svg></span></button></div>
+        <div class="story-navigation"><button class="previous-story" type="button" aria-label="Cerita sebelumnya" title="Cerita sebelumnya" disabled><span class="previous-story-icon" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M20 12H4m6-6-6 6 6 6"/></svg></span></button><span class="story-count" aria-hidden="true">01 <span>/ 04</span></span><button class="next-story" type="button"><span class="next-story-label">Dua hari kemudian</span><span class="next-story-icon" aria-hidden="true"><svg class="icon icon-next" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 12h16m-6-6 6 6-6 6"/></svg><svg class="icon icon-restart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 10a8 8 0 1 1 .8 6M4 4v6h6"/></svg></span></button></div>
       </div>
+    </div>
+  </dialog>
+  <dialog id="photo-preview" class="photo-dialog" aria-label="Pratinjau foto">
+    <button class="close-dialog" type="button" aria-label="Tutup pratinjau foto"><svg class="icon icon-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" focusable="false" aria-hidden="true"><path d="m6 6 12 12M6 18 18 6"/></svg></button>
+    <figure class="photo-view">
+      <img class="photo-full" alt="" decoding="async">
+      <figcaption class="photo-caption" aria-live="polite"><span class="photo-date"></span><span class="photo-text"></span><span class="photo-position sr-only"></span></figcaption>
+    </figure>
+    <div class="photo-controls">
+      <button class="photo-step" type="button" aria-label="Foto sebelumnya"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" focusable="false" aria-hidden="true"><path d="M20 12H4m6-6-6 6 6 6"/></svg></button>
+      <span class="photo-count" aria-hidden="true"></span>
+      <button class="photo-step" type="button" aria-label="Foto berikutnya"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" focusable="false" aria-hidden="true"><path d="M4 12h16m-6-6 6 6-6 6"/></svg></button>
     </div>
   </dialog>
   <dialog id="logo-philosophy" class="philosophy-dialog" aria-labelledby="philosophy-title" aria-describedby="philosophy-description">
@@ -134,6 +161,6 @@
     </div>
   </dialog>
   <template id="spark-icon"><svg class="icon icon-spark" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false"><path d="M12 1c1.4 7.2 3.8 9.6 11 11-7.2 1.4-9.6 3.8-11 11C10.6 15.8 8.2 13.4 1 12 8.2 10.6 10.6 8.2 12 1Z"/></svg></template>
-  <script src="script.js?v=20260920-journal" defer></script>
+  <script src="script.js?v=20260929-journal" defer></script>
 </body>
 </html>

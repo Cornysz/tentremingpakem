@@ -7,6 +7,7 @@ const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
 const tabs = [...dialog.querySelectorAll('[role="tab"]')];
 const panels = [...dialog.querySelectorAll('[role="tabpanel"]')];
 const nextButton = dialog.querySelector('.next-story');
+const previousButton = dialog.querySelector('.previous-story');
 const journalPhotos = [...dialog.querySelectorAll('[data-journey-photo]')];
 let currentStory = 0;
 let logoAnimation;
@@ -61,6 +62,16 @@ connectDialog(dialog, discover, '.postcard');
 const closePhilosophy = connectDialog(philosophyDialog, brand, '.philosophy-card');
 philosophyDialog.querySelector('.return-to-pakem').addEventListener('click', closePhilosophy);
 
+const pad = number => String(number).padStart(2, '0');
+// The count and the next label come from the markup, so a new chapter needs only its tab, panel, and photos.
+function updateNavigation() {
+  document.querySelector('.story-count').innerHTML = `${pad(currentStory + 1)} <span>/ ${pad(tabs.length)}</span>`;
+  nextButton.querySelector('.next-story-label').textContent = panels[currentStory].dataset.next;
+  nextButton.classList.toggle('is-restart', currentStory === tabs.length - 1);
+  previousButton.disabled = currentStory === 0;
+}
+updateNavigation();
+
 function selectStory(index, moveFocus = false) {
   panelAnimation?.cancel();
   photoAnimation?.cancel();
@@ -72,9 +83,7 @@ function selectStory(index, moveFocus = false) {
     panels[i].hidden = i !== currentStory;
   });
   if (moveFocus) tabs[currentStory].focus({ preventScroll: true });
-  document.querySelector('.story-count').innerHTML = `0${currentStory + 1} <span>/ 03</span>`;
-  nextButton.querySelector('.next-story-label').textContent = ['Dua hari kemudian', 'Lalu, apa lagi?', 'Baca dari awal'][currentStory];
-  nextButton.classList.toggle('is-restart', currentStory === 2);
+  updateNavigation();
   journalPhotos.forEach((photo, i) => { photo.hidden = i !== currentStory; });
   dialog.querySelector('.postcard').scrollTo({ top: 0, behavior: motionAllowed() ? 'smooth' : 'instant' });
   const direction = currentStory >= previousStory ? 1 : -1;
@@ -101,6 +110,7 @@ tabs.forEach((tab, index) => {
   });
 });
 nextButton.addEventListener('click', () => selectStory(currentStory + 1, true));
+previousButton.addEventListener('click', () => selectStory(currentStory - 1, true));
 
 motionButton.addEventListener('click', () => {
   const paused = document.body.classList.toggle('motion-paused');
@@ -183,4 +193,143 @@ reducedMotion.addEventListener('change', () => { if (!motionAllowed()) { panelAn
   document.addEventListener('visibilitychange', () => { hideHint(); scheduleHint(); });
   document.querySelectorAll('dialog').forEach(modal => modal.addEventListener('close', scheduleHint));
   scheduleHint();
+})();
+
+// Journal photos open in a larger preview that grows out of the print and settles back into it.
+(() => {
+  const viewer = document.querySelector('#photo-preview');
+  const view = viewer.querySelector('.photo-view');
+  const full = viewer.querySelector('.photo-full');
+  const date = viewer.querySelector('.photo-date');
+  const text = viewer.querySelector('.photo-text');
+  const position = viewer.querySelector('.photo-position');
+  const controls = viewer.querySelector('.photo-controls');
+  const count = viewer.querySelector('.photo-count');
+  const [back, forward] = viewer.querySelectorAll('.photo-step');
+  const closeButton = viewer.querySelector('.close-dialog');
+  let photos = [];
+  let current = 0;
+  let zoom;
+  let closeTimer;
+  let opening = false;
+  let closing = false;
+  let swipe;
+
+  // The tilt a print rests at, so the zoom starts exactly where the photo sits.
+  const tilt = element => {
+    const matrix = getComputedStyle(element).transform;
+    if (matrix === 'none') return 0;
+    const [a, b] = matrix.match(/-?[\d.]+(?:e-?\d+)?/g).map(Number);
+    return Math.atan2(b, a) * 180 / Math.PI;
+  };
+  const printTransform = thumb => {
+    const from = thumb.getBoundingClientRect();
+    const to = full.getBoundingClientRect();
+    const x = from.left + from.width / 2 - (to.left + to.width / 2);
+    const y = from.top + from.height / 2 - (to.top + to.height / 2);
+    return `translate(${x}px, ${y}px) scale(${thumb.offsetWidth / full.offsetWidth}) rotate(${tilt(thumb) + tilt(thumb.parentElement)}deg)`;
+  };
+  const onScreen = element => {
+    const rect = element.getBoundingClientRect();
+    return rect.width > 0 && rect.bottom > 0 && rect.top < innerHeight;
+  };
+
+  const show = index => {
+    current = index;
+    const photo = photos[current];
+    full.setAttribute('width', photo.getAttribute('width'));
+    full.setAttribute('height', photo.getAttribute('height'));
+    full.src = photo.currentSrc || photo.src;
+    text.textContent = photo.alt;
+    position.textContent = `Foto ${current + 1} dari ${photos.length}.`;
+    count.innerHTML = `${current + 1} <span>/ ${photos.length}</span>`;
+    back.disabled = current === 0;
+    forward.disabled = current === photos.length - 1;
+  };
+  const open = async thumb => {
+    if (opening || viewer.open) return;
+    opening = true;
+    const spread = thumb.closest('.journal-spread');
+    photos = [...spread.querySelectorAll('.journal-collage img')];
+    date.textContent = spread.querySelector('figcaption .chapter-label')?.textContent ?? '';
+    controls.hidden = photos.length < 2;
+    show(photos.indexOf(thumb));
+    // Decoding first keeps the preview from measuring or flashing an image that has not arrived.
+    await full.decode().catch(() => {});
+    opening = false;
+    closing = false;
+    viewer.classList.remove('is-closing');
+    viewer.showModal();
+    closeButton.focus({ preventScroll: true });
+    if (!motionAllowed()) return;
+    zoom?.cancel();
+    zoom = full.animate([{ transform: printTransform(thumb) }, { transform: 'none' }], { duration: 520, easing: 'cubic-bezier(.22,1,.36,1)' });
+  };
+  const close = () => {
+    if (!viewer.open || closing) return;
+    closing = true;
+    const thumb = photos[current];
+    const finish = () => {
+      clearTimeout(closeTimer);
+      zoom?.cancel();
+      viewer.close();
+      viewer.classList.remove('is-closing');
+      closing = false;
+      thumb.focus({ preventScroll: true });
+    };
+    if (!motionAllowed()) return finish();
+    zoom?.cancel();
+    const returns = onScreen(thumb);
+    viewer.classList.add('is-closing');
+    zoom = full.animate([
+      { transform: 'none', opacity: 1 },
+      { transform: returns ? printTransform(thumb) : 'scale(.92)', opacity: returns ? 1 : 0 }
+    ], { duration: 320, easing: 'cubic-bezier(.4,0,.2,1)', fill: 'forwards' });
+    // A timer, not the animation's finish event: a tab hidden mid-close would otherwise never close.
+    closeTimer = setTimeout(finish, 320);
+  };
+  const step = async delta => {
+    const target = current + delta;
+    if (closing || target < 0 || target >= photos.length) return;
+    show(target);
+    await full.decode().catch(() => {});
+    if (!motionAllowed()) return;
+    zoom?.cancel();
+    zoom = full.animate([
+      { opacity: 0, transform: `translateX(${delta * 28}px)` },
+      { opacity: 1, transform: 'none' }
+    ], { duration: 380, easing: 'cubic-bezier(.22,1,.36,1)' });
+  };
+
+  document.querySelectorAll('.journal-collage img').forEach(img => {
+    img.tabIndex = 0;
+    img.setAttribute('role', 'button');
+    img.setAttribute('aria-haspopup', 'dialog');
+    img.setAttribute('aria-label', `Perbesar foto: ${img.alt}`);
+    img.addEventListener('click', () => open(img));
+    img.addEventListener('keydown', event => {
+      if (event.key !== 'Enter' && event.key !== ' ') return;
+      event.preventDefault();
+      open(img);
+    });
+  });
+  closeButton.addEventListener('click', close);
+  back.addEventListener('click', () => step(-1));
+  forward.addEventListener('click', () => step(1));
+  viewer.addEventListener('cancel', event => { event.preventDefault(); close(); });
+  viewer.addEventListener('click', event => { if (event.target === viewer) close(); });
+  viewer.addEventListener('keydown', event => {
+    if (event.key === 'ArrowRight') { event.preventDefault(); step(1); }
+    if (event.key === 'ArrowLeft') { event.preventDefault(); step(-1); }
+  });
+  // A sideways swipe turns to the next photo on touch screens; vertical pans and pinch-zoom stay native.
+  view.addEventListener('pointerdown', event => { if (event.pointerType !== 'mouse') swipe = { x: event.clientX, y: event.clientY }; });
+  view.addEventListener('pointerup', event => {
+    if (!swipe) return;
+    const dx = event.clientX - swipe.x;
+    const dy = event.clientY - swipe.y;
+    swipe = undefined;
+    if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy) * 1.5) step(dx < 0 ? 1 : -1);
+  });
+  view.addEventListener('pointercancel', () => { swipe = undefined; });
 })();
