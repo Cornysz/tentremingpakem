@@ -16,8 +16,10 @@ let photoAnimation;
 const motionAllowed = () => !reducedMotion.matches && !document.body.classList.contains('motion-paused');
 
 // Both previews share focus management, animated dismissal, and backdrop behavior.
+// Other buttons may open a dialog too; focus returns to whichever one did.
 function connectDialog(modal, trigger, surfaceSelector) {
   let closeTimer;
+  let opener = trigger;
   const closeButton = modal.querySelector('.close-dialog');
   const close = () => {
     if (!modal.open || modal.classList.contains('is-closing')) return;
@@ -25,21 +27,22 @@ function connectDialog(modal, trigger, surfaceSelector) {
       modal.close();
       modal.classList.remove('is-closing');
       document.body.classList.remove('story-open');
-      trigger.focus({ preventScroll: true });
+      opener.focus({ preventScroll: true });
     };
     if (!motionAllowed()) return finish();
     modal.classList.add('is-closing');
     closeTimer = setTimeout(finish, 240);
   };
-  trigger.addEventListener('click', () => {
+  const open = (from = trigger) => {
     if (document.querySelector('dialog[open]')) return;
+    opener = from;
     clearTimeout(closeTimer);
     modal.classList.remove('is-closing');
     modal.showModal();
     document.body.classList.add('story-open');
     modal.querySelector(surfaceSelector).scrollTop = 0;
     closeButton.focus({ preventScroll: true });
-    if (trigger === brand && motionAllowed()) {
+    if (from === brand && motionAllowed()) {
       logoAnimation?.cancel();
       logoAnimation = brand.querySelector('.brand-logo').animate([
         { transform: 'rotate(0) scale(1)' },
@@ -48,7 +51,8 @@ function connectDialog(modal, trigger, surfaceSelector) {
         { transform: 'rotate(0) scale(1)' }
       ], { duration: 550, easing: 'cubic-bezier(.22,1,.36,1)' });
     }
-  });
+  };
+  trigger.addEventListener('click', () => open());
   closeButton.addEventListener('click', close);
   modal.addEventListener('cancel', event => { event.preventDefault(); close(); });
   modal.addEventListener('click', event => {
@@ -56,11 +60,11 @@ function connectDialog(modal, trigger, surfaceSelector) {
     const rect = modal.getBoundingClientRect();
     if (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom) close();
   });
-  return close;
+  return { open, close };
 }
-connectDialog(dialog, discover, '.postcard');
-const closePhilosophy = connectDialog(philosophyDialog, brand, '.philosophy-card');
-philosophyDialog.querySelector('.return-to-pakem').addEventListener('click', closePhilosophy);
+const story = connectDialog(dialog, discover, '.postcard');
+const philosophy = connectDialog(philosophyDialog, brand, '.philosophy-card');
+philosophyDialog.querySelector('.return-to-pakem').addEventListener('click', philosophy.close);
 
 const pad = number => String(number).padStart(2, '0');
 // The count and the next label come from the markup, so a new chapter needs only its tab, panel, and photos.
@@ -334,19 +338,80 @@ reducedMotion.addEventListener('change', () => { if (!motionAllowed()) { panelAn
   view.addEventListener('pointercancel', () => { swipe = undefined; });
 })();
 
-// Counts down to deployment day. Both dates carry the +07:00 offset, so every visitor sees Western Indonesia Time.
+// Counts down to deployment day. Every date carries the +07:00 offset, so every visitor sees Western Indonesia Time.
 (() => {
   const countdown = document.querySelector('.countdown');
-  const start = Date.parse(countdown.dataset.start);
   const target = Date.parse(countdown.dataset.target);
   const day = 864e5;
   const digits = [...countdown.querySelectorAll('.countdown-value > span')];
   const units = countdown.querySelector('.countdown-units');
   const heading = countdown.querySelector('.countdown-heading');
   const message = countdown.querySelector('.countdown-message');
+  const journey = countdown.querySelector('.countdown-journey');
+  const list = countdown.querySelector('.countdown-stops');
   let timer;
   let state;
   let countingUp = false;
+
+  // The journey line has a stop for every dated journal chapter, plus deployment day. Stops sit evenly apart,
+  // so chapters only two days apart stay easy to tap, and a new chapter appears here by itself.
+  const shortDate = new Intl.DateTimeFormat('id-ID', { day: 'numeric', month: 'short', timeZone: 'Asia/Jakarta' });
+  const longDate = new Intl.DateTimeFormat('id-ID', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Asia/Jakarta' });
+  const make = (tag, className, text) => {
+    const node = document.createElement(tag);
+    node.className = className;
+    if (text) node.textContent = text;
+    return node;
+  };
+  const stops = panels.flatMap((panel, chapter) => {
+    const time = panel.querySelector('time[datetime]');
+    return time ? [{ at: Date.parse(`${time.getAttribute('datetime')}T00:00:00+07:00`), chapter }] : [];
+  });
+  stops.push({ at: target });
+  stops.sort((a, b) => a.at - b.at);
+  stops.forEach((stop, i) => {
+    stop.place = stops.length > 1 ? i / (stops.length - 1) : 1;
+    stop.item = make('li', 'countdown-stop');
+    stop.item.style.setProperty('--at', `${stop.place * 100}%`);
+    const date = make('span', 'countdown-stop-date', shortDate.format(stop.at));
+    date.setAttribute('aria-hidden', 'true');
+    if (stop.chapter === undefined) {
+      stop.item.classList.add('is-destination');
+      stop.item.append(make('span', 'countdown-dot'), date, make('span', 'sr-only', `Penerjunan, ${longDate.format(stop.at)}`));
+    } else {
+      const title = journalPhotos[stop.chapter].querySelector('.journal-photo-title').textContent;
+      const button = make('button', 'countdown-stop-button');
+      button.type = 'button';
+      button.setAttribute('aria-haspopup', 'dialog');
+      button.setAttribute('aria-controls', 'pakem-story');
+      button.setAttribute('aria-label', `Buka jurnal ${longDate.format(stop.at)}: ${title}`);
+      const tip = make('span', 'countdown-tip', title);
+      tip.setAttribute('aria-hidden', 'true');
+      tip.append(make('small', '', 'Baca jurnal'));
+      button.append(make('span', 'countdown-dot'), date, tip);
+      button.addEventListener('click', () => {
+        selectStory(stop.chapter);
+        story.open(button);
+      });
+      stop.item.append(button);
+    }
+    list.append(stop.item);
+  });
+  // Where now sits on the evenly spaced line: between the two stops around it, in proportion to the days.
+  const place = now => {
+    const next = stops.findIndex(stop => stop.at > now);
+    if (next === 0) return 0;
+    if (next === -1) return 1;
+    const from = stops[next - 1];
+    const to = stops[next];
+    return from.place + (to.place - from.place) * (now - from.at) / (to.at - from.at);
+  };
+  // With many chapters, middle dates would collide; the end dates stay and the rest show on hover.
+  new ResizeObserver(() => {
+    const gap = list.clientWidth / Math.max(1, stops.length - 1);
+    journey.classList.toggle('is-crowded', gap < 52);
+    list.style.setProperty('--stop-width', `${Math.min(44, gap)}px`);
+  }).observe(list);
 
   const roll = (digit, text, animate) => {
     if (digit.textContent === text) return;
@@ -358,8 +423,9 @@ reducedMotion.addEventListener('change', () => { if (!motionAllowed()) { panelAn
   const render = (share = 1) => {
     const now = Date.now();
     const left = Math.max(0, target - now);
-    const travelled = Math.min(1, Math.max(0, (now - start) / (target - start)));
-    countdown.style.setProperty('--progress', `${(travelled * share * 100).toFixed(2)}%`);
+    const reached = place(now) * share;
+    countdown.style.setProperty('--progress', `${(reached * 100).toFixed(2)}%`);
+    stops.forEach(stop => stop.item.classList.toggle('is-passed', stop.place <= reached + 1e-9));
     const current = now < target ? 'counting' : now < target + day ? 'today' : 'arrived';
     if (current !== state) {
       state = current;

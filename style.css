@@ -182,15 +182,37 @@ body.motion-paused .title-sprig{animation-play-state:paused}
 .countdown-value>span{display:block}
 .countdown-label{font-size:8px;letter-spacing:1.6px;text-transform:uppercase;color:#8b937d}
 .countdown-message{margin:0 0 2px;font:italic 20px/1.35 Georgia,'Times New Roman',serif;color:var(--ink)}
-.countdown-journey{display:flex;align-items:center;gap:10px;margin-top:9px;font-size:8px;letter-spacing:1.4px;text-transform:uppercase;color:#8b937d;white-space:nowrap}
-.countdown-track{position:relative;flex:1;height:20px}
+.countdown-journey{position:relative;height:31px;margin:9px 14px 0}
+.countdown-track{position:absolute;left:0;right:0;top:0;height:18px;pointer-events:none}
 .countdown-track::before{content:"";position:absolute;left:0;right:0;top:50%;border-top:1px dashed #bcc5ab}
-.countdown-track::after{content:"";position:absolute;right:-4px;top:50%;width:7px;height:7px;margin-top:-4px;border:1.5px solid var(--accent);border-radius:50%;background:var(--paper)}
 .countdown-fill{position:absolute;left:0;top:50%;width:var(--progress,0%);height:2px;margin-top:-1px;border-radius:2px;background:var(--accent)}
-.countdown-bird{position:absolute;left:var(--progress,0%);top:50%;width:17px;height:auto;margin:-14px 0 0 -9px;animation:wing 1.15s ease-in-out infinite}
+.countdown-bird{position:absolute;z-index:2;left:var(--progress,0%);top:50%;width:17px;height:auto;margin:-15px 0 0 -9px;animation:wing 1.15s ease-in-out infinite}
+
+/* Every dated journal chapter is a stop on the line; a stop opens the journal at that page. */
+.countdown-stops{position:absolute;inset:0;margin:0;padding:0;list-style:none}
+.countdown-stop{position:absolute;z-index:1;top:0;left:var(--at);display:flex;flex-direction:column;align-items:center;gap:4px;transform:translateX(-50%)}
+.countdown-stop:hover,.countdown-stop:focus-within{z-index:3}
+.countdown-stop-button{display:flex;flex-direction:column;align-items:center;gap:4px;width:var(--stop-width,44px);height:31px;padding:0;border:0;background:none;color:inherit}
+.countdown-dot{display:block;width:9px;height:9px;margin-top:4.5px;border:1.5px solid var(--accent);border-radius:50%;background:var(--paper);transition:transform .25s var(--ease),box-shadow .25s}
+.countdown-stop-date{font-size:8px;line-height:1;letter-spacing:1.4px;text-transform:uppercase;color:#8b937d;white-space:nowrap;transition:color .2s}
+.countdown-stop.is-passed .countdown-dot{background:var(--accent);animation:stop-reached .5s var(--ease)}
+.is-destination .countdown-dot{width:11px;height:11px;margin-top:3.5px;box-shadow:0 0 0 3px #87634c24}
+.is-destination .countdown-stop-date{color:var(--accent)}
+.countdown-stop-button:focus-visible{outline:none}
+.countdown-stop-button:focus-visible .countdown-dot{box-shadow:0 0 0 2px var(--paper),0 0 0 3.5px var(--accent)}
+.countdown-tip{--shift:-50%;position:absolute;bottom:calc(100% + 3px);left:50%;display:flex;flex-direction:column;align-items:center;gap:4px;padding:7px 11px 8px;border-radius:10px;background:var(--ink);color:var(--paper);font:italic 13px/1.15 Georgia,'Times New Roman',serif;white-space:nowrap;box-shadow:0 8px 20px #1429122e;opacity:0;transform:translate(var(--shift),5px);transition:opacity .2s,transform .25s var(--ease);pointer-events:none}
+.countdown-tip::after{content:"";position:absolute;top:100%;left:var(--arrow,50%);margin-left:-5px;border:5px solid transparent;border-top-color:var(--ink)}
+.countdown-tip small{font:normal 8px/1 Arial,Helvetica,sans-serif;letter-spacing:1.4px;text-transform:uppercase;color:#cdd3bd}
+.countdown-stop:first-child .countdown-tip{--shift:0%;--arrow:16px;left:calc(50% - 16px)}
+.countdown-stop:last-child .countdown-tip{--shift:-100%;--arrow:calc(100% - 16px);left:calc(50% + 16px)}
+.countdown-stop-button:focus-visible .countdown-tip{opacity:1;transform:translate(var(--shift),0)}
+.countdown-stop-button:focus-visible .countdown-stop-date{color:var(--ink)}
+@media(hover:hover){.countdown-stop-button:hover .countdown-dot{transform:scale(1.4);box-shadow:0 0 0 4px #87634c2b}.countdown-stop-button:hover .countdown-tip{opacity:1;transform:translate(var(--shift),0)}.countdown-stop-button:hover .countdown-stop-date{color:var(--ink)}}
+.countdown-journey.is-crowded .countdown-stop:not(:first-child):not(:last-child) .countdown-stop-date{visibility:hidden}
+@keyframes stop-reached{45%{transform:scale(1.6)}}
 @keyframes live-ring{from{opacity:.8;transform:scale(.5)}to{opacity:0;transform:scale(1.5)}}
 body.motion-paused .countdown-bird,body.motion-paused .countdown-live::after{animation-play-state:paused}
 @media(max-width:760px){.countdown{width:min(100%,340px);margin-bottom:22px;padding:13px 14px 9px;border-radius:18px}.countdown-title{letter-spacing:1.3px}.countdown-value{font-size:29px}.countdown-message{font-size:18px}}
 @media(max-width:420px){.countdown-date{display:none}}
 /* Short laptop screens tighten the spacing so both buttons stay above the fold. */
-@media(min-width:761px) and (max-height:780px){main{padding-top:2vh}.eyebrow{margin-bottom:14px}.description{margin:14px 0 16px}.countdown{margin-bottom:16px;padding-top:11px;padding-bottom:8px}.countdown-title{margin-bottom:7px}.countdown-value{font-size:30px}.countdown-journey{margin-top:6px}}
+@media(min-width:761px) and (max-height:780px){main{padding-top:2vh}.eyebrow{margin-bottom:14px}.description{margin:10px 0 14px}.countdown{margin-bottom:16px;padding-top:11px;padding-bottom:6px}.countdown-title{margin-bottom:5px}.countdown-value{font-size:30px}.countdown-journey{margin-top:4px}}
