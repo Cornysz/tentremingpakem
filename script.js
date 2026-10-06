@@ -333,3 +333,72 @@ reducedMotion.addEventListener('change', () => { if (!motionAllowed()) { panelAn
   });
   view.addEventListener('pointercancel', () => { swipe = undefined; });
 })();
+
+// Counts down to deployment day. Both dates carry the +07:00 offset, so every visitor sees Western Indonesia Time.
+(() => {
+  const countdown = document.querySelector('.countdown');
+  const start = Date.parse(countdown.dataset.start);
+  const target = Date.parse(countdown.dataset.target);
+  const day = 864e5;
+  const digits = [...countdown.querySelectorAll('.countdown-value > span')];
+  const units = countdown.querySelector('.countdown-units');
+  const heading = countdown.querySelector('.countdown-heading');
+  const message = countdown.querySelector('.countdown-message');
+  let timer;
+  let state;
+  let countingUp = false;
+
+  const roll = (digit, text, animate) => {
+    if (digit.textContent === text) return;
+    digit.textContent = text;
+    if (!animate || !motionAllowed() || document.hidden) return;
+    digit.animate([{ transform: 'translateY(-75%)', opacity: 0 }, { transform: 'none', opacity: 1 }], { duration: 450, easing: 'cubic-bezier(.22,1,.36,1)' });
+  };
+  // `share` scales the numbers and the journey line together, so the opening can count up from zero.
+  const render = (share = 1) => {
+    const now = Date.now();
+    const left = Math.max(0, target - now);
+    const travelled = Math.min(1, Math.max(0, (now - start) / (target - start)));
+    countdown.style.setProperty('--progress', `${(travelled * share * 100).toFixed(2)}%`);
+    const current = now < target ? 'counting' : now < target + day ? 'today' : 'arrived';
+    if (current !== state) {
+      state = current;
+      units.hidden = state !== 'counting';
+      message.hidden = state === 'counting';
+      if (state !== 'counting') {
+        heading.textContent = heading.dataset[state];
+        message.textContent = message.dataset[state];
+      }
+    }
+    [left / day, left / 36e5 % 24, left / 6e4 % 60, left / 1e3 % 60].forEach((value, i) => {
+      roll(digits[i], pad(Math.floor(Math.floor(value) * share)), share === 1);
+    });
+    return left;
+  };
+  const tick = () => {
+    countingUp = false;
+    clearTimeout(timer);
+    const left = render();
+    // Waking just after the next whole second keeps the seconds from skipping; after the day, once a minute is enough.
+    timer = setTimeout(tick, left ? left % 1000 + 30 : 6e4);
+  };
+  // The numbers count up while the card rises in with the rest of the opening.
+  if (motionAllowed() && !document.hidden) {
+    countingUp = true;
+    const begin = performance.now() + 1350;
+    const frame = time => {
+      if (!countingUp) return;
+      const t = Math.min(1, Math.max(0, (time - begin) / 1100));
+      if (t === 1) return tick();
+      render(1 - (1 - t) ** 3);
+      requestAnimationFrame(frame);
+    };
+    requestAnimationFrame(frame);
+    // If the browser pauses frames, this still lands the real numbers on time.
+    timer = setTimeout(tick, 2600);
+  } else {
+    tick();
+  }
+  // Background tabs throttle timers, so a returning visitor gets the exact time at once.
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) tick(); });
+})();
