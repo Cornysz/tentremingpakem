@@ -126,7 +126,7 @@ motionButton.addEventListener('click', () => {
 if (matchMedia('(hover: hover) and (pointer: fine)').matches) {
   let frame;
   window.addEventListener('pointermove', event => {
-    if (!motionAllowed() || document.body.classList.contains('story-open')) return;
+    if (!motionAllowed() || document.body.classList.contains('story-open') || document.body.classList.contains('is-past-hero')) return;
     cancelAnimationFrame(frame);
     frame = requestAnimationFrame(() => {
       document.documentElement.style.setProperty('--scene-x', `${(event.clientX / innerWidth - .5) * -10}px`);
@@ -467,4 +467,260 @@ reducedMotion.addEventListener('change', () => { if (!motionAllowed()) { panelAn
   }
   // Background tabs throttle timers, so a returning visitor gets the exact time at once.
   document.addEventListener('visibilitychange', () => { if (!document.hidden) tick(); });
+})();
+
+// Below the hero: reveal on scroll, the section nav with its current-section marker, and a resting landscape.
+(() => {
+  const hero = document.querySelector('.page');
+  const navLinks = [...document.querySelectorAll('.site-nav a[href^="#"]:not(.site-nav-home)')];
+  // Once the hero has slid under the nav area, the nav appears and the hidden landscape stops animating.
+  // The margin is larger than html's 84px scroll padding, so a jump to #tema also counts as past the hero.
+  new IntersectionObserver(([entry]) => {
+    document.body.classList.toggle('is-past-hero', !entry.isIntersecting);
+  }, { rootMargin: '-120px 0px 0px 0px' }).observe(hero);
+  // As soon as reading starts near the bottom of the screen, the pause button steps aside.
+  new IntersectionObserver(([entry]) => {
+    document.body.classList.toggle('is-reading', !entry.isIntersecting);
+  }, { rootMargin: '-88% 0px 0px 0px' }).observe(hero);
+  const onScroll = () => document.body.classList.toggle('is-scrolled', scrollY > 40);
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+
+  const reveal = new IntersectionObserver(entries => entries.forEach(entry => {
+    if (!entry.isIntersecting) return;
+    entry.target.classList.add('is-revealed');
+    entry.target.dispatchEvent(new CustomEvent('reveal'));
+    reveal.unobserve(entry.target);
+  }), { rootMargin: '0px 0px -10% 0px' });
+  document.querySelectorAll('[data-reveal]').forEach(element => reveal.observe(element));
+  // Tells the failsafe in the page head that reveals are handled, so it leaves the content hidden until then.
+  document.documentElement.setAttribute('data-reveal-ready', '');
+
+  // The link for whichever section crosses the middle of the screen is marked as current.
+  const spy = new IntersectionObserver(entries => entries.forEach(entry => {
+    const link = navLinks.find(item => item.hash === `#${entry.target.id}`);
+    if (entry.isIntersecting) navLinks.forEach(item => (item === link ? item.setAttribute('aria-current', 'true') : item.removeAttribute('aria-current')));
+    else if (link.hasAttribute('aria-current')) link.removeAttribute('aria-current');
+  }), { rootMargin: '-45% 0px -50% 0px' });
+  navLinks.forEach(link => spy.observe(document.querySelector(link.hash)));
+  const journalButton = document.querySelector('.site-nav-journal');
+  journalButton.addEventListener('click', () => story.open(journalButton));
+  const footerJournal = document.querySelector('.footer-journal');
+  footerJournal.addEventListener('click', () => story.open(footerJournal));
+})();
+
+// The theme statement and its four cards point at each other: a phrase lights its card, and a card lights its phrase.
+(() => {
+  const terms = [...document.querySelectorAll('.theme-term')];
+  const pillars = [...document.querySelectorAll('.theme-pillar')];
+  let pinned = null;
+  const show = key => {
+    terms.forEach(term => term.classList.toggle('is-active', term.dataset.term === key));
+    pillars.forEach(pillar => pillar.classList.toggle('is-active', pillar.dataset.term === key));
+  };
+  // The phrases are inline spans so their underline wraps with the sentence; Enter and Space work like a button.
+  terms.forEach(term => term.addEventListener('keydown', event => {
+    if (event.key !== 'Enter' && event.key !== ' ') return;
+    event.preventDefault();
+    term.click();
+  }));
+  terms.forEach(term => term.addEventListener('click', () => {
+    pinned = pinned === term.dataset.term ? null : term.dataset.term;
+    terms.forEach(item => item.setAttribute('aria-pressed', String(item.dataset.term === pinned)));
+    show(pinned);
+    const pillar = pillars.find(item => item.dataset.term === pinned);
+    if (!pillar) return;
+    const rect = pillar.getBoundingClientRect();
+    if (rect.top < 70 || rect.bottom > innerHeight) pillar.scrollIntoView({ block: 'center', behavior: motionAllowed() ? 'smooth' : 'auto' });
+  }));
+  pillars.forEach(pillar => {
+    pillar.addEventListener('pointerenter', event => { if (event.pointerType === 'mouse') show(pillar.dataset.term); });
+    pillar.addEventListener('pointerleave', event => { if (event.pointerType === 'mouse') show(pinned); });
+  });
+})();
+
+// Numbers count up once their row comes into view.
+(() => {
+  const format = (value, decimals) => value.toLocaleString('id-ID', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+  document.querySelectorAll('[data-count]').forEach(number => {
+    const target = Number(number.dataset.count);
+    const decimals = (number.dataset.count.split('.')[1] || '').length;
+    number.textContent = format(target, decimals);
+    const row = number.closest('[data-reveal]');
+    if (!row) return;
+    row.addEventListener('reveal', () => {
+      if (!motionAllowed()) return;
+      const start = performance.now();
+      const frame = time => {
+        const t = Math.min(1, Math.max(0, (time - start) / 1400));
+        number.textContent = format(target * (1 - (1 - t) ** 3), decimals);
+        if (t < 1) requestAnimationFrame(frame);
+      };
+      requestAnimationFrame(frame);
+      // If frames are paused, the real figure is still in place a moment later.
+      setTimeout(() => { number.textContent = format(target, decimals); }, 1600);
+    }, { once: true });
+  });
+})();
+
+// The location map, the kalurahan tabs and the Google map always point at the same place.
+(() => {
+  const section = document.querySelector('#lokasi');
+  const placeTabs = [...section.querySelectorAll('.place-tabs [role="tab"]')];
+  const placePanels = [...section.querySelectorAll('.place')];
+  const regions = [...section.querySelectorAll('.region')];
+  const labels = [...section.querySelectorAll('.region-label')];
+  const pins = [...section.querySelectorAll('.map-pin')];
+  const figure = section.querySelector('.places-map');
+  const tip = figure.querySelector('.map-tip');
+  const gmap = section.querySelector('.gmap');
+  const gmapTitle = gmap.querySelector('.gmap-title');
+  const ghost = gmap.querySelector('.gmap-ghost');
+  const selection = figure.querySelector('.region-outline.is-selection');
+  const focusRing = figure.querySelector('.region-outline.is-focus');
+  const viewButtons = [...gmap.querySelectorAll('.gmap-view button')];
+  let current;
+  let view = 'k';
+
+  const panelFor = place => placePanels.find(panel => panel.dataset.place === place);
+  // Google Maps loads only when asked, so the page itself sets no third-party cookies.
+  // Each change swaps in a fresh frame: navigating the old one would add a Back step per click.
+  const loadMap = () => {
+    const panel = panelFor(current);
+    const url = `https://maps.google.com/maps?q=${encodeURIComponent(panel.dataset.query)}&t=${view}&z=${panel.dataset.zoom}&ie=UTF8&output=embed`;
+    const old = gmap.querySelector('iframe');
+    if (old && old.src === url) return old;
+    const frame = document.createElement('iframe');
+    frame.referrerPolicy = 'no-referrer-when-downgrade';
+    frame.allowFullscreen = true;
+    frame.title = `Google Maps: ${panel.dataset.name}`;
+    frame.src = url;
+    if (old) old.replaceWith(frame); else gmap.append(frame);
+    gmap.classList.add('is-loaded');
+    return frame;
+  };
+  const select = (place, { focusTab = false } = {}) => {
+    if (place === current) return;
+    current = place;
+    placeTabs.forEach(tab => {
+      const on = tab.dataset.place === place;
+      tab.setAttribute('aria-selected', String(on));
+      tab.tabIndex = on ? 0 : -1;
+      if (on && focusTab) tab.focus();
+    });
+    placePanels.forEach(panel => {
+      const on = panel.dataset.place === place;
+      panel.hidden = !on;
+      panel.classList.remove('is-entering');
+      if (on && motionAllowed()) {
+        void panel.offsetWidth;
+        panel.classList.add('is-entering');
+      }
+    });
+    regions.forEach(region => {
+      const on = region.dataset.place === place;
+      region.classList.toggle('is-selected', on);
+      if (region.classList.contains('is-target')) region.setAttribute('aria-pressed', String(on));
+    });
+    labels.forEach(label => label.classList.toggle('is-selected', label.dataset.place === place));
+    selection.setAttribute('d', regions.find(region => region.dataset.place === place).getAttribute('d'));
+    gmapTitle.textContent = panelFor(place).dataset.name;
+    // The waiting card previews the chosen outline, dashed like the boundary Google draws.
+    const outline = regions.find(region => region.dataset.place === place);
+    const box = outline.getBBox();
+    const pad = Math.max(box.width, box.height) * .08;
+    ghost.setAttribute('viewBox', `${box.x - pad} ${box.y - pad} ${box.width + 2 * pad} ${box.height + 2 * pad}`);
+    ghost.firstElementChild.setAttribute('d', outline.getAttribute('d'));
+    if (gmap.classList.contains('is-loaded')) loadMap();
+  };
+
+  placeTabs.forEach((tab, i) => {
+    tab.addEventListener('click', () => select(tab.dataset.place));
+    tab.addEventListener('keydown', event => {
+      const step = { ArrowRight: 1, ArrowLeft: -1 }[event.key];
+      if (!step) return;
+      event.preventDefault();
+      select(placeTabs[(i + step + placeTabs.length) % placeTabs.length].dataset.place, { focusTab: true });
+    });
+  });
+  regions.filter(region => region.classList.contains('is-target')).forEach(region => {
+    // The focus ring is drawn on a top layer, so neighbouring shapes never cover it.
+    region.addEventListener('focus', () => focusRing.setAttribute('d', region.getAttribute('d')));
+    region.addEventListener('blur', () => focusRing.removeAttribute('d'));
+    region.addEventListener('click', () => select(region.dataset.place));
+    region.addEventListener('keydown', event => {
+      if (event.key !== 'Enter' && event.key !== ' ') return;
+      event.preventDefault();
+      select(region.dataset.place);
+    });
+  });
+
+  // A small label follows the pointer over the map; a pin also shows it while focused or tapped.
+  const showTip = (target, x, y) => {
+    const isPin = target.classList.contains('map-pin');
+    const name = isPin ? target.dataset.name : section.querySelector(`.region-label[data-place="${target.dataset.place}"]`).textContent;
+    const note = document.createElement('small');
+    note.textContent = isPin ? target.dataset.kind : target.classList.contains('is-target') ? 'Lokasi KKN, klik untuk memilih' : 'Kalurahan lain di Pakem';
+    tip.replaceChildren(name, note);
+    // Kept inside the card, so a long name near the edge is never cut off.
+    const half = tip.offsetWidth / 2 + 4;
+    tip.style.left = `${Math.min(Math.max(x, half), figure.clientWidth - half)}px`;
+    tip.style.top = `${y}px`;
+    tip.classList.add('is-shown');
+  };
+  const hideTip = () => tip.classList.remove('is-shown');
+  document.addEventListener('keydown', event => { if (event.key === 'Escape') hideTip(); });
+  [...regions, ...pins].forEach(target => {
+    target.addEventListener('pointermove', event => {
+      if (event.pointerType !== 'mouse') return;
+      const box = figure.getBoundingClientRect();
+      showTip(target, event.clientX - box.left, event.clientY - box.top);
+    });
+    target.addEventListener('pointerleave', hideTip);
+  });
+  pins.forEach(pin => {
+    const reveal = () => {
+      const box = figure.getBoundingClientRect();
+      const dot = pin.getBoundingClientRect();
+      showTip(pin, dot.left + dot.width / 2 - box.left, dot.top - box.top);
+    };
+    pin.addEventListener('focus', reveal);
+    pin.addEventListener('blur', hideTip);
+    const selectable = () => placePanels.some(panel => panel.dataset.place === pin.dataset.place);
+    pin.addEventListener('click', () => { if (selectable()) select(pin.dataset.place); reveal(); });
+    pin.addEventListener('keydown', event => {
+      if (event.key !== 'Enter' && event.key !== ' ') return;
+      event.preventDefault();
+      if (selectable()) select(pin.dataset.place);
+      reveal();
+    });
+  });
+
+  gmap.querySelector('.gmap-load').addEventListener('click', () => loadMap().focus());
+  // The in-panel button scrolls to the Google map and opens it on the chosen kalurahan.
+  section.querySelectorAll('.place-button.is-map').forEach(link => link.addEventListener('click', () => loadMap()));
+  viewButtons.forEach(button => button.addEventListener('click', () => {
+    view = button.dataset.view;
+    viewButtons.forEach(item => item.setAttribute('aria-pressed', String(item === button)));
+    loadMap();
+  }));
+  select(placeTabs[0].dataset.place);
+})();
+
+// Each word of the name shows its own meaning.
+(() => {
+  const words = [...document.querySelectorAll('.gloss-word')];
+  const meanings = [...document.querySelectorAll('.gloss-meaning')];
+  words.forEach(word => word.addEventListener('click', () => {
+    words.forEach(item => item.setAttribute('aria-pressed', String(item === word)));
+    meanings.forEach(meaning => {
+      const on = meaning.dataset.word === word.dataset.word;
+      meaning.hidden = !on;
+      meaning.classList.remove('is-entering');
+      if (on && motionAllowed()) {
+        void meaning.offsetWidth;
+        meaning.classList.add('is-entering');
+      }
+    });
+  }));
 })();

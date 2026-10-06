@@ -25,7 +25,20 @@ Domain dan pengaturan DNS tidak perlu diubah. Vercel otomatis memasangkan deploy
 - Petunjuk singkat “Ketuk logo, lihat filosofinya.” muncul setelah 2,5 detik idle bersama dua goyangan kecil pada logo, sekali per sesi tab, lalu hilang setelah 6 detik atau saat berinteraksi. Tidak muncul ketika dialog terbuka, tab disembunyikan, atau logo sudah diklik. Goyangan mengikuti tombol jeda dan prefers-reduced-motion.
 - Tautan Instagram @tentremingpakem.
 - Gambar pratinjau tautan `assets/og-image.jpg` (1200×630, JPEG) untuk WhatsApp dan media sosial. Isinya hero situs yang dirender ulang: latar, logo, dan judul resmi berdaun. Tulisan Segera Hadir sengaja tidak dimasukkan, jadi gambarnya tetap berlaku setelah situs resmi dibuka. Bila gambarnya diganti, naikkan juga nilai `?v=` pada `og:image` di index.html.
-- Tidak menggunakan analytics, cookies, formulir atau layanan berbayar.
+- Indikator "Scroll" di bawah hero membawa ke bagian berikutnya. Setelah hero lewat, muncul navigasi kecil di atas (Tema, Pakem, Lokasi, Jurnal) yang menandai bagian yang sedang dibaca. Isi di bawah hero muncul perlahan saat terlihat; tanpa JavaScript atau dengan gerakan dikurangi, isinya langsung tampil.
+- Bagian Tema: tema resmi KKN dengan empat frasa yang bisa diketuk. Tiap frasa menyalakan kartu penjelasannya (ESD, pangan lokal, berbasis riset, KWT Guyub Rukun), lengkap dengan tautan sumber.
+- Bagian Mengenal Pakem: letak Pakem, arti nama Tentrem ing Pakem (ketuk tiap kata), angka-angka BPS yang menghitung naik, dan empat potret Pakem.
+- Bagian Lokasi: peta SVG Kapanewon Pakem dengan lima kalurahan. Candibinangun dan Purwobinangun bisa dipilih lewat peta, penanda, atau tab, dan panelnya berisi luas, padukuhan, penduduk, ketinggian, potensi, serta sumbernya. Peta Google (satelit atau peta biasa) baru dimuat setelah tombol ditekan, jadi halaman tidak memasang cookie pihak ketiga sebelum pengunjung memilih.
+- Footer berisi lokasi, tautan bagian, Instagram, dan kembali ke atas.
+- Tidak menggunakan analytics, formulir atau layanan berbayar. Cookie pihak ketiga hanya muncul bila pengunjung sendiri memuat peta Google.
+
+## Isi bagian Tema, Pakem, dan Lokasi
+
+Semua teks ada di index.html, di dalam `section#tema`, `section#pakem`, dan `section#lokasi`. Setiap fakta di sana berasal dari sumber resmi yang ditautkan di bawah kartunya (BPS Sleman, situs resmi kalurahan, UNESCO, UGM, MAGMA, dan lainnya), dicek pada 6 Oktober 2026. Saat memperbarui angka, ganti juga tahun datanya.
+
+- Angka statistik memakai `data-count`; isi angka asli di atribut itu (titik sebagai pemisah desimal) dan di dalam elemennya.
+- Teks pada peta Google diambil dari `data-query` dan `data-zoom` di tiap `article.place`.
+- Bentuk peta berasal dari batas wilayah OpenStreetMap (ODbL), digambar ulang secara skematis. Bentuk itu bukan batas resmi, jadi luas resmi tetap mengikuti angka BPS.
 
 ## Menambah bab jurnal
 

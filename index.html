@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="id">
+<html lang="id" class="no-js">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -22,13 +22,14 @@
   <link rel="icon" type="image/png" sizes="64x64" href="favicon-round.png?v=20260919-gradient">
   <link rel="icon" type="image/svg+xml" href="favicon-round.svg?v=20260919-gradient">
   <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=20260919-gradient">
+  <script>document.documentElement.className = 'js'; setTimeout(function () { var page = document.documentElement; if (!page.hasAttribute('data-reveal-ready')) page.classList.remove('js'); }, 4000);</script>
   <link rel="preload" as="image" href="assets/pakem.webp">
-  <link rel="stylesheet" href="style.css?v=20261006-stops">
+  <link rel="stylesheet" href="style.css?v=20261007-chapters">
 </head>
 <body>
   <div class="scene" aria-hidden="true"><img src="assets/pakem.webp" alt="" width="1672" height="941" fetchpriority="high"><div class="veil"></div></div>
   <div class="birds" aria-hidden="true"><span class="bird bird-one"><img src="assets/bird.png" alt=""></span><span class="bird bird-two"><img src="assets/bird.png" alt=""></span><span class="bird bird-three"><img src="assets/bird.png" alt=""></span></div>
-  <div class="page">
+  <div class="page" id="beranda">
     <header>
       <button class="brand" type="button" aria-label="Kenali filosofi logo Tentrem ing Pakem" aria-haspopup="dialog" aria-controls="logo-philosophy">
         <span class="brand-mark"><img class="brand-logo" src="logo.png?v=20260919-gradient" alt="" width="54" height="54"></span>
@@ -56,10 +57,224 @@
         <a class="instagram" href="https://www.instagram.com/tentremingpakem/" target="_blank" rel="noopener noreferrer"><svg class="icon icon-instagram" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="4" y="4" width="16" height="16" rx="4.5"/><circle cx="12" cy="12" r="3.5"/><circle cx="17.1" cy="6.9" r=".8" fill="currentColor" stroke="none"/></svg><span>Ikuti cerita kami</span><span aria-hidden="true"><svg class="icon icon-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 18 18 6M6 6h12v12"/></svg></span><span class="sr-only"> di Instagram, membuka tab baru</span></a>
       </div>
     </main>
-    <footer>
-      <p class="footer-right">© TENTREM ING PAKEM 2026</p>
-    </footer>
+    <a class="scroll-cue" href="#tema"><span class="scroll-cue-label">Scroll</span><span class="scroll-cue-mouse" aria-hidden="true"><span></span></span><span class="sr-only"> ke tema KKN</span></a>
   </div>
+  <nav class="site-nav" aria-label="Bagian halaman">
+    <a class="site-nav-home" href="#beranda"><svg viewBox="0 0 264 244" fill="currentColor" aria-hidden="true" focusable="false"><use href="#sprig-shape"/></svg><span class="sr-only">Kembali ke atas</span></a>
+    <a href="#tema">Tema</a>
+    <a href="#pakem">Pakem</a>
+    <a href="#lokasi">Lokasi</a>
+    <button class="site-nav-journal" type="button" aria-haspopup="dialog" aria-controls="pakem-story">Jurnal</button>
+  </nav>
+  <div class="chapters">
+    <section id="tema" class="chapter chapter-theme" aria-labelledby="tema-title">
+      <div class="wrap">
+        <div class="chapter-head">
+          <p class="section-eyebrow" data-reveal>Tema KKN</p>
+          <h2 id="tema-title" class="section-title" data-reveal style="--delay:.08s">Belajar dari pangan, <i>tumbuh bersama.</i></h2>
+          <p class="section-lead" data-reveal style="--delay:.16s">KKN-PPM UGM Periode 3 berjalan dari 19 Oktober sampai 7 Desember 2026. Selama itu, kami membawa satu tema: pendidikan untuk keberlanjutan lewat pangan lokal, bersama para petani perempuan di Kelompok Wanita Tani (KWT) Guyub Rukun.</p>
+        </div>
+        <figure class="theme-statement" data-reveal>
+          <blockquote>
+            <p>Implementasi <span class="theme-term" role="button" tabindex="0" data-term="esd" aria-pressed="false" aria-controls="pilar-esd" style="--i:0">Education for Sustainable Development (ESD)<sup aria-hidden="true">01</sup></span> melalui Pengembangan <span class="theme-term" role="button" tabindex="0" data-term="pangan" aria-pressed="false" aria-controls="pilar-pangan" style="--i:1">Ekosistem Pangan Lokal<sup aria-hidden="true">02</sup></span> <span class="theme-term" role="button" tabindex="0" data-term="riset" aria-pressed="false" aria-controls="pilar-riset" style="--i:2">Berbasis Riset<sup aria-hidden="true">03</sup></span> pada <span class="theme-term" role="button" tabindex="0" data-term="kwt" aria-pressed="false" aria-controls="pilar-kwt" style="--i:3">KWT Guyub Rukun<sup aria-hidden="true">04</sup></span>, Sleman</p>
+          </blockquote>
+          <figcaption><span>Tema KKN-PPM UGM Periode 3 Tahun 2026, unit Tentrem ing Pakem.</span><span class="theme-hint"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M9 11V5.5a1.5 1.5 0 0 1 3 0V10m0-1.5a1.5 1.5 0 0 1 3 0V11m0-1a1.5 1.5 0 0 1 3 0v4.5a6 6 0 0 1-6 6h-.6a6 6 0 0 1-4.9-2.5L4.6 14a1.6 1.6 0 0 1 2.5-2L9 14"/></svg>Ketuk bagian yang bergaris untuk membaca maknanya.</span></figcaption>
+        </figure>
+        <ol class="theme-pillars">
+          <li id="pilar-esd" class="theme-pillar" data-term="esd" data-reveal style="--delay:.05s">
+            <div class="pillar-top"><span class="pillar-number">01</span><span class="pillar-icon" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M4 6.5C6.5 5 9.5 5 12 6.8 14.5 5 17.5 5 20 6.5v11c-2.5-1.5-5.5-1.5-8 .3-2.5-1.8-5.5-1.8-8-.3Z"/><path d="M12 6.8v11"/></svg></span></div>
+            <h3>Pendidikan untuk keberlanjutan</h3>
+            <p>Menurut UNESCO, ESD membekali orang dengan pengetahuan, keterampilan, nilai, sikap, dan perilaku untuk hidup selaras dengan lingkungan, ekonomi, dan masyarakat. Prinsip ESD juga menjadi dasar program KKN-PPM UGM.</p>
+            <p class="pillar-source">Sumber: <a href="https://www.unesco.org/en/sustainable-development/education" target="_blank" rel="noopener noreferrer">UNESCO</a>, <a href="https://kkn.ugm.ac.id/wp-content/uploads/sites/707/2025/01/OK_PANDUAN-PENULISAN-PROPOSAL-KKN-2025.pdf" target="_blank" rel="noopener noreferrer">Panduan KKN-PPM UGM</a></p>
+          </li>
+          <li id="pilar-pangan" class="theme-pillar" data-term="pangan" data-reveal style="--delay:.12s">
+            <div class="pillar-top"><span class="pillar-number">02</span><span class="pillar-icon" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M4 13h16a8 8 0 0 1-16 0Z"/><path d="M12 13V8.5m0 0c0-2.6 2-4.5 4.6-4.5 0 2.6-2 4.5-4.6 4.5Zm0 1.5c0-2-1.6-3.6-3.6-3.6 0 2 1.6 3.6 3.6 3.6Z"/></svg></span></div>
+            <h3>Pangan dari potensi sendiri</h3>
+            <p>Undang-undang menyebut pangan lokal sebagai pangan yang dikonsumsi masyarakat setempat sesuai potensi dan kearifan lokal. Di Pakem, potensinya beragam: salak, cabai, sampai padi merah Sembada Merah.</p>
+            <p class="pillar-source">Sumber: <a href="https://peraturan.bpk.go.id/Download/28501/UU%20Nomor%2018%20Tahun%202012.pdf" target="_blank" rel="noopener noreferrer">UU 18/2012 tentang Pangan</a></p>
+          </li>
+          <li id="pilar-riset" class="theme-pillar" data-term="riset" data-reveal style="--delay:.19s">
+            <div class="pillar-top"><span class="pillar-number">03</span><span class="pillar-icon" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" focusable="false"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m15.5 15.5 4.5 4.5M7.5 12l2-2 2 1.5 2.5-3"/></svg></span></div>
+            <h3>Berangkat dari data</h3>
+            <p>Mengembangkan dan menerapkan hasil riset adalah salah satu prinsip KKN-PPM UGM. Program disusun dari kajian dan data lapangan, supaya tepat sasaran dan bisa berlanjut setelah kami pulang.</p>
+            <p class="pillar-source">Sumber: <a href="https://kkn.ugm.ac.id/wp-content/uploads/sites/707/2025/01/OK_PANDUAN-PENULISAN-PROPOSAL-KKN-2025.pdf" target="_blank" rel="noopener noreferrer">Panduan KKN-PPM UGM</a></p>
+          </li>
+          <li id="pilar-kwt" class="theme-pillar" data-term="kwt" data-reveal style="--delay:.26s">
+            <div class="pillar-top"><span class="pillar-number">04</span><span class="pillar-icon" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" focusable="false"><circle cx="8" cy="8" r="3"/><circle cx="16" cy="8" r="3"/><path d="M2.8 19c.6-3.2 2.6-5.2 5.2-5.2s4.6 2 5.2 5.2M10.8 19c.6-3.2 2.6-5.2 5.2-5.2s4.6 2 5.2 5.2"/></svg></span></div>
+            <h3>Bersama KWT Guyub Rukun</h3>
+            <p>Kelompok Wanita Tani ini ada di Padukuhan Kardangan, Purwobinangun. Bersama tim UGM yang diketuai DPL kami, Ibu Sonia Dora Febri Esa, mereka mengolah salak lokal, lalu pada 2025 membuat soft cake bebas gluten dari tepung sorgum berisi selai salak.</p>
+            <p class="pillar-source">Sumber: <a href="https://dthv.sv.ugm.ac.id/2025/10/27/ugm-berdayakan-kwt-guyub-rukun-naikkan-nilai-jual-salak-lokal-lewat-inovasi-pangan-sehat-berbasis-sorghum-dan-selai-salak/" target="_blank" rel="noopener noreferrer">Sekolah Vokasi UGM</a></p>
+          </li>
+        </ol>
+        <p class="theme-context" data-reveal>Tema ini sejalan dengan tema besar KKN-PPM UGM tahun 2026: <i>Pemberdayaan Masyarakat dalam Mewujudkan Ketahanan Pangan dan Menghadapi Perubahan Iklim.</i> <a href="https://ugm.ac.id/id/berita/dari-aceh-hingga-papua-ugm-terjunkan-8-178-mahasiswa-kkn-mengabdi-ke-masyarakat/" target="_blank" rel="noopener noreferrer">Sumber: UGM</a></p>
+      </div>
+    </section>
+    <section id="pakem" class="chapter chapter-pakem" aria-labelledby="pakem-title">
+      <div class="wrap pakem-intro">
+        <div class="chapter-head">
+          <p class="section-eyebrow" data-reveal>Mengenal Pakem</p>
+          <h2 id="pakem-title" class="section-title" data-reveal style="--delay:.08s">Di lereng selatan <i>Merapi.</i></h2>
+          <p class="section-lead" data-reveal style="--delay:.16s">Pakem adalah kapanewon di utara Kabupaten Sleman. Di utaranya berdiri Gunung Merapi, di timur Cangkringan, di selatan Ngaglik, dan di barat Turi.</p>
+          <p class="section-lead" data-reveal style="--delay:.22s">Lima kalurahan menyusunnya: Hargobinangun, Purwobinangun, Candibinangun, Harjobinangun, dan Pakembinangun. Kelimanya lahir dari penggabungan 16 kalurahan lama pada akhir 1940-an.</p>
+        </div>
+        <div class="name-gloss" data-reveal style="--delay:.12s">
+          <p class="name-gloss-label">Arti nama kami</p>
+          <div class="name-gloss-words" role="group" aria-label="Pilih kata untuk melihat artinya">
+            <button class="gloss-word" type="button" data-word="tentrem" aria-pressed="true">Tentrem</button>
+            <button class="gloss-word is-small" type="button" data-word="ing" aria-pressed="false"><i>ing</i></button>
+            <button class="gloss-word" type="button" data-word="pakem" aria-pressed="false">Pakem</button>
+          </div>
+          <div class="gloss-meanings" aria-live="polite">
+            <p class="gloss-meaning" data-word="tentrem"><b>tentrem</b> <span>(Jawa)</span> tenang, tidak gelisah; aman dan sejahtera.</p>
+            <p class="gloss-meaning" data-word="ing" hidden><b>ing</b> <span>(Jawa)</span> di, menunjukkan tempat.</p>
+            <p class="gloss-meaning" data-word="pakem" hidden><b>Pakem</b> <span>(tempat)</span> kapanewon di lereng selatan Merapi, Kabupaten Sleman.</p>
+          </div>
+          <p class="gloss-sum">Jadi, <i>Tentrem ing Pakem</i> berarti <b>tenteram di Pakem.</b></p>
+          <p class="gloss-source">Sumber: <a href="https://www.sastra.org/bahasa-dan-budaya/kamus-dan-leksikon/804-bausastra-jawa-poerwadarminta-1939-75-bagian-2" target="_blank" rel="noopener noreferrer">Bausastra Jawa, Poerwadarminta (1939)</a></p>
+        </div>
+      </div>
+      <dl class="wrap pakem-stats" data-reveal>
+        <div class="stat"><dt>luas wilayah</dt><dd><span data-count="43.84">43,84</span><small>km²</small></dd></div>
+        <div class="stat"><dt>kalurahan</dt><dd><span data-count="5">5</span></dd></div>
+        <div class="stat"><dt>penduduk pada 2024</dt><dd><span data-count="39568">39.568</span><small>jiwa</small></dd></div>
+        <div class="stat"><dt>salak dipanen pada 2024</dt><dd><span data-count="2784">2.784</span><small>ton</small></dd></div>
+      </dl>
+      <p class="wrap stats-source">Sumber: <a href="https://slemankab.bps.go.id/id/publication/2025/09/26/16cea8d35199d6a8bd1e74cd/pakem-district-in-figures-2025.html" target="_blank" rel="noopener noreferrer">BPS, Kecamatan Pakem Dalam Angka 2025</a></p>
+      <div class="wrap pakem-facets">
+        <article class="facet" data-reveal style="--delay:.04s">
+          <span class="facet-icon" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M2 20 9.5 7l3.2 5.2L15 9l7 11Z"/><path d="M8 4.5c.6-1 1.6-1.5 2.6-1.2M12.5 4c.5-.9 1.5-1.2 2.3-.8"/></svg></span>
+          <h3>Hidup berdampingan dengan Merapi</h3>
+          <p>Puncak Merapi setinggi 2.968 m berada tepat di utara. Erupsi 1994 dan 2010 pernah membuat ribuan warga Pakem mengungsi. Pada 2024, kelima kalurahannya tercatat punya peralatan keselamatan serta rambu dan jalur evakuasi.</p>
+        </article>
+        <article class="facet" data-reveal style="--delay:.1s">
+          <span class="facet-icon" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M12 21c-4 0-6.5-3-6.5-7 0-4.5 3-8 6.5-8s6.5 3.5 6.5 8c0 4-2.5 7-6.5 7Z"/><path d="M12 6c0-1.7.8-3 2.5-3.5M9 11l1.5 1.5M14 10l1 1.5M10.5 16l1.5 1M14.5 14.5l1 1"/></svg></span>
+          <h3>Lumbung salak dan cabai</h3>
+          <p>Pada 2024, Pakem memanen 27.839,7 kuintal salak dan 26.711,5 kuintal cabai rawit. Untuk cabai rawit, Pakem menjadi penghasil terbesar di Sleman tahun itu. Salak Pondoh Sleman sendiri bersertifikat Indikasi Geografis sejak 2013.</p>
+        </article>
+        <article class="facet" data-reveal style="--delay:.16s">
+          <span class="facet-icon" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M3 8c2-1.6 4-1.6 6 0s4 1.6 6 0 4-1.6 6 0M3 13c2-1.6 4-1.6 6 0s4 1.6 6 0 4-1.6 6 0M3 18c2-1.6 4-1.6 6 0s4 1.6 6 0 4-1.6 6 0"/></svg></span>
+          <h3>Air yang turun dari lereng</h3>
+          <p>Sungai Boyong, Kuning, dan Trasi mengalir melintasi Pakem. Airnya menghidupi sawah dan kolam ikan. Pada 2025, Pakem punya lahan mina padi, yaitu padi bersama ikan, terluas di Sleman.</p>
+        </article>
+        <article class="facet" data-reveal style="--delay:.22s">
+          <span class="facet-icon" aria-hidden="true"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M3 21h18M5 21V10l7-5 7 5v11M9.5 21v-6h5v6"/></svg></span>
+          <h3>Kaliurang dan warisannya</h3>
+          <p>Kaliurang di Hargobinangun, sekitar 900 m di atas laut, sudah menjadi tempat peristirahatan sejak masa kolonial. Sejak 2021, kawasan ini ditetapkan sebagai Kawasan Cagar Budaya peringkat provinsi.</p>
+        </article>
+      </div>
+      <p class="wrap facets-source">Sumber: <a href="https://magma.esdm.go.id/" target="_blank" rel="noopener noreferrer">MAGMA Indonesia</a>, <a href="https://www.geo.mtu.edu/volcanoes/merapi/gvn/merapi.v19n10.html" target="_blank" rel="noopener noreferrer">Global Volcanism Network</a>, <a href="https://www.antaranews.com/berita/231163/merapi-belum-stabil" target="_blank" rel="noopener noreferrer">Antara</a>, <a href="https://slemankab.bps.go.id/id/publication/2025/09/26/16cea8d35199d6a8bd1e74cd/pakem-district-in-figures-2025.html" target="_blank" rel="noopener noreferrer">BPS Pakem 2025</a>, <a href="https://slemankab.bps.go.id/en/publication/2026/02/27/0f87290bbc9c2d648f2210f7/kabupaten-sleman-dalam-angka-2026.html" target="_blank" rel="noopener noreferrer">BPS Sleman 2026</a>, <a href="https://regional.kompas.com/read/2013/10/08/2244347/Sleman.Kantongi.HKI.Salak.Pondoh" target="_blank" rel="noopener noreferrer">Kompas</a>, <a href="https://visitingjogja.jogjaprov.go.id/kr/?p=14242" target="_blank" rel="noopener noreferrer">Dinas Pariwisata DIY</a>, <a href="https://ejurnal.ung.ac.id/index.php/jhcj/article/view/23398" target="_blank" rel="noopener noreferrer">Jurnal UNG</a></p>
+    </section>
+    <section id="lokasi" class="chapter chapter-places" aria-labelledby="lokasi-title">
+      <div class="wrap">
+        <div class="chapter-head">
+          <p class="section-eyebrow" data-reveal>Lokasi pengabdian</p>
+          <h2 id="lokasi-title" class="section-title" data-reveal style="--delay:.08s"><span class="title-count">2</span> kalurahan, <i>satu tujuan.</i></h2>
+          <p class="section-lead" data-reveal style="--delay:.16s">Kami bertugas di Candibinangun dan Purwobinangun, dua kalurahan yang bersebelahan di sisi barat Pakem. Pilih salah satunya di peta atau lewat tombol di bawah.</p>
+        </div>
+        <div class="places">
+          <figure class="places-map" data-reveal>
+            <svg class="pakem-map" viewBox="0 0 440 861" role="group" aria-label="Peta Kapanewon Pakem dan lima kalurahannya. Candibinangun dan Purwobinangun adalah lokasi KKN."><g class="regions"><path class="region" data-place="hargobinangun" d="M172.9 459.4L176.1 460L181.1 462.7L182.6 462.8L186.6 461.5L194 464.2L195.3 464.2L199.7 466.6L202.2 469.3L196.6 480L196.1 484.1L196.4 487L196.8 489.5L198 491.5L197.9 495L198.9 497.5L197.2 501.9L194.7 505.3L192.9 514L193.3 518.3L193 523.1L195.2 524.1L192.9 525.8L192.4 528.9L179.9 533.3L179.2 534.5L179 537L180 539.4L182 541.3L184.5 541.6L193.2 544.3L215.6 549.3L217.4 550L217.7 553L218.4 553.4L225.5 553.7L227.7 554.2L227.9 558.1L227 563L225.6 565.3L224.1 566L221.7 565.6L222.9 568.9L222.2 571.7L217.9 572.6L218.4 575.7L232 576.6L235 574.7L238.4 573.9L240.1 570.9L242.4 568.4L245 562.3L247.7 553.7L247.6 551.6L243.5 551.2L237.6 549.6L238.2 543.2L240.7 538.5L249 542.3L256 544.5L275.1 546L275.3 545.7L274.4 543.8L273.7 537.9L275.2 531.6L274.2 523.1L270.4 521.7L268.3 520.5L266.6 516.6L265 515.1L264 509.8L264.2 507.2L264.8 505.6L268.8 501.8L270.1 499.2L269.3 495.2L270.3 492.7L270.1 491.4L269 489L270 486.8L269.7 484.7L268.5 483.1L269 481.2L266.7 475.4L267.3 470.7L269.9 467.4L271.3 463.8L267.6 456.5L268.8 454.8L268.5 453.2L266.3 451.3L266.3 447.8L267 446.3L267.7 439.6L269.8 435.8L269.4 431.9L269.9 430.9L270.1 425.1L271.5 422.1L271.1 419.7L272.9 416.6L274.1 412.7L273.9 410.5L275.3 406.2L279.2 403.1L281.7 400.5L283.4 397.1L281.7 392.7L280.1 392L277.5 387L277.6 384.8L277 383.1L280.1 375.9L282.5 367.3L282.5 361.2L285.2 350.7L288.5 350.2L289.1 347.2L295.3 344.6L296.2 343L297.4 342.5L299.2 343.2L301.6 339.5L303.2 338.1L305.4 333.2L307.4 331.5L310.1 330.3L310.9 328.3L310 326.1L312 321.4L315.1 317.8L321.4 308.9L323.1 309.6L323.9 308.9L323.7 306.3L324.7 295.7L325.8 293.3L327.2 291.2L329.6 291.3L331.5 288.8L332 286.6L331.8 282.8L332.4 280.3L334.6 278.7L335.3 276.2L336.7 274.6L339.9 272.4L340.6 268.8L341.9 267.7L342.1 265.7L339.1 261.8L339 257.8L338.3 255.5L337.1 253.6L333.1 253.4L331.2 251.4L331.2 249.5L331.9 246.9L337.2 245.3L337.3 243.2L336.4 241L336.6 239.4L337.7 237.7L338 234.4L341.9 229.7L342.8 227.6L342.7 224.2L343.6 221.9L343.4 218.1L345.3 215.6L346.8 211.8L347 206.7L342.5 199.2L342.9 194.6L345.7 188.8L350.1 177.7L352.5 173.3L356 169.7L362.5 165.9L372.3 162.4L380.6 161.9L400.9 163.7L411.9 162.3L420.9 157.9L426.2 153L429.1 147.3L430 146.4L426.2 141.8L424.2 138.3L419.7 124.2L417.2 109.8L418 98.8L417.1 88.7L413.8 78.9L410.3 72.3L407 68.5L394.2 56.9L388 52.2L379.2 43.7L378 41.8L369.5 20.8L367.8 12.9L366.4 10L365 14.7L361 21L354.4 26.3L346.2 31.8L336.8 37.9L296.6 56.8L281.6 65.5L263.2 77L251.1 85.4L227 105L212.8 117.8L204.4 125.7L196.9 135.5L198.2 141L197.9 144.8L200.2 149.6L202.6 152.8L206.1 160.3L206.5 171.4L209.7 185.1L225.3 184.2L244.6 184.8L254.1 186.9L259 189.4L260.4 191.4L260.4 196.4L261.6 202.8L261.7 209.8L260.8 216.7L264.3 222.7L266.7 232.6L266.1 238.8L264 246.5L264 247.5L264.8 248.7L263.5 251.8L261.9 252.4L260.8 254L259.8 260.8L257.4 266.1L253.1 268.8L251 276.2L248 283.6L246.5 291.8L247.5 293.4L242.4 298.8L239.6 299.3L236.2 298.2L235.7 298.8L235.7 301.1L235.1 302.7L234.3 303.3L233.5 306.8L232 306.8L231.7 308.9L228.6 309.8L227.2 310.6L226.4 316.4L226.8 318.5L223.3 324.3L222.5 326.8L222.5 332.7L220.5 334.5L220 336L220.5 337.7L221.9 339.6L219.1 349L219.3 352.8L218.6 355.6L218.4 364.8L216.1 366.6L215.5 372.6L212.6 376.7L212.8 379.2L211.3 380.8L209.4 386.8L210.1 391.9L209.2 394.4L207.5 395.9L207.4 398.5L207.9 400.9L211 403.4L209.9 409.5L209 411L207 412.1L206.1 414.2L203.1 416.7L204.3 419L204.5 427.7L202.6 432.3L200.3 440.9L198.2 441.9L196.9 443.8L195.6 444.4L190.1 445.8L188.1 448.1L185.9 452.8L184.5 454L175.5 456.1L174.5 458.3L172.9 459.4Z" pathLength="1" style="--i:0"/><path class="region is-target" tabindex="0" role="button" aria-label="Purwobinangun, lokasi KKN" aria-pressed="false" data-place="purwobinangun" d="M10 693.1L28.5 699.9L30.7 698.1L32.5 695.8L35 695.7L41 699.2L44.8 707.3L67.9 712.6L71 711.6L84.9 704.9L98.6 708.6L102.1 696.1L102.2 692.4L104 683.5L103.5 679.1L104.6 673.5L104.1 668L104.5 662.3L105.1 658.5L107.1 655.9L106.1 648.9L107.2 646.9L107.7 640.9L106.8 638.4L108.5 635.5L108 633.8L109.1 627.2L108.7 623.7L110.3 623.1L112.8 618.1L114 611.7L115.6 610.7L116.4 609.4L116.4 606.9L117.1 604.3L118.1 602.7L120.1 602.1L121.3 600.6L121.9 598.1L123.3 595.9L122.5 593.5L123.4 586.2L122.8 584.6L123.3 581.5L122.2 578.4L125 574.5L125 572.6L123.2 570.6L123.8 566.4L122.7 562.7L123 561.7L124.8 559.8L125.1 557.9L127.3 556.8L127.3 554.4L126.3 550.9L127.9 545.5L130.4 544.7L132.9 542.2L134.1 539.7L134.3 537.2L136.2 533L134.9 529.4L134.8 528.1L135.8 525.6L135.4 524.1L137.6 520.4L141.3 519.4L144.2 519.4L146.3 517.6L150.3 515.5L151.7 504.4L153.1 500L154.4 496.1L156 493.9L156.5 489.7L158.5 487.5L159.7 484.4L161.6 481.7L161.6 477.3L162.8 471.9L163.9 470.3L164 466.8L166.2 463.7L169.1 462.3L174.5 458.3L175.5 456.1L184.5 454L185.9 452.8L188.1 448.1L190.1 445.8L195.6 444.4L196.9 443.8L198.2 441.9L200.3 440.9L202.6 432.3L204.5 427.7L204.3 419L203.1 416.7L206.1 414.2L207 412.1L209 411L209.9 409.5L211 403.4L207.9 400.9L207.4 398.5L207.5 395.9L209.2 394.4L210.1 391.9L209.4 386.8L211.3 380.8L212.8 379.2L212.6 376.7L215.5 372.6L216.1 366.6L218.4 364.8L218.6 355.6L219.3 352.8L219.1 349L221.9 339.6L220.5 337.7L220 336L220.5 334.5L222.5 332.7L222.5 326.8L223.3 324.3L226.8 318.5L226.4 316.4L227.2 310.6L228.6 309.8L231.7 308.9L232 306.8L233.5 306.8L234.3 303.3L235.1 302.7L235.7 301.1L235.7 298.8L236.2 298.2L239.6 299.3L242.4 298.8L247.5 293.4L246.5 291.8L248 283.6L251 276.2L253.1 268.8L257.4 266.1L259.8 260.8L260.8 254L261.9 252.4L263.5 251.8L264.8 248.7L264 247.5L264 246.5L266.1 238.8L266.7 232.6L264.3 222.7L260.8 216.7L261.7 209.8L261.6 202.8L260.4 196.4L260.4 191.4L259 189.4L254.1 186.9L244.6 184.8L225.3 184.2L209.7 185.1L209.7 191.7L211.5 201.4L211.5 208.6L210.3 217.8L212.2 220.6L211.8 222.4L211.9 226.4L209 233.5L206.3 238.5L203.2 238.1L196.2 248L195.9 257.4L196.3 262.3L195.3 265.4L195 273.8L192.2 284L190.8 291.4L186.2 291.3L184.6 292.5L183.4 298.2L182.2 298.5L179.9 300L180.6 303.9L177.6 305.2L176.2 306.5L176 309.3L174.5 311L173.9 313.3L173.9 319.3L175.2 322.8L177.3 326.1L176 334.9L176.3 337.9L175.2 338.9L175.6 344.7L174.5 346.9L174.5 353.4L172 355.9L172.4 357L169.5 360.1L169.3 362.2L170.2 365L169.5 366.9L168.4 369.2L167.1 370.5L166.8 372.7L165 373.9L163.8 375.4L162.7 378.7L161.6 380L160.8 385.1L159.2 387.1L156.5 393L156 397.3L153.9 397.9L151.9 401.6L149.8 403.9L145.9 410L144.5 413L143.5 417.4L150.1 420.3L152.2 422L150.8 426.8L149.4 429.2L147.4 431.2L146.8 433.7L147.3 437.5L146.4 441.9L144.6 444L143.6 447.3L137 458.5L132.7 459.9L128.7 467.2L126.7 469.4L116.4 498.5L117.3 501L118.8 503.1L118.8 505.7L115.6 507.1L113.8 508.6L113.5 514.5L112.3 515.6L107.2 525L101.7 532.4L97.9 534L96.5 536.2L94.3 536.4L92.3 538.2L89.7 539.5L88.6 541.5L88.3 546.4L87.7 548.7L82.3 562.8L82.4 566.2L83.2 569.1L81.3 571.4L80 575L80.8 580.3L68 592.6L64.6 594.5L61.8 597.8L58.6 606.2L56.1 608.7L54.6 612.1L52.2 614L45.5 622.4L41 625.8L39.9 627.8L41.6 630.3L39.6 630.9L37.7 632.3L37 637.7L33.9 640.6L28.3 653L26.3 654.3L24.7 654.5L24 656.4L19.9 657.4L18.9 659.7L16.3 662.5L14.8 671.4L11.1 682.8L10 693.1Z" pathLength="1" style="--i:1"/><path class="region" data-place="pakembinangun" d="M198.8 646.6L204.5 649.9L217.5 655.5L217.7 667.8L215.2 669.7L214.3 671.3L214.1 673.1L218.2 674L218.8 676.3L217.3 682.6L217.8 685.5L225.9 685.7L233.2 685.4L234.9 688.8L237.6 691.5L239.7 692.5L242.3 686.2L245.3 686.5L249.9 689.1L261.2 691.3L266.1 698.4L267.9 698.4L269.4 696.4L271.9 684.9L272.2 680.1L274.5 670.8L285.1 671.1L286.6 664.3L285 661.9L285.1 658.6L286.8 656.3L289.6 655L293.7 652.1L293.8 649.9L293.7 646.8L292.6 643.2L286.4 638.3L284.3 635.3L280.8 627.6L282 619.7L280.7 618.6L281.3 614.2L283.8 610.5L285.2 606.8L285.1 601.3L286.2 596.2L288.1 591L286.4 585.8L284.4 584.4L279.2 572.8L276.1 570.3L273.6 564.2L272.5 557.6L273 554.3L272.3 552.7L272.3 550.6L275.1 546L256 544.5L249 542.3L240.7 538.5L238.2 543.2L237.6 549.6L243.5 551.2L247.6 551.6L247.7 553.7L245 562.3L242.4 568.4L240.1 570.9L238.4 573.9L235 574.7L232 576.6L218.4 575.7L214.1 576.9L214.3 580.1L213.4 580.8L214.1 582.2L213.7 584.1L210.6 589.5L207.1 597.5L207.1 598.6L209.8 602L209.8 605L207.2 614.5L208.6 616.9L207.9 618.4L206.2 618.9L206.8 623.6L206.3 625.4L203 627.6L202.3 638.2L201.1 640.1L201 643L199 644.5L198.8 646.6Z" pathLength="1" style="--i:2"/><path class="region" data-place="harjobinangun" d="M112.5 839.1L115.3 841.8L117.3 842.3L120 845.3L120.3 847.2L126.2 851.2L128.6 849.2L130.1 846.3L133.8 841.9L134.2 837.8L136.3 836.7L139 833.7L141.5 831.9L141.6 829.5L145.2 826.5L144.6 822.5L146.2 822.5L147.4 821.8L146.6 817.5L148.2 813.9L149.6 809.1L149.8 803L151.2 798.9L151.6 795.9L153.7 795.3L154.2 792.2L155.3 791.1L155.3 788.4L161.5 783.9L162.1 781.7L161.9 779.6L164 778.6L165.9 777L165.3 775.2L165.5 773.6L170.7 770.9L170.9 768.4L172.1 765L174.8 761.7L176.6 760L177.6 759.8L178.7 757.7L179.1 754.3L180.3 751.8L182 750.6L181.7 747.1L182.6 745.3L186.4 742.5L192.3 732.4L201.3 729L203.7 727.1L205.8 723.4L206.4 715.4L205.7 713.5L210 707.2L213.2 699.2L214.2 690.6L215.6 685.5L215.8 683.3L214.7 680.6L214.8 677.9L214.1 675.2L214.1 673.1L214.3 671.3L215.2 669.7L217.7 667.8L217.5 655.5L204.5 649.9L198.8 646.6L199 644.5L201 643L201.1 640.1L202.3 638.2L203 627.6L206.3 625.4L206.8 623.6L206.2 618.9L207.9 618.4L208.6 616.9L207.2 614.5L209.8 605L209.8 602L207.1 598.6L207.1 597.5L210.6 589.5L213.7 584.1L214.1 582.2L213.4 580.8L214.3 580.1L214.1 576.9L218.4 575.7L217.9 572.6L222.2 571.7L222.9 568.9L221.7 565.6L224.1 566L225.6 565.3L227 563L227.9 558.1L227.7 554.2L225.5 553.7L218.4 553.4L217.7 553L217.4 550L193.2 544.3L184.5 541.6L182 541.3L181.4 545.9L182.2 549.3L181.6 551.3L179.3 557.3L174.6 564.5L174.3 568.1L177.1 573.4L180.8 576.6L180.1 582.7L175.7 588L173.5 587.8L170.8 593.4L170.9 595.1L169.8 601.2L167.8 604.2L167 607.9L161.5 613.4L159.1 616.7L158 622.8L158.2 626L156.4 629.6L156.5 631.4L159.2 633.6L159.8 639.7L158 645L154.4 651.4L153.7 655L152.6 657.7L150.9 659.3L151.2 665.7L149.4 668.5L147.1 670.7L147.5 675.7L146.8 680.9L145 686.9L145.5 689.6L144.6 692.4L145.7 695.2L149.9 702L151.3 706.3L150.2 713.3L150.3 717L147.8 720.5L146.7 724.6L147.2 725.9L147.3 728.3L146.6 735.9L148.6 740L147.9 745.1L148 747.4L149.3 751.7L148.3 753.9L150.4 761.3L149.2 762.8L149 764.4L149.8 770.3L148.3 771L151.4 777.1L149.3 778L145.2 781.4L143.3 789.3L141.3 790.9L137 792.2L135.6 798.1L134.1 802.1L134 806.3L132.1 806.1L129.5 811.6L129 820.9L127.4 825.1L124 828.6L116.2 833.7L114.1 836.1L112.5 839.1Z" pathLength="1" style="--i:3"/><path class="region is-target" tabindex="0" role="button" aria-label="Candibinangun, lokasi KKN" aria-pressed="false" data-place="candibinangun" d="M94.1 730.5L96.3 742L95.8 743.8L95.9 746.2L95 747.5L94.6 751.6L103.3 755.9L101.6 759L102.3 763.1L102.3 766.3L104.2 771.6L111.9 768.9L132.7 771.3L136.1 771L136.5 765.7L140.6 766.6L148.3 771L149.8 770.3L149 764.4L149.2 762.8L150.4 761.3L148.3 753.9L149.3 751.7L148 747.4L147.9 745.1L148.6 740L146.6 735.9L147.3 728.3L147.2 725.9L146.7 724.6L147.8 720.5L150.3 717L150.2 713.3L151.3 706.3L149.9 702L145.7 695.2L144.6 692.4L145.5 689.6L145 686.9L146.8 680.9L147.5 675.7L147.1 670.7L149.4 668.5L151.2 665.7L150.9 659.3L152.6 657.7L153.7 655L154.4 651.4L158 645L159.8 639.7L159.2 633.6L156.5 631.4L156.4 629.6L158.2 626L158 622.8L159.1 616.7L161.5 613.4L167 607.9L167.8 604.2L169.8 601.2L170.9 595.1L170.8 593.4L173.5 587.8L175.7 588L180.1 582.7L180.8 576.6L177.1 573.4L174.3 568.1L174.6 564.5L180.8 554.3L182.2 549.3L181.4 545.9L182.1 541.3L180 539.4L179 537L179.2 534.5L179.9 533.3L192.4 528.9L192.9 525.8L195.2 524.1L193 523.1L193.3 518.3L192.9 514L194.7 505.3L197.2 501.9L198.9 497.5L197.9 495L198 491.5L196.8 489.5L196.4 487L196.1 484.1L196.6 480L202.2 469.3L199.7 466.6L195.3 464.2L194 464.2L186.6 461.5L182.6 462.8L181.1 462.7L176.1 460L172.9 459.4L169.1 462.3L166.2 463.7L164 466.8L163.9 470.3L162.8 471.9L161.6 477.3L161.6 481.7L159.7 484.4L158.5 487.5L156.5 489.7L156 493.9L154.4 496.1L153.1 500L151.7 504.4L150.3 515.5L146.3 517.6L144.2 519.4L141.3 519.4L137.6 520.4L135.4 524.1L135.8 525.6L134.8 528.1L134.9 529.4L136.2 533L134.3 537.2L134.1 539.7L132.9 542.2L130.4 544.7L127.9 545.5L126.3 550.9L127.3 554.4L127.3 556.8L125.1 557.9L124.8 559.8L123 561.7L122.7 562.7L123.8 566.4L123.2 570.6L125 572.6L125 574.5L122.2 578.4L123.3 581.5L122.8 584.6L123.4 586.2L122.5 593.5L123.3 595.9L121.9 598.1L121.3 600.6L120.1 602.1L118.1 602.7L117.1 604.3L116.4 606.9L116.4 609.4L115.6 610.7L114 611.7L112.8 618.1L110.3 623.1L108.7 623.7L109.1 627.2L108 633.8L108.5 635.5L106.8 638.4L107.7 640.9L107.2 646.9L106.1 648.9L107.1 655.9L105.1 658.5L104.5 662.3L104.1 668L104.6 673.5L103.5 679.1L104 683.5L102.2 692.4L102.1 696.1L98.6 708.6L97.4 711.2L98 718.8L97.5 724.2L94.1 730.5Z" pathLength="1" style="--i:4"/></g><path class="region-outline is-selection" aria-hidden="true"/><path class="region-outline is-focus" aria-hidden="true"/><g class="region-labels" aria-hidden="true"><text class="region-label" data-place="hargobinangun" x="330" y="110" text-anchor="middle" dominant-baseline="middle">Hargobinangun</text><text class="region-label is-target" data-place="purwobinangun" x="148.7" y="459.3" text-anchor="middle" dominant-baseline="middle" transform="rotate(-67.9 148.7 459.3)">Purwobinangun</text><text class="region-label" data-place="pakembinangun" x="248.4" y="622.9" text-anchor="middle" dominant-baseline="middle" transform="rotate(-90 248.4 622.9)">Pakembinangun</text><text class="region-label" data-place="harjobinangun" x="177.8" y="676" text-anchor="middle" dominant-baseline="middle" transform="rotate(-75.7 177.8 676)">Harjobinangun</text><text class="region-label is-target" data-place="candibinangun" x="142.9" y="619.4" text-anchor="middle" dominant-baseline="middle" transform="rotate(-78.9 142.9 619.4)">Candibinangun</text></g><g class="map-pins"><g class="map-pin" tabindex="0" role="button" aria-label="Kantor Kalurahan Candibinangun, kantor kalurahan" data-place="candibinangun" data-name="Kantor Kalurahan Candibinangun" data-kind="Kantor kalurahan" transform="translate(150.1 623.9)"><circle class="pin-hit" r="22"/><circle class="pin-ring" r="7"/><circle class="pin-dot" r="2.8"/></g><g class="map-pin" tabindex="0" role="button" aria-label="Kampung Mina Padi Samberembe, mina padi dan wisata" data-place="candibinangun" data-name="Kampung Mina Padi Samberembe" data-kind="Mina padi dan wisata" transform="translate(115.3 688)"><circle class="pin-hit" r="22"/><circle class="pin-ring" r="7"/><circle class="pin-dot" r="2.8"/></g><g class="map-pin" tabindex="0" role="button" aria-label="Kantor Kalurahan Purwobinangun, kantor kalurahan" data-place="purwobinangun" data-name="Kantor Kalurahan Purwobinangun" data-kind="Kantor kalurahan" transform="translate(87.5 572.5)"><circle class="pin-hit" r="22"/><circle class="pin-ring" r="7"/><circle class="pin-dot" r="2.8"/></g><g class="map-pin" tabindex="0" role="button" aria-label="Bukit Turgo, bukit dan wisata religi" data-place="purwobinangun" data-name="Bukit Turgo" data-kind="Bukit dan wisata religi" transform="translate(247.7 231)"><circle class="pin-hit" r="22"/><circle class="pin-ring" r="7"/><circle class="pin-dot" r="2.8"/></g><g class="map-pin" tabindex="0" role="button" aria-label="Kantor Kapanewon Pakem, pusat pemerintahan pakem" data-place="pakembinangun" data-name="Kantor Kapanewon Pakem" data-kind="Pusat pemerintahan Pakem" transform="translate(231.2 667.8)"><circle class="pin-hit" r="22"/><circle class="pin-ring" r="7"/><circle class="pin-dot" r="2.8"/></g></g><g class="map-north" aria-hidden="true" transform="translate(44 46)"><path d="M0 -26 10 6 0 -1 -10 6Z"/><text y="28" text-anchor="middle">U</text><text class="map-north-note" x="22" y="-8">ke Merapi</text></g></svg>
+            <div class="map-tip" aria-hidden="true"></div>
+            <figcaption>
+              <span class="map-legend"><span class="is-selected"><i></i>Dipilih</span><span class="is-target"><i></i>Lokasi KKN</span><span><i></i>Kalurahan lain di Pakem</span></span>
+              <span class="map-credit">Batas wilayah: <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">© kontributor OpenStreetMap</a>, digambar ulang secara skematis, bukan batas resmi.</span>
+            </figcaption>
+          </figure>
+          <div class="places-panel" data-reveal style="--delay:.12s">
+            <div class="place-tabs" role="tablist" aria-label="Pilih kalurahan">
+              <button id="tab-candibinangun" role="tab" type="button" data-place="candibinangun" aria-controls="place-candibinangun" aria-selected="true">Candibinangun</button>
+              <button id="tab-purwobinangun" role="tab" type="button" data-place="purwobinangun" aria-controls="place-purwobinangun" aria-selected="false" tabindex="-1">Purwobinangun</button>
+            </div>
+            <article id="place-candibinangun" class="place" role="tabpanel" aria-labelledby="tab-candibinangun" data-place="candibinangun" data-name="Kalurahan Candibinangun" data-query="Candibinangun, Pakem, Sleman, Daerah Istimewa Yogyakarta" data-zoom="13">
+              <p class="place-kicker">Kalurahan · Kapanewon Pakem</p>
+              <h3 class="place-name">Candi<i>binangun</i></h3>
+              <p class="place-text">Candibinangun membentang dari utara ke selatan, di antara Sungai Boyong di barat dan Sungai Trasi di timur. Sawah dan ladang mendominasi wilayahnya. Airnya yang melimpah juga menghidupi kolam ikan dan mina padi.</p>
+              <dl class="place-facts">
+                <div><dt>Luas</dt><dd>6,36 <small>km²</small></dd></div>
+                <div><dt>Padukuhan</dt><dd>12</dd></div>
+                <div><dt>Penduduk 2024</dt><dd>6.854 <small>jiwa</small></dd></div>
+                <div><dt>Ketinggian</dt><dd>400–600 <small>mdpl</small></dd></div>
+              </dl>
+              <ul class="place-chips" aria-label="Potensi">
+                <li>Kampung Mina Padi Samberembe</li>
+                <li>Padi, jagung, dan cabai</li>
+                <li>Ikan nila, bawal, dan lele</li>
+                <li>Merti Bumi Bulus Tempel</li>
+              </ul>
+              <p class="place-note"><b>Tahukah kamu?</b> Menurut kalurahan, <i>candi</i> berarti bangunan batu dan <i>binangun</i> berarti dibangun. Pasir dan batu dari Sungai Boyong memang bahan bangunan.</p>
+              <div class="place-actions">
+                <a class="place-button is-map" href="#peta-google"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M9 4 3 6.5v13L9 17l6 2.5 6-2.5V4l-6 2.5Z"/><path d="M9 4v13m6-10.5v13"/></svg>Lihat di peta Google</a>
+                <a class="place-button is-quiet" href="https://www.google.com/maps/search/?api=1&amp;query=Kalurahan%20Candibinangun%2C%20Pakem%2C%20Sleman" target="_blank" rel="noopener noreferrer">Buka Google Maps<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 18 18 6M8 6h10v10"/></svg><span class="sr-only">, membuka tab baru</span></a>
+              </div>
+              <p class="place-source">Sumber: <a href="https://slemankab.bps.go.id/id/publication/2025/09/26/16cea8d35199d6a8bd1e74cd/pakem-district-in-figures-2025.html" target="_blank" rel="noopener noreferrer">BPS Pakem 2025</a>, <a href="https://candibinangunsid.slemankab.go.id/home/profil/" target="_blank" rel="noopener noreferrer">Kalurahan Candibinangun</a></p>
+            </article>
+            <article id="place-purwobinangun" class="place" role="tabpanel" aria-labelledby="tab-purwobinangun" data-place="purwobinangun" data-name="Kalurahan Purwobinangun" data-query="Purwobinangun, Pakem, Sleman, Daerah Istimewa Yogyakarta" data-zoom="12" hidden>
+              <p class="place-kicker">Kalurahan · Kapanewon Pakem</p>
+              <h3 class="place-name">Purwo<i>binangun</i></h3>
+              <p class="place-text">Purwobinangun adalah kalurahan paling barat di Pakem. Wilayahnya naik sampai hutan lindung Merapi di utara, diapit Sungai Boyong di timur dan Sungai Winongo di barat. Di sinilah KWT Guyub Rukun berada.</p>
+              <dl class="place-facts">
+                <div><dt>Luas</dt><dd>13,48 <small>km²</small></dd></div>
+                <div><dt>Padukuhan</dt><dd>16</dd></div>
+                <div><dt>Penduduk 2024</dt><dd>9.847 <small>jiwa</small></dd></div>
+                <div><dt>Ketinggian</dt><dd>450–900 <small>mdpl</small></dd></div>
+              </dl>
+              <ul class="place-chips" aria-label="Potensi">
+                <li>KWT Guyub Rukun, Kardangan</li>
+                <li>Salak pondoh</li>
+                <li>Padi merah Sembada Merah</li>
+                <li>Bukit Turgo</li>
+              </ul>
+              <p class="place-note"><b>Tahukah kamu?</b> Turgo, padukuhan paling utara di Purwobinangun, berbatasan langsung dengan Taman Nasional Gunung Merapi.</p>
+              <div class="place-actions">
+                <a class="place-button is-map" href="#peta-google"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M9 4 3 6.5v13L9 17l6 2.5 6-2.5V4l-6 2.5Z"/><path d="M9 4v13m6-10.5v13"/></svg>Lihat di peta Google</a>
+                <a class="place-button is-quiet" href="https://www.google.com/maps/search/?api=1&amp;query=Kalurahan%20Purwobinangun%2C%20Pakem%2C%20Sleman" target="_blank" rel="noopener noreferrer">Buka Google Maps<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M6 18 18 6M8 6h10v10"/></svg><span class="sr-only">, membuka tab baru</span></a>
+              </div>
+              <p class="place-source">Sumber: <a href="https://slemankab.bps.go.id/id/publication/2025/09/26/16cea8d35199d6a8bd1e74cd/pakem-district-in-figures-2025.html" target="_blank" rel="noopener noreferrer">BPS Pakem 2025</a>, <a href="https://purwobinangunsid.slemankab.go.id/home/" target="_blank" rel="noopener noreferrer">Kalurahan Purwobinangun</a></p>
+            </article>
+          </div>
+        </div>
+        <div id="peta-google" class="gmap" data-reveal>
+          <div class="gmap-facade"><svg class="gmap-ghost" aria-hidden="true" focusable="false"><path/></svg>
+            <span class="gmap-kicker">Peta Google</span>
+            <span class="gmap-title">Kalurahan Candibinangun</span>
+            <button class="gmap-load" type="button"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11Z"/><circle cx="12" cy="10" r="2.5"/></svg>Tampilkan peta interaktif</button>
+            <p>Peta dimuat dari Google setelah tombol ditekan. Garis merah putus-putus menandai batas kalurahan.</p>
+          </div>
+          <div class="gmap-view" role="group" aria-label="Jenis peta"><button type="button" data-view="k" aria-pressed="true">Satelit</button><button type="button" data-view="m" aria-pressed="false">Peta</button></div>
+        </div>
+      </div>
+    </section>
+  </div>
+  <footer class="site-footer">
+    <div class="wrap footer-main">
+      <div class="footer-brand">
+        <p class="footer-mark">Tentrem<svg viewBox="0 0 264 244" fill="currentColor" aria-hidden="true" focusable="false"><use href="#sprig-shape"/></svg><br><i>ing</i> Pakem<span>.</span></p>
+        <p class="footer-unit">KKN-PPM UGM Periode 3 · 2026</p>
+      </div>
+      <div class="footer-col">
+        <h2>Lokasi</h2>
+        <p>Kalurahan Candibinangun dan Kalurahan Purwobinangun<br>Kapanewon Pakem, Kabupaten Sleman<br>D.I. Yogyakarta</p>
+      </div>
+      <nav class="footer-col" aria-label="Jelajahi">
+        <h2>Jelajahi</h2>
+        <ul>
+          <li><a href="#tema">Tema KKN</a></li>
+          <li><a href="#pakem">Mengenal Pakem</a></li>
+          <li><a href="#lokasi">Lokasi pengabdian</a></li>
+          <li><button class="footer-journal" type="button" aria-haspopup="dialog" aria-controls="pakem-story">Perjalanan kami</button></li>
+        </ul>
+      </nav>
+      <div class="footer-col">
+        <h2>Ikuti</h2>
+        <a class="footer-instagram" href="https://www.instagram.com/tentremingpakem/" target="_blank" rel="noopener noreferrer"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="4" y="4" width="16" height="16" rx="4.5"/><circle cx="12" cy="12" r="3.5"/><circle cx="17.1" cy="6.9" r=".8" fill="currentColor" stroke="none"/></svg>@tentremingpakem<span class="sr-only"> di Instagram, membuka tab baru</span></a>
+      </div>
+    </div>
+    <div class="wrap footer-bottom">
+      <p>© Tentrem ing Pakem 2026</p>
+      <p class="footer-sources">Sumber data tertaut di tiap bagian: BPS Sleman, situs resmi kalurahan, UNESCO, dan lainnya. Batas wilayah © kontributor OpenStreetMap.</p>
+      <a class="footer-top" href="#beranda">Kembali ke atas <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 20V4m-6 6 6-6 6 6"/></svg></a>
+    </div>
+  </footer>
   <button class="motion-toggle" type="button" aria-pressed="false" aria-label="Jeda animasi" title="Jeda animasi"><span class="motion-icon" aria-hidden="true"></span></button>
   <dialog id="pakem-story" aria-labelledby="story-title">
     <button class="close-dialog" type="button" aria-label="Tutup perjalanan kami"><span aria-hidden="true"><svg class="icon icon-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m6 6 12 12M6 18 18 6"/></svg></span></button>
@@ -167,6 +382,6 @@
     </div>
   </dialog>
   <template id="spark-icon"><svg class="icon icon-spark" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false"><path d="M12 1c1.4 7.2 3.8 9.6 11 11-7.2 1.4-9.6 3.8-11 11C10.6 15.8 8.2 13.4 1 12 8.2 10.6 10.6 8.2 12 1Z"/></svg></template>
-  <script src="script.js?v=20261006-stops" defer></script>
+  <script src="script.js?v=20261007-chapters" defer></script>
 </body>
 </html>
