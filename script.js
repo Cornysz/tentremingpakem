@@ -483,6 +483,21 @@ reducedMotion.addEventListener('change', () => { if (!motionAllowed()) { panelAn
     document.body.classList.toggle('is-reading', !entry.isIntersecting);
   }, { rootMargin: '-88% 0px 0px 0px' }).observe(hero);
   const onScroll = () => document.body.classList.toggle('is-scrolled', scrollY > 40);
+  // If nobody has moved after six seconds, the slope breathes once and the leaf falls, as a nudge to scroll.
+  let stirred = false;
+  ['pointerdown', 'keydown', 'wheel', 'touchstart'].forEach(type => addEventListener(type, () => { stirred = true; }, { once: true, passive: true }));
+  addEventListener('pointermove', function moved(event) { if (event.pointerType !== 'mouse') return; stirred = true; removeEventListener('pointermove', moved); }, { passive: true });
+  setTimeout(() => {
+    if (stirred || scrollY >= 40 || document.hidden || !motionAllowed()) return;
+    document.querySelectorAll('.slope, .scroll-cue').forEach(element => {
+      element.classList.add('is-nudging');
+      element.addEventListener('animationend', function done(event) {
+        if (event.animationName !== 'slope-nudge' && event.animationName !== 'chev-nudge') return;
+        element.classList.remove('is-nudging');
+        element.removeEventListener('animationend', done);
+      });
+    });
+  }, 6000);
   window.addEventListener('scroll', onScroll, { passive: true });
   onScroll();
 
@@ -493,6 +508,9 @@ reducedMotion.addEventListener('change', () => { if (!motionAllowed()) { panelAn
     reveal.unobserve(entry.target);
   }), { rootMargin: '0px 0px -10% 0px' });
   document.querySelectorAll('[data-reveal]').forEach(element => reveal.observe(element));
+  // The contour rings behind Pakem draw outward when its heading arrives.
+  const contours = document.querySelector('.contours');
+  document.querySelector('#pakem .section-eyebrow').addEventListener('reveal', () => contours.classList.add('is-drawn'), { once: true });
   // Tells the failsafe in the page head that reveals are handled, so it leaves the content hidden until then.
   document.documentElement.setAttribute('data-reveal-ready', '');
 
@@ -603,7 +621,13 @@ reducedMotion.addEventListener('change', () => { if (!motionAllowed()) { panelAn
   };
   const select = (place, { focusTab = false } = {}) => {
     if (place === current) return;
+    const first = current === undefined;
     current = place;
+    if (!first && motionAllowed()) pins.filter(pin => pin.dataset.place === place).forEach(pin => {
+      pin.classList.remove('is-dropping');
+      void pin.getBoundingClientRect();
+      pin.classList.add('is-dropping');
+    });
     placeTabs.forEach(tab => {
       const on = tab.dataset.place === place;
       tab.setAttribute('aria-selected', String(on));
@@ -680,6 +704,7 @@ reducedMotion.addEventListener('change', () => { if (!motionAllowed()) { panelAn
     });
     target.addEventListener('pointerleave', hideTip);
   });
+  pins.forEach(pin => pin.addEventListener('animationend', event => { if (event.animationName === 'pin-drop') pin.classList.remove('is-dropping'); }));
   pins.forEach(pin => {
     const reveal = () => {
       const box = figure.getBoundingClientRect();
@@ -844,4 +869,62 @@ reducedMotion.addEventListener('change', () => { if (!motionAllowed()) { panelAn
     if (document.body.classList.contains('motion-paused')) assembly.forEach(animation => animation.finish());
   });
   show('utuh');
+})();
+
+// The Pakem figures show the two kalurahan inside them. Pointing at one lights it everywhere; choosing one opens it in Lokasi.
+(() => {
+  const section = document.querySelector('#pakem');
+  const stats = section.querySelector('.pakem-stats');
+  const tip = document.createElement('span');
+  tip.className = 'stat-tip';
+  tip.setAttribute('aria-hidden', 'true');
+  section.append(tip);
+  const map = document.querySelector('.pakem-map');
+  const mini = stats.querySelector('.stat-map');
+  mini.setAttribute('viewBox', map.getAttribute('viewBox'));
+  map.querySelectorAll('.region').forEach((region, n) => {
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    path.setAttribute('class', 'mini-region');
+    path.setAttribute('d', region.getAttribute('d'));
+    path.style.setProperty('--n', n);
+    if (region.classList.contains('is-target')) {
+      path.dataset.place = region.dataset.place;
+      path.dataset.tip = region.getAttribute('aria-label').split(',')[0];
+    }
+    mini.append(path);
+  });
+  const light = place => { if (place) section.dataset.hl = place; else delete section.dataset.hl; };
+  // The tip stays inside the page width, like the map's own tip.
+  const showTip = target => {
+    const box = target.getBoundingClientRect();
+    const frame = section.getBoundingClientRect();
+    tip.textContent = target.dataset.tip;
+    const half = tip.offsetWidth / 2 + 6;
+    tip.style.left = `${Math.min(Math.max(box.left + box.width / 2 - frame.left, half), frame.width - half)}px`;
+    tip.style.top = `${box.bottom - frame.top}px`;
+    tip.classList.add('is-visible');
+  };
+  const hideTip = () => { light(null); tip.classList.remove('is-visible'); };
+  addEventListener('keydown', event => { if (event.key === 'Escape') hideTip(); });
+  const open = (place, from) => {
+    const tab = document.getElementById(`tab-${place}`);
+    tab.click();
+    if (from && from.tagName === 'BUTTON') tab.focus({ preventScroll: true });
+    const stacked = matchMedia('(max-width: 900px)').matches;
+    document.querySelector(stacked ? '#lokasi .places-panel' : '#lokasi .places').scrollIntoView({ block: 'start', behavior: motionAllowed() ? 'smooth' : 'instant' });
+  };
+  stats.querySelectorAll('[data-place]').forEach(piece => {
+    piece.addEventListener('pointerenter', event => {
+      if (event.pointerType !== 'mouse') return;
+      light(piece.dataset.place);
+      showTip(piece);
+    });
+    piece.addEventListener('pointerleave', hideTip);
+    piece.addEventListener('click', () => open(piece.dataset.place));
+  });
+  section.querySelectorAll('.stats-legend button').forEach(button => {
+    ['pointerenter', 'focus'].forEach(type => button.addEventListener(type, () => light(button.dataset.place)));
+    ['pointerleave', 'blur'].forEach(type => button.addEventListener(type, () => light(null)));
+    button.addEventListener('click', () => open(button.dataset.place, button));
+  });
 })();
