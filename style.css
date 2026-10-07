@@ -34,31 +34,109 @@ body.motion-paused .bird,body.motion-paused .bird img,body.motion-paused .scene>
 .brand:active .brand-mark{transform:scale(.94)}
 .brand-hint{position:absolute;left:0;top:calc(100% + 12px);display:flex;align-items:center;gap:7px;padding:7px 10px;background:#f6f1e4ed;border:1px solid #fffcf2ab;border-radius:20px;box-shadow:0 4px 12px #2435200e;font-size:10px;line-height:1.3;letter-spacing:.2px;white-space:nowrap;opacity:0;transform:translateY(-4px);transition:opacity .25s,transform .25s;pointer-events:none}
 .brand-hint .icon{width:12px;height:12px}.brand:hover .brand-hint,.brand:focus-visible .brand-hint{opacity:1;transform:translateY(0)}
-.philosophy-dialog{width:min(460px,calc(100% - 32px));max-height:calc(100svh - 32px)}
-.philosophy-card{position:relative;isolation:isolate;text-align:center;padding:35px 35px 27px;overflow:auto;max-height:calc(100svh - 32px);border-radius:24px;background:radial-gradient(ellipse at 50% 28%,#e6e9d5 0,transparent 57%),var(--paper);box-shadow:0 35px 110px #09170d70;transform-origin:25% 15%}
-.philosophy-card::before{content:"";position:absolute;inset:10px;z-index:-1;border:1px solid #b4bba04d;border-radius:17px;pointer-events:none}
-.philosophy-eyebrow{font-size:9px;letter-spacing:2px;color:#758064;margin:2px 22px 0}
-.logo-garden{position:relative;display:grid;place-items:center;width:240px;height:200px;margin:8px auto 0}
-.philosophy-logo{position:relative;z-index:2;width:124px;height:124px;border-radius:50%;box-shadow:0 0 0 6px #faf8ef,0 7px 25px #3a4e3020;animation:logo-float 6s ease-in-out infinite}
-.logo-orbit{position:absolute;top:50%;left:50%;width:172px;height:172px;margin:-86px;border:1px dashed #88987152;border-radius:50%;animation:logo-orbit 48s linear infinite}
-.logo-orbit::after{content:"";position:absolute;top:17px;left:18px;width:7px;height:7px;background:#cea15a;border:2px solid var(--paper);border-radius:50%}
-.orbit-two{width:194px;height:194px;margin:-97px;border-style:solid;border-color:#88987122;animation-direction:reverse}.orbit-two::after{top:34px;left:12px;width:5px;height:5px;background:#879661;border:0}
-.garden-leaf{position:absolute;width:34px;height:56px;bottom:30px;z-index:3;color:#839064;animation:leaf-nod 5s ease-in-out infinite;transform-origin:50% 100%}.leaf-left{left:8px;--leaf-turn:-22deg}.leaf-right{right:8px;--leaf-turn:20deg;animation-delay:-2s}
-.garden-spark{position:absolute;display:block;color:#a67d47;animation:spark-breathe 4s ease-in-out infinite}.garden-spark svg{display:block;width:100%;height:100%}.spark-one{left:26px;top:24px;width:22px;height:22px}.spark-two{right:19px;top:40px;width:14px;height:14px;animation-delay:-2s}
-.philosophy-card h2{font-size:43px;letter-spacing:-1.5px;line-height:1.1;margin:5px 0 14px}
-.coming-label{display:inline-flex;align-items:center;gap:7px;border:1px solid #c8d0b7;background:#e9eddd;padding:7px 11px;border-radius:20px;font-size:9px;letter-spacing:1.3px;margin:0 0 17px}.coming-label>span{width:5px;height:5px;background:#8a966e;border-radius:50%;animation:spark-breathe 3s ease-in-out infinite}
-#philosophy-description{font-size:14px;line-height:1.75;color:#65715b;margin:0 auto;max-width:310px}.philosophy-note{font:italic 19px/1.3 Georgia,serif;color:#927553;margin:13px 0 22px}
-.return-to-pakem{display:flex;align-items:center;justify-content:center;gap:14px;min-height:46px;margin:0 auto;padding:9px 17px;border:1px solid #c5ceb3;border-radius:30px;background:#e2e8d5;color:#445838;font-size:12px;transition:background .25s,transform .25s}.return-to-pakem .icon{width:17px;height:17px;transition:transform .25s}.return-to-pakem:hover{background:#d6e0c4;transform:translateY(-2px)}.return-to-pakem:hover .icon{transform:translateX(3px)}
+/* Filosofi logo: the logo is split into its four shapes. A shape, its corner label, and its reading light up together. */
+.philosophy-dialog{width:min(980px,calc(100% - 32px));max-height:calc(100svh - 32px)}
+.philosophy-card{position:relative;isolation:isolate;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.04fr);grid-template-areas:"stage head" "stage text";grid-template-rows:auto 1fr;column-gap:clamp(24px,4vw,52px);padding:clamp(28px,3.6vw,44px) clamp(26px,3.8vw,48px) clamp(24px,3vw,34px);overflow:auto;max-height:calc(100svh - 32px);border-radius:24px;background:var(--paper);box-shadow:0 35px 110px #09170d70,inset 0 0 0 10px var(--paper),inset 0 0 0 11px #c9cdb9;transform-origin:25% 15%}
+.anatomy-head{grid-area:head;padding-right:40px}
+.philosophy-eyebrow{font-size:9px;letter-spacing:2px;color:#5d6852;margin:2px 0 0}
+.philosophy-card h2{font-size:clamp(36px,4vw,46px);letter-spacing:-1.5px;line-height:1.05;margin:8px 0 10px}
+.anatomy-hint{max-width:390px;margin:0;font-size:13.5px;line-height:1.65;color:#5d6852}
+.anatomy-stage{grid-area:stage;position:relative;align-self:center;width:100%;max-width:460px;aspect-ratio:1;margin:0 auto}
+.anatomy-stage::before{content:"";position:absolute;inset:12.4%;border-radius:50%;background:radial-gradient(circle at 50% 38%,#fff 0,#fffdf7 60%,#fbf6e9 100%);box-shadow:0 0 0 7px #faf8ef,0 0 0 8px #dcd8c4,0 22px 50px #3a4e3024}
+.anatomy-stage::after{content:"";position:absolute;inset:2%;z-index:-1;border-radius:50%;background:radial-gradient(circle,var(--glow,#e4e8d2) 0,transparent 68%);opacity:.9;transition:opacity .7s}
+.anatomy-stage:not([data-active="utuh"])::after{opacity:1}
+.anatomy-stage[data-active="matahari"]{--glow:#f9dc9a}.anatomy-stage[data-active="gunung"]{--glow:#cddcc0}.anatomy-stage[data-active="huruf-p"]{--glow:#f0d6b4}.anatomy-stage[data-active="daun"]{--glow:#dfe8b0}
+.logo-orbit{position:absolute;top:5%;left:5%;width:90%;height:90%;border:1px dashed #88987152;border-radius:50%;pointer-events:none;animation:logo-orbit 48s linear infinite}
+.logo-orbit::after{content:"";position:absolute;top:13%;left:15%;width:7px;height:7px;background:#cea15a;border:2px solid var(--paper);border-radius:50%}
+.orbit-two{top:1%;left:1%;width:98%;height:98%;border-style:solid;border-color:#88987122;animation-direction:reverse}.orbit-two::after{top:20%;left:9%;width:5px;height:5px;background:#879661;border:0}
+.garden-spark{position:absolute;display:block;color:#a67d47;pointer-events:none;animation:spark-breathe 4s ease-in-out infinite}.garden-spark svg{display:block;width:100%;height:100%}.spark-one{left:1%;top:46%;width:20px;height:20px}.spark-two{right:2%;top:44%;width:13px;height:13px;animation-delay:-2s}
+.anatomy-logo{position:absolute;inset:0;z-index:1;width:100%;height:100%;overflow:visible}
+.part{cursor:pointer;transform-box:fill-box;transform-origin:50% 50%;transition:transform .55s var(--ease)}
+.part-body{transform-box:fill-box}
+.part-leaf .part-body{transform-origin:3% 98%}
+.part-shape{transition:opacity .45s}
+.p-base{fill:#fff;fill-opacity:0}
+.p-fill{opacity:0;pointer-events:none;transition:opacity .5s}
+.part-line{fill:none;stroke:var(--line-color,var(--accent));stroke-width:4.5;stroke-linejoin:round;stroke-linecap:round;stroke-dasharray:1 1;stroke-dashoffset:1;opacity:0;pointer-events:none;transition:opacity .4s}
+.sun-rays{fill:none;stroke:#f2b23d;stroke-width:13;stroke-linecap:round;opacity:0;transform-box:fill-box;transform-origin:50% 50%;transition:opacity .5s}
+.sun-glow{fill:#fcd04a;opacity:0;pointer-events:none;transition:opacity .6s}
+.anatomy-stage:not([data-active="utuh"]) .part:not(.is-active) .part-shape{opacity:.13}
+.anatomy-stage:not([data-active="utuh"]) .part:not(.is-active) .part-line{opacity:.8;stroke:#c6c8b6;stroke-width:3.5;stroke-dashoffset:0}
+.anatomy-stage:not([data-active="utuh"]) .part.is-hover:not(.is-active) .part-shape{opacity:.42}
+.part.is-active,.part.is-hover{transform:scale(1.035)}
+.part-p.is-active,.part-p.is-hover{transform:none}
+.part.is-active .part-line{opacity:1;animation:part-trace 1.6s var(--ease) both}
+.part-p.is-active .p-fill{opacity:1}
+.anatomy-stage[data-active="utuh"] .part-p.is-hover .p-fill{opacity:.75}
+.part-sun{--line-color:#d47c1f}.part-mountain{--line-color:#1f4636}.part-p{--line-color:#b0773c}.part-leaf{--line-color:#4f6e1d}
+.part-sun.is-active .sun-rays{opacity:1;animation:rays-turn 30s linear infinite}
+.part-sun.is-active .sun-glow{opacity:.7;animation:sun-pulse 3.4s ease-in-out infinite}
+.part-leaf.is-active .part-body{animation:leaf-sway 4.2s ease-in-out infinite}
+.anatomy-leaders path{fill:none;stroke:#b8a487;stroke-width:3.5;stroke-linecap:round;stroke-dasharray:2 10;transition:stroke .4s}
+.anatomy-leaders circle{fill:#b8a487;transform-box:fill-box;transform-origin:50% 50%;transition:fill .4s}
+.anatomy-leaders g{transition:opacity .4s}
+.anatomy-stage[data-active="utuh"] .anatomy-leaders circle{animation:leader-ping 2.6s ease-in-out infinite}
+.anatomy-leaders g:nth-child(2) circle{animation-delay:-.65s}.anatomy-leaders g:nth-child(3) circle{animation-delay:-1.3s}.anatomy-leaders g:nth-child(4) circle{animation-delay:-1.95s}
+.anatomy-stage:not([data-active="utuh"]) .anatomy-leaders g:not(.is-active){opacity:.3}
+.anatomy-leaders g.is-active path{stroke:var(--accent);stroke-dasharray:none}
+.anatomy-leaders g.is-active circle{fill:var(--accent)}
+.anatomy-label{position:absolute;z-index:3;display:inline-flex;align-items:center;gap:8px;min-height:32px;padding:5px 13px 5px 6px;border:1px solid #d8cfbc;border-radius:999px;background:#fffbf2;color:var(--ink);font-size:12px;line-height:1;white-space:nowrap;box-shadow:0 6px 18px #2435200f;transition:background .3s,color .3s,border-color .3s,opacity .3s,transform .35s var(--ease)}
+.anatomy-label-num{display:grid;place-items:center;width:21px;height:21px;border-radius:50%;background:var(--dot);color:var(--dot-ink,#fff);font:700 9px/1 Arial,Helvetica,sans-serif;letter-spacing:.3px}
+.anatomy-label[data-part="matahari"]{--dot:#f0a03a;--dot-ink:#3b2608;right:0;top:4%}
+.anatomy-label[data-part="gunung"]{--dot:#2f5a40;left:0;top:9%}
+.anatomy-label[data-part="huruf-p"]{--dot:#855a2f;left:0;bottom:8%}
+.anatomy-label[data-part="daun"]{--dot:#4f6a1f;right:0;bottom:8%}
+.anatomy-label:hover,.anatomy-label.is-hover{border-color:#bda98c;transform:translateY(-2px)}
+.anatomy-label[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:#fbf8ef}
+.anatomy-stage:not([data-active="utuh"]) .anatomy-label[aria-pressed="false"]:not(:hover):not(:focus-visible):not(.is-hover){border-color:#e3ddce;background:#fbf8ef;color:#5d6852;box-shadow:none}
+.leader-narrow{display:none}
+.anatomy-tag{position:absolute;z-index:2;padding:5px 9px 4px;border-radius:999px;background:#fffbf2ee;box-shadow:0 4px 12px #24352018;font-size:10px;line-height:1;letter-spacing:1.6px;text-transform:uppercase;color:var(--ink);opacity:0;transform:translate(-50%,-50%) scale(.85);pointer-events:none;transition:opacity .35s,transform .5s var(--ease)}
+.anatomy-tag.is-letter{display:grid;place-items:center;width:40px;height:40px;padding:0;border-radius:50%;background:var(--accent);color:#fff;font:400 24px/1 Georgia,'Times New Roman',serif;letter-spacing:0;text-transform:none}
+.anatomy-stage[data-active="gunung"] .anatomy-tag[data-for="gunung"],.anatomy-stage[data-active="huruf-p"] .anatomy-tag[data-for="huruf-p"]{opacity:1;transform:translate(-50%,-50%) scale(1);transition-delay:.3s}
+.anatomy-text{grid-area:text;display:flex;flex-direction:column;min-width:0;margin-top:22px}
+.anatomy-reading{position:relative;flex:1;min-height:270px;padding-top:22px;border-top:1px solid #d9dccb}
+.makna-kicker{display:flex;align-items:center;gap:10px;margin:0 0 12px;font-size:10px;letter-spacing:2.4px;text-transform:uppercase;color:#5d6852}
+.makna-kicker b{font:400 15px/1 Georgia,'Times New Roman',serif;letter-spacing:0;color:var(--accent)}
+.makna h3{margin:0 0 12px;font:400 clamp(26px,2.7vw,33px)/1.12 Georgia,'Times New Roman',serif;letter-spacing:-.7px;color:var(--ink)}
+.makna h3 i{color:var(--accent)}
+.makna p{margin:0;font-size:14px;line-height:1.75;color:#5d6852}
+.makna p+p{margin-top:10px}
+.makna .makna-close{margin-top:14px;padding-top:14px;border-top:1px dashed #d6cfbb;font:400 16px/1.55 Georgia,'Times New Roman',serif;color:var(--ink)}
+.makna-close i{color:var(--accent)}
+.makna-quote{margin:16px 0 0;padding:12px 16px 13px;border-left:3px solid #e8b257;border-radius:0 14px 14px 0;background:#fbefd8}
+.makna .makna-quote p{font:italic 19px/1.3 Georgia,'Times New Roman',serif;color:#74501f}
+.makna-quote span{display:block;margin-top:5px;font-size:12px;line-height:1.5;color:#6f5d43}
+.makna .makna-sprig{display:flex;align-items:center;gap:12px;margin-top:14px;padding:10px 14px;border:1px dashed #d8c5ad;border-radius:14px;font-size:13px;line-height:1.5}
+.makna-sprig svg{flex:none;width:32px;height:30px;color:var(--accent)}
+.makna-sprig i{font-family:Georgia,'Times New Roman',serif}
+.anatomy-nav{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:20px;padding-top:16px;border-top:1px solid #d9dccb}
+.anatomy-prev,.anatomy-next{display:inline-flex;align-items:center;gap:10px;min-height:42px;padding:8px 16px;border:1px solid #c5ceb3;border-radius:30px;background:#e2e8d5;color:#3f5234;font-size:12px;white-space:nowrap;transition:background .25s,transform .25s}
+.anatomy-prev{padding-left:8px;border-color:transparent;background:transparent;color:#5d6852}
+.anatomy-prev[hidden]{visibility:hidden}
+.anatomy-prev .icon,.anatomy-next .icon{width:16px;height:16px;transition:transform .25s}
+.anatomy-next:hover{background:#d6e0c4;transform:translateY(-2px)}.anatomy-next:hover .icon{transform:translateX(3px)}
+.anatomy-prev:hover{background:#ebeedf}.anatomy-prev:hover .icon{transform:translateX(-3px)}
+.anatomy-dots{display:flex;gap:7px;margin:0;padding:0;list-style:none}
+.anatomy-dots li{width:7px;height:7px;border-radius:4px;background:#d0d4c2;transition:background .3s,width .4s var(--ease)}
+.anatomy-dots li.is-seen{background:#a4ac8e}
+.anatomy-dots li.is-current{width:22px;background:var(--accent)}
 dialog[open] .philosophy-card{animation:philosophy-in .65s var(--ease) both}dialog.is-closing .philosophy-card{animation:postcard-out .24s ease-in both}
 @keyframes philosophy-in{from{opacity:0;transform:translateY(25px) rotate(-4deg) scale(.88)}to{opacity:1;transform:translateY(0) rotate(0) scale(1)}}
-@keyframes logo-float{0%,100%{transform:translateY(2px) rotate(-2deg)}50%{transform:translateY(-5px) rotate(2deg)}}
 @keyframes logo-orbit{to{transform:rotate(360deg)}}
-@keyframes leaf-nod{0%,100%{transform:rotate(var(--leaf-turn))}50%{transform:rotate(calc(var(--leaf-turn) + 8deg))}}
 @keyframes spark-breathe{0%,100%{opacity:.45;transform:scale(.85)}50%{opacity:1;transform:scale(1.08)}}
+@keyframes part-trace{from{stroke-dashoffset:1}to{stroke-dashoffset:0}}
+@keyframes rays-turn{to{transform:rotate(360deg)}}
+@keyframes sun-pulse{0%,100%{opacity:.5}50%{opacity:.85}}
+@keyframes leaf-sway{0%,100%{transform:rotate(0)}50%{transform:rotate(-3.5deg)}}
+@keyframes leader-ping{0%,100%{transform:scale(1)}50%{transform:scale(1.7)}}
 body.motion-paused .philosophy-card *{animation-play-state:paused}body.motion-paused dialog[open] .philosophy-card{animation:none}
+body.motion-paused .part.is-active .part-line{animation:none;stroke-dashoffset:0}
+@media(prefers-reduced-motion:reduce){.part.is-active .part-line{stroke-dashoffset:0}}
 body.motion-paused .brand-mark,body.motion-paused .brand-hint,body.motion-paused .brand-mark::after{transition:none;transform:none}
-@media(max-width:760px){.philosophy-card{padding:31px 23px 25px}.philosophy-card h2{font-size:38px}.brand-hint{font-size:9px}}
-@media(max-height:670px){.logo-garden{height:164px;transform:scale(.86);margin:-3px auto -10px}.philosophy-card{padding-top:27px;padding-bottom:21px}.philosophy-note{margin:10px 0 17px}}
+@media(max-width:760px){.philosophy-card{grid-template-columns:minmax(0,1fr);grid-template-areas:"head" "stage" "text";grid-template-rows:none;padding:30px 20px 22px}.anatomy-head{padding-right:44px}.philosophy-card h2{font-size:36px}.anatomy-stage{max-width:min(340px,100%);margin-top:10px}.anatomy-label[data-part="matahari"]{right:44px;top:0}.leader-wide{display:none}.leader-narrow{display:inline}.anatomy-tag{padding:4px 7px 3px;font-size:9px;letter-spacing:1.1px}.anatomy-tag.is-peak{left:47%!important;top:30%!important}.anatomy-label{min-height:30px;padding:4px 10px 4px 5px;gap:6px;font-size:11px}.anatomy-label-num{width:19px;height:19px}.anatomy-text{margin-top:14px}.anatomy-reading{min-height:0}.brand-hint{font-size:9px}}
+@media(max-width:760px) and (min-height:600px){.anatomy-stage{position:sticky;top:0;z-index:4;max-width:min(340px,48svh);background:var(--paper)}}
+@media(min-width:761px) and (max-width:900px){.anatomy-reading{min-height:300px}}
+@media(max-width:400px){.anatomy-prev-label{display:none}.anatomy-prev{padding-right:8px}}
 @media(prefers-reduced-motion:reduce){.brand:hover .brand-mark,.brand:focus-visible .brand-mark{transform:none}}
 
 /* A small idle hint, attached to the logo rather than covering the page. */
@@ -254,7 +332,6 @@ body.is-past-hero .site-nav{transform:translate(-50%,0);opacity:1;visibility:vis
 .section-lead+.section-lead{margin-top:14px}
 .js [data-reveal]{opacity:0;translate:0 26px;transition:opacity .9s var(--ease) var(--delay,0s),translate .9s var(--ease) var(--delay,0s)}
 .js .theme-pillar[data-reveal]{transition:opacity .9s var(--ease) var(--delay,0s),translate .9s var(--ease) var(--delay,0s),transform .5s var(--ease),background .35s,border-color .35s,box-shadow .5s var(--ease)}
-.js .facet[data-reveal]{transition:opacity .9s var(--ease) var(--delay,0s),translate .9s var(--ease) var(--delay,0s),transform .5s var(--ease),box-shadow .5s var(--ease),border-color .3s}
 .js [data-reveal].is-revealed{opacity:1;translate:none}
 .js body.motion-paused [data-reveal]{transition:none}
 .js body.motion-paused .places-map .region{animation:none;stroke-dasharray:none;stroke-dashoffset:0;fill-opacity:1}
@@ -404,7 +481,7 @@ body.is-past-hero .bird,body.is-past-hero .bird img,body.is-past-hero .scene>img
 .theme-context i{font-family:Georgia,'Times New Roman',serif;font-size:14px;color:var(--ink)}
 .theme-context a{margin-left:4px;font-size:11px;color:#5d6852;text-underline-offset:3px}
 
-/* Mengenal Pakem: the setting, the meaning of the name, the figures, and four portraits of the place. */
+/* Mengenal Pakem: the setting, the meaning of the name, and three figures. */
 .pakem-intro{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);gap:clamp(28px,5vw,72px);align-items:end}
 .name-gloss{padding:clamp(24px,3vw,32px);border:1px solid var(--line);border-radius:26px;background:#fbf8ef;box-shadow:0 22px 60px #2435200f}
 .name-gloss-label{margin:0 0 14px;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#5d6852}
@@ -426,26 +503,17 @@ body.is-past-hero .bird,body.is-past-hero .bird img,body.is-past-hero .scene>img
 .gloss-sum b{font:400 17px Georgia,'Times New Roman',serif;color:var(--accent)}
 .gloss-source{margin:10px 0 0;font-size:10px;color:#5d6852}
 .gloss-source a{color:inherit}
-.pakem-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));margin-top:clamp(48px,7vw,80px);margin-bottom:0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.pakem-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));margin-top:clamp(48px,7vw,80px);margin-bottom:0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
 .stat{display:flex;flex-direction:column-reverse;justify-content:flex-end;gap:10px;padding:clamp(22px,3vw,30px) clamp(14px,2vw,26px)}
 .stat+.stat{border-left:1px solid var(--line)}
 .stat dt{font-size:12px;line-height:1.4;color:#5d6852}
 .stat dd{margin:0;font:400 clamp(36px,4.4vw,58px)/1 Georgia,'Times New Roman',serif;letter-spacing:-.035em;color:var(--ink);font-variant-numeric:tabular-nums}
 .stat dd small{margin-left:6px;font:12px Arial,Helvetica,sans-serif;letter-spacing:0;color:var(--accent)}
-.stats-source,.facets-source{margin-top:12px;margin-bottom:0;font-size:10px;line-height:1.7;color:#5d6852}
-.stats-source a,.facets-source a{color:inherit}
-.pakem-facets{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin-top:clamp(40px,6vw,64px)}
-.facet{position:relative;display:flex;flex-direction:column;gap:12px;padding:26px 22px 24px;border:1px solid var(--line);border-radius:22px;background:#fbf9f2;overflow:hidden;transition:transform .5s var(--ease),box-shadow .5s var(--ease),border-color .3s}
-.facet::before{content:"";position:absolute;inset:auto -30% -55% auto;width:180px;height:180px;border-radius:50%;background:radial-gradient(circle,#e8dccb 0,transparent 70%);opacity:0;transition:opacity .5s}
-.facet:hover{transform:translateY(-5px);border-color:#d3cdb6;box-shadow:0 22px 44px #2435201a}
-.facet:hover::before{opacity:1}
-.facet-icon{display:grid;place-items:center;width:46px;height:46px;border-radius:14px;background:#e6eadb;color:#56664a;transition:transform .6s var(--ease)}
-.facet:hover .facet-icon{transform:rotate(-6deg) scale(1.06)}
-.facet-icon .icon{width:23px;height:23px}
-.facet h3{position:relative;margin:4px 0 0;font:400 20px/1.25 Georgia,'Times New Roman',serif;letter-spacing:-.3px;color:var(--ink)}
-.facet p{position:relative;margin:0;font-size:13.5px;line-height:1.72;color:#626c58}
-@media(max-width:980px){.pakem-intro{grid-template-columns:1fr}.pakem-stats,.pakem-facets{grid-template-columns:repeat(2,minmax(0,1fr))}.stat:nth-child(3){border-left:0}.stat:nth-child(n+3){border-top:1px solid var(--line)}}
-@media(max-width:560px){.pakem-facets{grid-template-columns:1fr}.stat dd{font-size:34px}}
+.stats-source{margin-top:12px;margin-bottom:0;font-size:10px;line-height:1.7;color:#5d6852}
+.stats-source a{color:inherit}
+@media(max-width:980px){.pakem-intro{grid-template-columns:1fr}}
+@media(max-width:600px){.pakem-stats{grid-template-columns:1fr}.stat{flex-direction:row-reverse;justify-content:space-between;align-items:baseline;padding:18px 2px}.stat+.stat{border-left:0;border-top:1px solid var(--line)}.stat dt{text-align:right}}
+@media(max-width:560px){.stat dd{font-size:34px}}
 
 /* Lokasi: details for the kalurahan panel and the Google map. */
 .title-count{display:inline-block;color:var(--accent)}

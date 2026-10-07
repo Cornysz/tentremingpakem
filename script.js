@@ -42,6 +42,7 @@ function connectDialog(modal, trigger, surfaceSelector) {
     document.body.classList.add('story-open');
     modal.querySelector(surfaceSelector).scrollTop = 0;
     closeButton.focus({ preventScroll: true });
+    modal.dispatchEvent(new Event("dialog-open"));
     if (from === brand && motionAllowed()) {
       logoAnimation?.cancel();
       logoAnimation = brand.querySelector('.brand-logo').animate([
@@ -64,7 +65,6 @@ function connectDialog(modal, trigger, surfaceSelector) {
 }
 const story = connectDialog(dialog, discover, '.postcard');
 const philosophy = connectDialog(philosophyDialog, brand, '.philosophy-card');
-philosophyDialog.querySelector('.return-to-pakem').addEventListener('click', philosophy.close);
 
 const pad = number => String(number).padStart(2, '0');
 // The count and the next label come from the markup, so a new chapter needs only its tab, panel, and photos.
@@ -507,6 +507,8 @@ reducedMotion.addEventListener('change', () => { if (!motionAllowed()) { panelAn
   journalButton.addEventListener('click', () => story.open(journalButton));
   const footerJournal = document.querySelector('.footer-journal');
   footerJournal.addEventListener('click', () => story.open(footerJournal));
+  const footerPhilosophy = document.querySelector('.footer-philosophy');
+  footerPhilosophy.addEventListener('click', () => philosophy.open(footerPhilosophy));
 })();
 
 // The theme statement and its four cards point at each other: a phrase lights its card, and a card lights its phrase.
@@ -723,4 +725,123 @@ reducedMotion.addEventListener('change', () => { if (!motionAllowed()) { panelAn
       }
     });
   }));
+})();
+// Filosofi logo: a shape, its label, and its reading are one choice. The logo builds itself each time the dialog opens.
+(() => {
+  const stage = philosophyDialog.querySelector('.anatomy-stage');
+  const order = ['utuh', 'matahari', 'gunung', 'huruf-p', 'daun'];
+  const parts = [...stage.querySelectorAll('.part')];
+  const leaders = [...stage.querySelectorAll('.anatomy-leaders g')];
+  const labels = [...stage.querySelectorAll('.anatomy-label')];
+  // The arrow buttons borrow each part's name from its label, so renaming a label renames them too.
+  const names = { utuh: 'Utuh' };
+  labels.forEach(label => { names[label.dataset.part] = label.lastChild.textContent.trim(); });
+  const readings = [...philosophyDialog.querySelectorAll('.makna')];
+  const dots = [...philosophyDialog.querySelectorAll('.anatomy-dots li')];
+  const previous = philosophyDialog.querySelector('.anatomy-prev');
+  const next = philosophyDialog.querySelector('.anatomy-next');
+  const card = philosophyDialog.querySelector('.philosophy-card');
+  const seen = new Set();
+  let current = 'utuh';
+  let readingAnimation;
+  let assembly = [];
+
+  // Any choice ends the opening animation at once, so nothing the visitor picks is still invisible or fading.
+  const settle = () => { assembly.forEach(animation => animation.finish()); assembly = []; };
+
+  function show(part) {
+    settle();
+    const from = order.indexOf(current);
+    const to = order.indexOf(part);
+    current = part;
+    stage.dataset.active = part;
+    if (part !== 'utuh') seen.add(part);
+    parts.forEach(item => item.classList.toggle('is-active', item.dataset.part === part));
+    leaders.forEach(item => item.classList.toggle('is-active', item.dataset.part === part));
+    labels.forEach(item => item.setAttribute('aria-pressed', String(item.dataset.part === part)));
+    readings.forEach(item => { item.hidden = item.dataset.part !== part; });
+    dots.forEach(dot => {
+      dot.classList.toggle('is-current', dot.dataset.part === part);
+      dot.classList.toggle('is-seen', seen.has(dot.dataset.part));
+    });
+    if (to === 0 && document.activeElement === previous) next.focus({ preventScroll: true });
+    previous.hidden = to === 0;
+    const before = names[order[Math.max(0, to - 1)]];
+    const after = to === 0 ? `Mulai dari ${names.matahari.toLowerCase()}` : to === order.length - 1 ? 'Lihat utuh' : names[order[to + 1]];
+    previous.querySelector('.anatomy-prev-label').textContent = before;
+    previous.setAttribute('aria-label', `Sebelumnya: ${before}`);
+    next.querySelector('.anatomy-next-label').textContent = after;
+    next.setAttribute('aria-label', to === 0 || to === order.length - 1 ? after : `Berikutnya: ${after}`);
+    // On a tall phone the logo stays pinned above the text; keep the new reading in view below it.
+    if (from !== to && getComputedStyle(stage).position === 'sticky') {
+      const gap = readings[to].getBoundingClientRect().top - stage.getBoundingClientRect().bottom;
+      if (gap < 0) card.scrollBy({ top: gap - 12, behavior: motionAllowed() ? 'smooth' : 'instant' });
+    }
+    readingAnimation?.cancel();
+    if (from !== to && motionAllowed()) {
+      const direction = to > from ? 1 : -1;
+      readingAnimation = readings[to].animate([
+        { opacity: 0, transform: `translateX(${direction * 18}px)` },
+        { opacity: 1, transform: 'none' }
+      ], { duration: 460, easing: 'cubic-bezier(.22,1,.36,1)' });
+    }
+  }
+  const step = delta => show(order[(order.indexOf(current) + delta + order.length) % order.length]);
+
+  const hover = (part, on) => {
+    parts.concat(labels).forEach(item => { if (item.dataset.part === part) item.classList.toggle('is-hover', on); });
+  };
+  parts.forEach(item => {
+    item.addEventListener('click', event => { event.stopPropagation(); show(item.dataset.part); });
+    item.addEventListener('pointerenter', event => { if (event.pointerType === 'mouse') hover(item.dataset.part, true); });
+    item.addEventListener('pointerleave', () => hover(item.dataset.part, false));
+  });
+  labels.forEach(label => {
+    // Pressing the chosen label again goes back to the whole logo.
+    label.addEventListener('click', () => show(label.getAttribute('aria-pressed') === 'true' ? 'utuh' : label.dataset.part));
+    label.addEventListener('pointerenter', event => { if (event.pointerType === 'mouse') hover(label.dataset.part, true); });
+    label.addEventListener('pointerleave', () => hover(label.dataset.part, false));
+  });
+  // A tap on the empty disc shows the whole logo again.
+  stage.addEventListener('click', event => {
+    if (!event.target.closest('.part, .anatomy-label')) show('utuh');
+  });
+  previous.addEventListener('click', () => step(-1));
+  next.addEventListener('click', () => step(1));
+  philosophyDialog.addEventListener('keydown', event => {
+    if (event.altKey || event.ctrlKey || event.metaKey) return;
+    if (event.key === 'ArrowRight') { event.preventDefault(); step(1); }
+    if (event.key === 'ArrowLeft') { event.preventDefault(); step(-1); }
+  });
+
+  function assemble() {
+    assembly.forEach(animation => animation.cancel());
+    assembly = [];
+    if (!motionAllowed()) return;
+    const body = part => stage.querySelector(`.part[data-part="${part}"] .part-body`);
+    const play = (element, keyframes, delay, duration, easing = 'cubic-bezier(.22,1,.36,1)') => {
+      assembly.push(element.animate(keyframes, { delay, duration, easing, fill: 'backwards' }));
+    };
+    play(body('gunung'), [{ opacity: 0, transform: 'translateY(120px)' }, { opacity: 1, transform: 'none' }], 120, 900);
+    play(body('daun'), [{ opacity: 0, transform: 'scale(.35) rotate(-28deg)' }, { opacity: 1, transform: 'none' }], 520, 1000, 'cubic-bezier(.34,1.45,.64,1)');
+    // The sun sits behind Merapi, so it rises from behind the slope.
+    play(body('matahari'), [{ opacity: 0, transform: 'translateY(190px)' }, { opacity: 1, transform: 'none' }], 820, 1100);
+    play(stage.querySelector('.part-p .part-line'), [
+      { opacity: 1, strokeDashoffset: 1 },
+      { opacity: 1, strokeDashoffset: 0, offset: .7 },
+      { opacity: 0, strokeDashoffset: 0 }
+    ], 1150, 1500, 'ease-in-out');
+    play(stage.querySelector('.anatomy-leaders'), [{ opacity: 0 }, { opacity: 1 }], 1500, 600, 'ease-out');
+    labels.forEach((label, i) => play(label, [{ opacity: 0, transform: 'translateY(8px) scale(.9)' }, { opacity: 1, transform: 'none' }], 1600 + i * 110, 520));
+  }
+  stage.addEventListener('focusin', settle);
+  stage.addEventListener('pointerdown', settle);
+  philosophyDialog.addEventListener('dialog-open', () => {
+    show('utuh');
+    assemble();
+  });
+  motionButton.addEventListener('click', () => {
+    if (document.body.classList.contains('motion-paused')) assembly.forEach(animation => animation.finish());
+  });
+  show('utuh');
 })();

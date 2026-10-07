@@ -20,25 +20,31 @@ Domain dan pengaturan DNS tidak perlu diubah. Vercel otomatis memasangkan deploy
 - Setiap foto jurnal bisa diklik atau diketuk untuk pratinjau besar. Fotonya membesar dari posisinya di kolase, lengkap dengan tanggal dan keterangan. Panah, tombol panah keyboard, dan swipe berpindah antar foto dalam bab yang sama. Tutup lewat tombol, Escape, atau klik area gelap; fokus kembali ke foto asal.
 - Tombol ajakan dengan bunga berputar dan percikan bintang kecil; FAB ikon pause/play tanpa teks.
 - Ikon SVG tidak bergantung pada font atau emoji iOS. Logo header, favicon PNG, dan Apple Touch Icon menggunakan logo gradasi terbaru dari tim (19 September 2026).
-- Logo header membuka preview Filosofi Logo — Segera Hadir, dengan animasi logo, daun, orbit, dan bintang SVG. Mendukung jeda gerakan, reduced motion, keyboard, Escape, serta pengembalian fokus.
+- Logo header (dan tautan Filosofi logo di footer) membuka dialog Filosofi Logo. Logonya dipecah menjadi empat bentuk: matahari, gunung (Merapi beserta lerengnya), huruf P, dan daun. Mengetuk bentuk di logo atau label bernomor di sekelilingnya menyalakan bentuk itu, meredupkan yang lain, dan menampilkan maknanya. Matahari bersinar, Merapi dan lereng diberi label, huruf P diwarnai, dan daun bergoyang. Tombol sebelumnya dan berikutnya, tombol panah keyboard, serta ketukan di area kosong (kembali ke tampilan utuh) ikut bekerja. Setiap kali dibuka, logo menyusun diri: gunung naik, daun tumbuh, matahari terbit dari balik Merapi, lalu huruf P tergambar. Di ponsel, logo menempel di atas teks saat digulir. Mendukung jeda gerakan, reduced motion, Escape, dan pengembalian fokus.
 - Favicon bulat tersedia sebagai SVG dan PNG dengan sudut transparan.
 - Petunjuk singkat “Ketuk logo, lihat filosofinya.” muncul setelah 2,5 detik idle bersama dua goyangan kecil pada logo, sekali per sesi tab, lalu hilang setelah 6 detik atau saat berinteraksi. Tidak muncul ketika dialog terbuka, tab disembunyikan, atau logo sudah diklik. Goyangan mengikuti tombol jeda dan prefers-reduced-motion.
 - Tautan Instagram @tentremingpakem.
 - Gambar pratinjau tautan `assets/og-image.jpg` (1200×630, JPEG) untuk WhatsApp dan media sosial. Isinya hero situs yang dirender ulang: latar, logo, dan judul resmi berdaun. Tulisan Segera Hadir sengaja tidak dimasukkan, jadi gambarnya tetap berlaku setelah situs resmi dibuka. Bila gambarnya diganti, naikkan juga nilai `?v=` pada `og:image` di index.html.
-- Indikator "Scroll" di bawah hero membawa ke bagian berikutnya. Setelah hero lewat, muncul navigasi kecil di atas (Tema, Pakem, Lokasi, Jurnal) yang menandai bagian yang sedang dibaca. Isi di bawah hero muncul perlahan saat terlihat; tanpa JavaScript atau dengan gerakan dikurangi, isinya langsung tampil.
+- Indikator "Scroll" di bawah hero membawa ke bagian berikutnya. Setelah hero lewat, muncul navigasi kecil di atas (Pakem, Tema, Lokasi, Jurnal) yang menandai bagian yang sedang dibaca. Isi di bawah hero muncul perlahan saat terlihat; tanpa JavaScript atau dengan gerakan dikurangi, isinya langsung tampil.
+- Bagian Mengenal Pakem (pertama sesudah hero): letak Pakem, arti nama Tentrem ing Pakem (ketuk tiap kata), dan tiga angka BPS yang menghitung naik: luas wilayah, jumlah kalurahan, dan penduduk.
 - Bagian Tema: tema resmi KKN dengan empat frasa yang bisa diketuk. Tiap frasa menyalakan kartu penjelasannya (ESD, pangan lokal, berbasis riset, KWT Guyub Rukun), lengkap dengan tautan sumber.
-- Bagian Mengenal Pakem: letak Pakem, arti nama Tentrem ing Pakem (ketuk tiap kata), angka-angka BPS yang menghitung naik, dan empat potret Pakem.
 - Bagian Lokasi: peta SVG Kapanewon Pakem dengan lima kalurahan. Candibinangun dan Purwobinangun bisa dipilih lewat peta, penanda, atau tab, dan panelnya berisi luas, padukuhan, penduduk, ketinggian, potensi, serta sumbernya. Peta Google (satelit atau peta biasa) baru dimuat setelah tombol ditekan, jadi halaman tidak memasang cookie pihak ketiga sebelum pengunjung memilih.
-- Footer berisi lokasi, tautan bagian, Instagram, dan kembali ke atas.
+- Footer berisi lokasi, tautan bagian, jurnal, Filosofi logo, Instagram, dan kembali ke atas.
 - Tidak menggunakan analytics, formulir atau layanan berbayar. Cookie pihak ketiga hanya muncul bila pengunjung sendiri memuat peta Google.
 
-## Isi bagian Tema, Pakem, dan Lokasi
+## Isi bagian Pakem, Tema, dan Lokasi
 
-Semua teks ada di index.html, di dalam `section#tema`, `section#pakem`, dan `section#lokasi`. Setiap fakta di sana berasal dari sumber resmi yang ditautkan di bawah kartunya (BPS Sleman, situs resmi kalurahan, UNESCO, UGM, MAGMA, dan lainnya), dicek pada 6 Oktober 2026. Saat memperbarui angka, ganti juga tahun datanya.
+Semua teks ada di index.html, di dalam `section#pakem`, `section#tema`, dan `section#lokasi`. Setiap fakta di sana berasal dari sumber resmi yang ditautkan di bawah kartunya (BPS Sleman, situs resmi kalurahan, UNESCO, UGM, Sekolah Vokasi UGM, dan UU Pangan), dicek pada 6 Oktober 2026. Saat memperbarui angka, ganti juga tahun datanya.
 
 - Angka statistik memakai `data-count`; isi angka asli di atribut itu (titik sebagai pemisah desimal) dan di dalam elemennya.
 - Teks pada peta Google diambil dari `data-query` dan `data-zoom` di tiap `article.place`.
 - Bentuk peta berasal dari batas wilayah OpenStreetMap (ODbL), digambar ulang secara skematis. Bentuk itu bukan batas resmi, jadi luas resmi tetap mengikuti angka BPS.
+
+## Isi Filosofi Logo
+
+Teks makna ada di index.html, di dalam `dialog#logo-philosophy`: satu `article.makna` untuk tampilan utuh dan satu untuk tiap bentuk (`data-part` matahari, gunung, huruf-p, daun). Label di sekeliling logo dan titik penunjuknya memakai `data-part` yang sama. Tombol sebelumnya dan berikutnya mengambil nama bagian dari teks label itu, jadi cukup ganti labelnya. Tulisan "Mulai dari ..." dan "Lihat utuh" ada di script.js, sedangkan tanda kecil Merapi, Lereng, dan P adalah `.anatomy-tag` dengan `data-for`.
+
+Bentuk logo di dialog adalah SVG hasil penelusuran logo asli dari tim (PNG 1254 px, 7 Oktober 2026). Gradasi warnanya diukur dari file itu, dan hasilnya dicek berimpit dengan aslinya: selisih rata-rata 2 dari 255 per piksel, hanya di tepi. Bila logo resmi berubah, telusuri ulang; jangan menggambar bentuknya dengan tangan. Logo kecil di header tetap memakai `logo.png`.
 
 ## Menambah bab jurnal
 
