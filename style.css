@@ -360,7 +360,7 @@ body.is-past-hero .site-nav{transform:translate(-50%,0);opacity:1;visibility:vis
 /* Content below the hero rises in as it reaches the reader. Without JavaScript, or with reduced motion, it simply shows. */
 .chapters{position:relative;z-index:2;margin-top:calc(-1 * var(--slope-h));background:linear-gradient(180deg,transparent 0 calc(var(--slope-h) - 1px),#e6ecda calc(var(--slope-h) - 1px),#eef0e2 calc(var(--slope-h) + 260px),#f4f2e7 calc(var(--slope-h) + 760px));overflow:clip;counter-reset:pos}
 .chapter{position:relative;padding:clamp(84px,11vw,140px) 0}
-:root{--edge-forest-h:clamp(64px,7.5vw,120px);--edge-terrace-h:clamp(72px,8vw,128px);--edge-dusk-h:clamp(70px,9vw,130px);--dusk-w:max(100%,900px)}
+:root{--edge-forest-h:clamp(64px,7.5vw,120px);--edge-terrace-h:clamp(72px,8vw,128px)}
 @media(max-width:760px){:root{--edge-forest-h:56px;--edge-terrace-h:64px}}
 .edge{position:absolute;left:0;right:0;overflow:clip;pointer-events:none;contain:layout paint}
 .edge svg{position:absolute;top:0;left:50%;width:max(100%,900px);height:100%;margin-left:min(-50%,-450px)}
@@ -387,24 +387,17 @@ body.is-past-hero .site-nav{transform:translate(-50%,0);opacity:1;visibility:vis
 .tema-leaf{position:absolute;right:-4%;bottom:3%;z-index:0;width:clamp(280px,38vw,560px);pointer-events:none}
 .tema-leaf path{fill:#adb946;fill-opacity:.06;stroke:#adb946;stroke-opacity:.12;stroke-width:1.5;vector-effect:non-scaling-stroke}
 /* Lokasi: rice terraces step down into a sage band. */
-.chapter-places{padding-top:calc(var(--edge-terrace-h) + clamp(56px,7vw,96px));padding-bottom:calc(clamp(84px,11vw,140px) + var(--edge-dusk-h) * .6);background:linear-gradient(180deg,#eef0e3,#ebefe2 70%,#e6ece0)}
+.chapter-places{padding-top:calc(var(--edge-terrace-h) + clamp(56px,7vw,96px));padding-bottom:clamp(64px,8vw,104px);background:linear-gradient(180deg,#eef0e3,#ebefe2 70%,#e6ece0)}
 .edge-terrace{top:0;height:var(--edge-terrace-h)}
 .edge-terrace .dyke{fill:none;stroke-width:1}
 .edge-terrace .tufts{fill:none;stroke:#5a7e3c;stroke-opacity:.5;stroke-width:1.1;stroke-linecap:round}
-/* Footer: dusk at the foot of the slope, looking back at Merapi. */
-.edge-dusk{bottom:calc(100% - 1px);height:var(--edge-dusk-h)}
-.dusk-sun{position:absolute;left:calc(50% - var(--dusk-w) / 2 + var(--dusk-w) * .2083);top:calc(var(--edge-dusk-h) * .6857);width:30px;height:30px;margin:-15px;border-radius:50%;background:radial-gradient(circle at 50% 35%,#fccc3d,#ed8827)}
-.dusk-sun::before{content:"";position:absolute;inset:calc(var(--edge-dusk-h) * -.6);border-radius:50%;background:radial-gradient(circle,#ed882759,#ed882700 70%)}
-@media(max-width:600px){:root{--dusk-w:150vw}.edge-dusk{height:70px}.edge-dusk svg{width:150vw;margin-left:-75vw}.dusk-sun{top:calc(70px * .6857);width:22px;height:22px;margin:-11px}}
 @supports (animation-timeline:view()){@media(prefers-reduced-motion:no-preference){
 .contours{animation:contour-drift linear both;animation-timeline:view()}
 .tema-leaf{animation:leaf-drift linear both;animation-timeline:view()}
-.dusk-sun{animation:sun-sink linear both;animation-timeline:view();animation-range:entry 0% cover 60%}
 }}
 @keyframes contour-drift{from{transform:translateY(40px)}to{transform:translateY(-40px)}}
 @keyframes leaf-drift{from{transform:rotate(-8deg) translateY(40px)}to{transform:rotate(4deg) translateY(-40px)}}
-@keyframes sun-sink{from{transform:translateY(-8px)}to{transform:translateY(10px)}}
-body.motion-paused .contours,body.motion-paused .tema-leaf,body.motion-paused .dusk-sun{animation:none}
+body.motion-paused .contours,body.motion-paused .tema-leaf{animation:none}
 .wrap{width:min(1120px,calc(100% - 2 * clamp(20px,5vw,64px)));margin:0 auto}
 .section-eyebrow{display:flex;align-items:center;gap:14px;margin:0 0 18px;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:#5d6852;counter-increment:pos}
 .section-eyebrow::before{content:counter(pos,decimal-leading-zero);content:counter(pos,decimal-leading-zero) / "";display:grid;place-items:center;flex:none;width:30px;height:30px;border:1.5px solid var(--accent);border-radius:50%;background:var(--accent);color:#f6f1e4;font:400 11px/1 Georgia,'Times New Roman',serif;letter-spacing:0;transition:background .5s .45s,color .5s .45s}
@@ -545,8 +538,55 @@ body.is-past-hero .bird,body.is-past-hero .bird img,body.is-past-hero .scene>img
 @media(max-width:420px){.place-facts dd{font-size:19px}.place-tabs button{padding:0 14px}}
 
 /* The page closes on deep green, with the wordmark, the place, and the way back up. */
-.site-footer{position:relative;z-index:2;padding:clamp(64px,8vw,96px) 0 28px;background:linear-gradient(180deg,#243520,#1b2a1a);color:#e8e6d6}
-.footer-main{display:grid;grid-template-columns:1.3fr 1.2fr .8fr .8fr;gap:clamp(28px,4vw,56px);padding-bottom:clamp(40px,6vw,64px);border-bottom:1px solid #f6f1e41f}
+.site-footer{--senja-h:clamp(300px,34vw,440px);--senja-gap:clamp(36px,5vw,64px);position:relative;z-index:2;padding:0 0 28px;background:linear-gradient(180deg,var(--hill-front,#243520) calc(var(--senja-h) + var(--senja-gap)),#141e14);color:#e8e6d6}
+@media(max-height:500px) and (orientation:landscape){.site-footer{--senja-h:min(300px,78svh)}}
+/* Senja di Pakem: drag or tap to move the sun through the day; at night the fireflies come out to be caught. */
+.senja{position:relative;height:var(--senja-h);margin-bottom:var(--senja-gap);overflow:clip;background:linear-gradient(180deg,#e6ece0 0,var(--sky-top,#d8c3c3) 34%,var(--sky-bottom,#efa56d) 88%);cursor:grab;touch-action:pan-y pinch-zoom}
+.senja.is-dragging{cursor:grabbing;-webkit-user-select:none;user-select:none}
+.senja-stars{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.senja-constellation{position:absolute;left:10%;top:6%;height:46%;aspect-ratio:1;pointer-events:none}
+.senja-lines{display:block;width:100%;height:100%;overflow:visible}
+@media(max-width:599px){.senja-constellation{left:auto;right:5%}}
+@media(max-height:500px) and (orientation:landscape){.senja-constellation{top:20%;height:40%}}
+.senja-stars{height:78%;opacity:var(--night,0)}
+.senja-stars circle{fill:#fffbe6}
+.senja-stars .tw{animation:star-twinkle var(--tw) ease-in-out infinite alternate}
+.senja-lines path{fill:none;stroke:#fff2c4;stroke-width:1.2;stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke;opacity:0;transition:opacity 1.6s ease .9s}
+.senja.is-complete .senja-lines path{opacity:calc(var(--night,0) * .85)}
+.senja-sun{position:absolute;z-index:2;left:18%;top:80%;width:clamp(44px,3.8vw,54px);aspect-ratio:1;border-radius:50%;translate:-50% -50%;background:radial-gradient(circle at 50% 35%,#fdd75a,#ef8b2a);box-shadow:0 0 0 2px #a3561a;cursor:grab}
+.senja-sun::before{content:"";position:absolute;inset:-150%;border-radius:50%;background:radial-gradient(circle,#f6a94566,#f6a94500 65%);opacity:var(--glow,1);pointer-events:none}
+.senja-sun::after{content:"";position:absolute;inset:-6px;border:2px solid #fbf8efcc;border-radius:50%;opacity:0;pointer-events:none}
+.senja:not(.is-touched):not(.is-night) .senja-sun::after{animation:sun-hint 2.6s ease-out 1s infinite}
+.site-footer .senja-sun:focus-visible{outline:2px solid #303e31;outline-offset:4px;box-shadow:0 0 0 2px #a3561a,0 0 0 7px #fbf8efb3}
+.senja-hills{position:absolute;inset:0;z-index:3;width:100%;height:100%;pointer-events:none}
+.hill-back{fill:var(--hill-back,#35492f)}
+.hill-mid{fill:var(--hill-mid,#2c3f29)}
+.hill-front{fill:var(--hill-front,#243520)}
+.village-lights circle{fill:#ffd27a;opacity:var(--night,0)}
+.senja.is-night .village-lights circle{animation:light-flicker 3s ease-in-out var(--d) infinite alternate}
+.senja-fireflies{position:absolute;inset:0;z-index:4;pointer-events:none}
+.firefly{position:absolute;display:grid;place-items:center;width:44px;height:44px;margin:-22px 0 0 -22px;padding:0;border:0;border-radius:50%;background:none;cursor:pointer;opacity:0;visibility:hidden;pointer-events:auto;animation:firefly-drift var(--dur) ease-in-out var(--delay) infinite;transition:opacity .8s,visibility .8s,left 1.4s var(--ease),top 1.4s var(--ease),translate 1.4s var(--ease)}
+.firefly span{display:block;width:8px;height:8px;border-radius:50%;background:#fff6b8;box-shadow:0 0 8px 3px #f3e27a,0 0 22px 8px #f3e27a55;animation:firefly-glow 2.2s ease-in-out var(--delay) infinite alternate}
+.senja.is-night .firefly{opacity:1;visibility:visible}
+.site-footer .firefly:focus-visible{outline:2px solid #fbf8ef;outline-offset:2px;box-shadow:0 0 0 5px #142014}
+.firefly.is-caught{pointer-events:none;cursor:default;animation:none}
+.firefly.is-caught span{width:6px;height:6px;animation:star-twinkle 2.6s ease-in-out infinite alternate;box-shadow:0 0 6px 2px #fff2c4,0 0 16px 5px #fff2c440}
+.firefly.is-caught{visibility:visible;opacity:var(--night,0)}
+.senja-caption{position:absolute;left:50%;bottom:clamp(8px,1.6vw,16px);z-index:5;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:6px 12px;width:max-content;max-width:92%;margin:0;transform:translateX(-50%);padding:6px 8px 6px 14px;border-radius:18px;background:#142014b8;color:#f6f1e4;font-size:12.5px;line-height:1.45;text-align:center;pointer-events:none}
+.senja-reset{min-height:36px;padding:0 14px;border:1px solid #f6f1e466;border-radius:999px;background:#1b2a1a;color:#f6f1e4;font-size:12px;pointer-events:auto;transition:background .25s}
+.senja-reset:hover{background:#2a3d28}
+.site-footer .senja-reset:focus-visible{outline:2px solid #fbf8ef;outline-offset:2px;box-shadow:0 0 0 5px #142014}
+@media(pointer:coarse){.senja-reset{min-height:44px}}
+@keyframes sun-hint{0%{opacity:.9;transform:scale(1)}80%,100%{opacity:0;transform:scale(1.9)}}
+@keyframes star-twinkle{from{opacity:.35}to{opacity:1}}
+@keyframes light-flicker{from{opacity:calc(var(--night,0) * .55)}to{opacity:var(--night,0)}}
+@keyframes firefly-drift{0%,100%{translate:0 0}25%{translate:var(--dx) calc(var(--dy) * -1)}50%{translate:calc(var(--dx) * -.7) var(--dy)}75%{translate:calc(var(--dx) * .4) calc(var(--dy) * .6)}}
+@keyframes firefly-glow{from{opacity:.45}to{opacity:1}}
+.senja:not(.is-inview) *,.senja:not(.is-inview) *::after,body.motion-paused .senja *,body.motion-paused .senja *::after,.senja:not(.is-night) .senja-stars *,.senja:not(.is-night) .firefly,.senja:not(.is-night) .firefly span{animation-play-state:paused}
+body.motion-paused .firefly{transition:opacity .8s,visibility .8s}
+body.motion-paused .senja-sun::after{animation:none}
+body.motion-paused .senja-lines path{transition:none}
+.footer-main{display:grid;padding-top:clamp(8px,1vw,16px);grid-template-columns:1.3fr 1.2fr .8fr .8fr;gap:clamp(28px,4vw,56px);padding-bottom:clamp(40px,6vw,64px);border-bottom:1px solid #f6f1e41f}
 .footer-mark{margin:0;font:400 clamp(40px,4.4vw,56px)/.95 Georgia,'Times New Roman',serif;letter-spacing:-.05em;color:var(--paper)}
 .footer-mark svg{display:inline-block;width:.714em;height:.66em;margin-left:.2em;vertical-align:-.04em;color:#c9a27f}
 .footer-mark i{font-size:.81em;color:#c9a27f}

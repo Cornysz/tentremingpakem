@@ -928,3 +928,216 @@ reducedMotion.addEventListener('change', () => { if (!motionAllowed()) { panelAn
     button.addEventListener('click', () => open(button.dataset.place, button));
   });
 })();
+
+// Senja di Pakem: the sun follows a sideways drag (or a tap by day) through the day. At night the fireflies
+// come out; each one caught flies up as a star, and all six draw the sprig from the title.
+// On phones the arc is mirrored, so the sun rises over Merapi and sets on the open side.
+(() => {
+  const footer = document.querySelector('.site-footer');
+  const scene = footer.querySelector('.senja');
+  const sun = scene.querySelector('.senja-sun');
+  const field = scene.querySelector('.senja-fireflies');
+  const sky = scene.querySelector('.senja-constellation');
+  const text = scene.querySelector('.senja-text');
+  const reset = scene.querySelector('.senja-reset');
+  const narrow = matchMedia('(max-width: 599px)');
+  // star positions inside the square constellation box: stem, then the leaves
+  const SLOTS = [[8, 92], [40, 58], [88, 10], [12, 50], [42, 14], [88, 64]];
+  const STOPS = [
+    [0, '#e6ece0', '#f6d9ae', '#55704a', '#43603a', '#2f4a2a', .9],
+    [.35, '#e6ece0', '#f1efdc', '#5a744c', '#46633c', '#2f4a2a', .45],
+    [.75, '#e7e6d3', '#f5d7a3', '#46603e', '#384f33', '#2a4126', .75],
+    [.95, '#d8c3c3', '#efa56d', '#35492f', '#2c3f29', '#243520', 1],
+    [1.06, '#4a5878', '#cf8a6a', '#263830', '#213129', '#1d2b1f', .4],
+    [1.2, '#111e33', '#263a50', '#1a2925', '#16231d', '#162019', 0]
+  ];
+  const MAX = 1.2;
+  const NIGHT = 1.06;
+  const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+  const rgb = hex => [1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 16));
+  const mix = (a, b, t) => `rgb(${rgb(a).map((v, i) => Math.round(v + (rgb(b)[i] - v) * t)).join(',')})`;
+  const phase = p => (p < .2 ? 'Pagi' : p < .55 ? 'Siang' : p < .85 ? 'Sore' : p < NIGHT ? 'Senja' : 'Malam');
+  let p = .8;
+  let target = p;
+  let frame = 0;
+  let touched = false;
+  let caught = 0;
+  let night = 0;
+  let message = '';
+  let quietUntil = 0;
+
+  const isNight = () => p > NIGHT;
+  function say(words) {
+    if (words === message) return;
+    message = words;
+    text.textContent = words;
+  }
+  function story() {
+    const dark = isNight();
+    if (caught === SLOTS.length) say(dark ? 'Matur nuwun sampun mampir. Sugeng dalu!' : 'Matur nuwun sampun mampir.');
+    else if (dark) say(caught ? `Kunang-kunang tertangkap: ${caught} dari ${SLOTS.length}.` : `Kunang-kunang keluar. Ketuk untuk menangkap: 0 dari ${SLOTS.length}.`);
+    else say('Geser mataharinya. Saat gelap, kunang-kunang keluar.');
+    // one tab stop for the fireflies: the first one still flying, and only at night
+    const flying = [...field.children].filter(fly => !fly.classList.contains('is-caught'));
+    flying.forEach((fly, i) => { fly.tabIndex = dark && i === 0 ? 0 : -1; });
+    field.setAttribute('aria-hidden', String(!(dark && flying.length)));
+  }
+  function paint() {
+    let i = STOPS.findIndex(stop => stop[0] > p);
+    i = i === -1 ? STOPS.length - 1 : Math.max(1, i);
+    const [a, b] = [STOPS[i - 1], STOPS[i]];
+    const t = clamp((p - a[0]) / (b[0] - a[0]), 0, 1);
+    ['--sky-top', '--sky-bottom', '--hill-back', '--hill-mid', '--hill-front'].forEach((name, k) => footer.style.setProperty(name, mix(a[k + 1], b[k + 1], t)));
+    footer.style.setProperty('--glow', (a[6] + (b[6] - a[6]) * t).toFixed(2));
+    night = clamp((p - .98) / .2, 0, 1);
+    footer.style.setProperty('--night', night.toFixed(3));
+    scene.classList.toggle('is-night', isNight());
+    const along = 76 * p;
+    let x = narrow.matches ? 12 + along : 88 - along;
+    let y = p <= 1 ? 82 - 62 * Math.sin(Math.PI * p) : 82 + 140 * (p - 1);
+    // a focused sun stays on screen, so the keyboard focus never disappears below the hills
+    if (sun.matches(':focus-visible')) { x = clamp(x, 6, 94); y = Math.min(y, 72); }
+    sun.style.left = `${x}%`;
+    sun.style.top = `${y}%`;
+    sun.setAttribute('aria-valuenow', String(Math.round(p / MAX * 100)));
+    sun.setAttribute('aria-valuetext', phase(p));
+    story();
+  }
+  const tick = () => {
+    p += (target - p) * .14;
+    if (Math.abs(target - p) < .002) p = target;
+    paint();
+    frame = p === target ? 0 : requestAnimationFrame(tick);
+  };
+  function goTo(next) {
+    target = clamp(next, 0, MAX);
+    if (!motionAllowed()) { p = target; paint(); return; }
+    if (!frame) frame = requestAnimationFrame(tick);
+  }
+  const fromX = clientX => {
+    const box = scene.getBoundingClientRect();
+    const share = (clientX - box.left) / box.width;
+    return narrow.matches ? (share - .12) / .76 : (.88 - share) / .76;
+  };
+  const touch = () => { touched = true; scene.classList.add('is-touched'); };
+
+  // Only a sideways drag moves the sun, so vertical scrolling over the scene stays a scroll.
+  let press = null;
+  let dragged = false;
+  scene.addEventListener('pointerdown', event => {
+    if (event.target.closest('.firefly, .senja-reset')) return;
+    press = { id: event.pointerId, x: event.clientX, y: event.clientY, dragging: false, slack: event.pointerType === 'mouse' ? 3 : 8 };
+    dragged = false;
+  });
+  scene.addEventListener('pointermove', event => {
+    if (!press || press.id !== event.pointerId) return;
+    if (!press.dragging) {
+      const dx = Math.abs(event.clientX - press.x), dy = Math.abs(event.clientY - press.y);
+      if (dx < press.slack || dx < dy) return;
+      press.dragging = dragged = true;
+      scene.setPointerCapture(event.pointerId);
+      scene.classList.add('is-dragging');
+      touch();
+    }
+    goTo(fromX(event.clientX));
+  });
+  const release = event => {
+    if (!press || press.id !== event.pointerId) return;
+    press = null;
+    scene.classList.remove('is-dragging');
+  };
+  scene.addEventListener('pointerup', release);
+  scene.addEventListener('pointercancel', release);
+  // A real tap by day sends the sun there. Browsers drop the click when a tap only stops a scroll.
+  scene.addEventListener('click', event => {
+    if (dragged || isNight() || performance.now() < quietUntil) return;
+    if (event.target.closest('.firefly, .senja-reset, .senja-sun')) return;
+    touch();
+    goTo(fromX(event.clientX));
+  });
+  sun.addEventListener('keydown', event => {
+    const step = { ArrowRight: .05, ArrowUp: .05, ArrowLeft: -.05, ArrowDown: -.05, PageUp: .2, PageDown: -.2 }[event.key];
+    if (step === undefined && event.key !== 'Home' && event.key !== 'End') return;
+    event.preventDefault();
+    touch();
+    goTo(event.key === 'Home' ? 0 : event.key === 'End' ? MAX : target + step);
+  });
+  sun.addEventListener('focus', () => { touch(); paint(); });
+  sun.addEventListener('blur', paint);
+  narrow.addEventListener('change', paint);
+
+  function spawn() {
+    field.replaceChildren(...SLOTS.map(() => {
+      const fly = document.createElement('button');
+      fly.type = 'button';
+      fly.className = 'firefly';
+      fly.tabIndex = -1;
+      fly.setAttribute('aria-label', 'Tangkap kunang-kunang');
+      fly.style.left = `${10 + Math.random() * 80}%`;
+      fly.style.top = `${52 + Math.random() * 26}%`;
+      fly.style.setProperty('--dx', `${(Math.random() < .5 ? -1 : 1) * (10 + Math.random() * 16)}px`);
+      fly.style.setProperty('--dy', `${8 + Math.random() * 12}px`);
+      fly.style.setProperty('--dur', `${5 + Math.random() * 4}s`);
+      fly.style.setProperty('--delay', `${-Math.random() * 6}s`);
+      fly.append(document.createElement('span'));
+      return fly;
+    }));
+  }
+  field.addEventListener('click', event => {
+    const fly = event.target.closest('.firefly');
+    if (!fly || fly.classList.contains('is-caught') || !isNight()) return;
+    touch();
+    quietUntil = performance.now() + 450;
+    const [sx, sy] = SLOTS[caught];
+    caught += 1;
+    // fly from where the drifting dot is now to its star in the sprig
+    const box = sky.getBoundingClientRect(), area = scene.getBoundingClientRect();
+    fly.style.translate = getComputedStyle(fly).translate;
+    fly.classList.add('is-caught');
+    fly.tabIndex = -1;
+    fly.setAttribute('aria-hidden', 'true');
+    fly.style.left = `${(box.left - area.left + box.width * sx / 100) / area.width * 100}%`;
+    fly.style.top = `${(box.top - area.top + box.height * sy / 100) / area.height * 100}%`;
+    requestAnimationFrame(() => { fly.style.translate = '0px 0px'; });
+    if (caught === SLOTS.length) {
+      scene.classList.add('is-complete');
+      reset.hidden = false;
+    }
+    story();
+    if (document.activeElement === fly || document.activeElement === document.body) {
+      const next = [...field.children].find(item => !item.classList.contains('is-caught'));
+      (next || reset).focus({ preventScroll: true });
+    }
+  });
+  reset.addEventListener('click', event => {
+    quietUntil = performance.now() + 450;
+    caught = 0;
+    scene.classList.remove('is-complete');
+    reset.hidden = true;
+    spawn();
+    touch();
+    goTo(.3);
+    // keyboard users land on the sun; a tap keeps the page as it is
+    if (event.detail === 0) sun.focus({ preventScroll: true });
+  });
+
+  // Until someone touches it, the sun sets on its own as the scene rises to the middle of the screen,
+  // or when the page ends first. The listener only runs while the scene is on screen.
+  let queued = 0;
+  const follow = () => {
+    queued = 0;
+    if (touched || !motionAllowed()) return;
+    const box = scene.getBoundingClientRect();
+    const atEnd = scrollY + innerHeight >= document.documentElement.scrollHeight - 2;
+    const rise = atEnd ? 1 : clamp((innerHeight - (box.top + box.height / 2)) / (innerHeight * .55), 0, 1);
+    goTo(.78 + .36 * rise);
+  };
+  const onScroll = () => { if (!queued) queued = requestAnimationFrame(follow); };
+  new IntersectionObserver(([entry]) => {
+    scene.classList.toggle('is-inview', entry.isIntersecting);
+    if (entry.isIntersecting) { addEventListener('scroll', onScroll, { passive: true }); onScroll(); }
+    else removeEventListener('scroll', onScroll);
+  }).observe(scene);
+  spawn();
+  paint();
+})();
