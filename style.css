@@ -1189,9 +1189,9 @@ body.motion-paused .kilas-progress i::after,body.motion-paused .kilas-post-inner
 .sponsor[data-nama="sembunyi"] .sponsor-name{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 .sponsor[data-nama="sembunyi"] .sponsor-card{grid-template-rows:var(--box-h)}
 .sponsor[data-nama="sembunyi"].is-broken .sponsor-name{position:static;width:auto;height:auto;clip-path:none;white-space:normal}
-[data-tier="utama"] .sponsor[data-nama="sembunyi"]{--box-h:88px;--base:88px}
-@media(min-width:600px){[data-tier="utama"] .sponsor[data-nama="sembunyi"]{--box-h:110px;--base:110px}}
-@media(min-width:900px){[data-tier="utama"] .sponsor[data-nama="sembunyi"]{--box-h:112px;--base:112px}}
+[data-tier="utama"] .sponsor[data-nama="sembunyi"]{--box-h:104px;--base:104px}
+@media(min-width:600px){[data-tier="utama"] .sponsor[data-nama="sembunyi"]{--box-h:128px;--base:128px}}
+@media(min-width:900px){[data-tier="utama"] .sponsor[data-nama="sembunyi"]{--box-h:136px;--base:136px}}
 /* Linked cards carry a small arrow, like every other outside link on the page. */
 a.sponsor-card::before{content:"";position:absolute;top:8px;right:8px;width:11px;height:11px;background:#87634c;opacity:.75;-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 18 18 6M8 6h10v10'/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 18 18 6M8 6h10v10'/%3E%3C/svg%3E") center/contain no-repeat}
 .sponsor.is-light a.sponsor-card::before{background:#e2c3a0}
@@ -1256,3 +1256,9 @@ body.motion-paused .chapter-sponsor *,body.motion-paused .chapter-sponsor *::bef
 @keyframes tier-line{from{transform:scaleX(0)}}
 @media(prefers-reduced-motion:no-preference){.js body:not(.motion-paused) .sponsor-night.is-armed [data-tier="utama"]:not(.is-open) .sponsor-tier{opacity:0}}
 body.motion-paused .chapter-sponsor .sponsor-crown>span{opacity:0}
+/* How to become a partner: one plain line and the email address as a button. */
+.sponsor-cta{position:relative;z-index:1;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:10px 14px;max-width:560px;margin:clamp(30px,4.4vw,44px) auto 0;padding-top:clamp(22px,3vw,28px);border-top:1px solid #f6f1e41f;font-size:13.5px;line-height:1.5;color:#c9cfbd}
+.sponsor-cta a{display:inline-flex;align-items:center;gap:9px;min-height:44px;padding:0 18px;border:1px solid #f6f1e44d;border-radius:999px;background:#f6f1e40f;color:#f6f1e4;font-size:13.5px;text-decoration:none;transition:background .25s}
+.sponsor-cta .icon{flex:none;width:17px;height:17px;color:#e2c3a0}
+@media(hover:hover) and (pointer:fine){.sponsor-cta a:hover{background:#f6f1e41f}}
+.chapter-sponsor .sponsor-cta a:focus-visible{outline:2px solid #e2c3a0;outline-offset:3px}

@@ -2215,11 +2215,23 @@ reducedMotion.addEventListener('change', () => { if (!motionAllowed()) { panelAn
   function drawStory() {
     const at = Date.now();
     const { canvas, ctx } = paintNight(1080, 1920, { starCount: 210, starDepth: 1300, hills: [-1177, 1033, 1.7], shade: [540, 960, 720], sky: [150, 220, 780, 520], mark: [150, 540, 900, 1038] });
-    const card = countdownCard(ctx, 150, 1100, 780, 240);
-    const base = card ? 1490 : 1300;
-    label(ctx, `SENJA DI PAKEM · ${dayFormat.format(stats.date).toUpperCase()}`, '30px Arial, Helvetica, sans-serif', '#e2c3a0', 540, base, 5);
-    label(ctx, `Enam bintang dalam ${lama(stats.duration).text} · ${title}`, 'italic 34px Georgia, "Times New Roman", serif', '#e8e6d6', 540, base + 60);
-    label(ctx, 'tentremingpakem.com', '28px Arial, Helvetica, sans-serif', '#b9c0a8', 540, base + 122, 2);
+    const card = countdownCard(ctx, 150, 1140, 780, 240);
+    const base = card ? 1530 : 1340;
+    label(ctx, 'KKN PPM UGM PAKEM 2026', '30px Arial, Helvetica, sans-serif', '#e2c3a0', 540, base, 5);
+    // where it came from, in a thin capsule under the unit line
+    const source = 'Shared from tentremingpakem.com', font = '28px Arial, Helvetica, sans-serif';
+    ctx.font = font;
+    if ('letterSpacing' in ctx) ctx.letterSpacing = '1px';
+    const pw = ctx.measureText(source).width + 64, ph = 66, px = 540 - pw / 2, py = base + 44;
+    if ('letterSpacing' in ctx) ctx.letterSpacing = '0px';
+    ctx.beginPath();
+    ctx.roundRect ? ctx.roundRect(px, py, pw, ph, ph / 2) : ctx.rect(px, py, pw, ph);
+    ctx.fillStyle = 'rgba(246,241,228,.1)';
+    ctx.fill();
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = 'rgba(246,241,228,.35)';
+    ctx.stroke();
+    label(ctx, source, font, '#f6f1e4', 540, py + 43, 1);
     toFile(canvas, 'senja-di-pakem-story.png', file => { story = file; storyAt = at; storyButton.hidden = false; });
   }
   // Where a browser cannot hand a picture to other apps (desktop, or Instagram's own in-app browser),
