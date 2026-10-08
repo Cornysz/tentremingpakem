@@ -453,6 +453,9 @@ body.is-past-hero .bird,body.is-past-hero .bird img,body.is-past-hero .scene>img
 .js .theme-statement:not(.has-gloss) .term-panel{display:none}
 .js .term-panel{grid-area:1/1}
 .js .term-panel:not(.is-current){visibility:hidden}
+.js .term-panel.is-current{z-index:1}
+.js .term-panel.is-leaving{visibility:visible}
+.theme-gloss.is-moving{overflow:clip}
 html:not(.js) .theme-gloss{gap:12px;margin-top:24px}
 html:not(.js) :is(.term-foot,.term-close,.theme-hint){display:none}
 .term-panel{position:relative;display:flex;flex-direction:column;gap:14px;min-width:0;padding:18px 18px 16px;border:1px solid #e6dcc8;border-radius:20px;background:#f3ede0}
@@ -928,6 +931,51 @@ body.motion-paused .senja-keepsake,body.motion-paused .senja-keepsake::after{ani
 .gmap-view button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
 @media(max-width:900px){.places{grid-template-columns:1fr}.places-map svg{height:min(520px,72vh)}}
 .gmap-ghost{position:absolute;inset:8% 0;width:100%;height:84%;overflow:visible;opacity:.6;pointer-events:none}
+/* One map card, two views: the schematic map, or Google's map in the same place, so the section stays short. */
+.map-stage{position:relative}
+.map-switch{position:relative;z-index:3;display:flex;width:max-content;gap:3px;margin:0 0 10px;padding:4px;border-radius:30px;background:#ebe8d9}
+@media(min-width:901px){.places-map svg{height:clamp(420px,calc(100vh - 290px),560px)}}
+.map-switch button{min-height:36px;padding:0 13px;border:0;border-radius:30px;background:none;color:#4a5840;font-size:12px;white-space:nowrap;transition:background .25s,color .25s}
+.map-switch button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+@media(hover:hover) and (pointer:fine){.map-switch button[aria-pressed="false"]:hover{background:#dfe2cf}}
+@media(pointer:coarse){.map-switch button{min-height:40px}}
+.places-map .gmap{position:absolute;inset:clamp(8px,1.2vw,12px);z-index:2;width:auto;margin:0;aspect-ratio:auto;min-height:0;border-radius:20px;visibility:hidden;opacity:0;transition:opacity .35s,visibility .35s}
+.places-map[data-view="google"] .gmap{visibility:visible;opacity:1}
+.places-map[data-view="google"] :is(.map-stage,.map-legend,.map-credit){visibility:hidden}
+.places-map .gmap-facade{padding:72px 24px 24px}
+body.motion-paused .places-map .gmap{transition:none}
+.places-map[data-view="google"] .gmap{transition:opacity .35s,visibility 0s}
+@media(min-width:601px){.places-map .gmap{top:calc(clamp(14px,2vw,22px) + 58px)}.places-map .gmap-facade{padding-top:24px}}
+html:not(.js) :is(.map-switch,.place-button.is-map){display:none}
+/* Phones: the tall map sits on the left, with the switch, legend and credit beside it instead of below. */
+@media(max-width:600px){
+.places{gap:20px;margin-top:28px}
+.places-map{display:grid;grid-template-columns:auto minmax(0,1fr);grid-template-rows:auto 1fr;gap:12px 10px;padding:12px;border-radius:22px}
+.map-stage{grid-area:1/1/3/2}
+.places-map figcaption{grid-area:2/2/3/3;align-self:end}
+.places-map svg{height:min(420px,56vh,calc((100vw - 180px) * 1.96))}
+.places-map figcaption{gap:12px;margin:0}
+.map-switch{grid-area:1/2/2/3;flex-direction:column;width:auto;margin:0;border-radius:18px}
+.map-switch button{padding:0 8px;font-size:11.5px}
+.map-legend{flex-direction:column;gap:8px;margin:0}
+.map-credit{margin:0;line-height:1.45}
+.places-map .gmap-facade{padding:104px 16px 20px}
+.places-map .gmap-view{top:104px;right:4px;bottom:auto;left:auto;flex-direction:column}
+.region-label.is-target{font-size:21px;letter-spacing:.6px}
+.map-pin .pin-hit{transform:scale(1.36)}
+.place-tabs{margin-bottom:16px}
+.place-kicker{margin-bottom:10px}
+.place-text{font-size:14.5px;line-height:1.72}
+.place-facts{margin:16px 0}
+.place-facts div{padding:11px 14px}
+.place-chips{gap:6px;margin-bottom:16px}
+.place-chips li{padding:6px 11px}
+.place-note{margin-bottom:16px;padding:12px 14px}
+.place-actions{flex-wrap:nowrap;gap:8px}
+.place-button{padding:0 15px}
+.place-source{margin-top:12px}
+.chapter-places{padding-bottom:56px}
+}
 .gmap-ghost path{fill:#c6a07d14;stroke:#c2573f;stroke-width:1.6;stroke-dasharray:5 4;vector-effect:non-scaling-stroke}
 .gmap-facade>:not(.gmap-ghost){position:relative}
 /* Past the hero, the pause button steps aside so it never covers the reading. */

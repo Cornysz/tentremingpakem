@@ -530,31 +530,109 @@ reducedMotion.addEventListener('change', () => { if (!motionAllowed()) { panelAn
 })();
 
 // The theme statement explains itself: each underlined phrase opens its meaning inside the card, one at a time.
+// The paper moves with it: it unfolds on open, the next meaning slides in over the last one, and it folds away on close.
+// A tap in the middle of a move carries on from the height on screen, so the page never jumps.
 (() => {
   const statement = document.querySelector('.theme-statement');
+  const gloss = statement.querySelector('.theme-gloss');
   const status = statement.querySelector('.term-status');
   const terms = [...statement.querySelectorAll('.theme-term')];
   const panels = [...statement.querySelectorAll('.term-panel')];
+  const order = panels.map(panel => panel.dataset.term);
+  const EASE = 'cubic-bezier(.22,1,.36,1)', FOLD = 'cubic-bezier(.55,0,.7,.2)';
   let current = null;
-  let termAnimation;
-  const show = (key, focusTarget) => {
+  let moving = [];
+  const play = (el, keyframes, options) => {
+    const animation = el.animate(keyframes, { easing: EASE, fill: 'backwards', ...options });
+    moving.push(animation);
+    return animation;
+  };
+  const settle = () => {
+    moving.forEach(animation => animation.cancel());
+    moving = [];
+    gloss.classList.remove('is-moving');
+    panels.forEach(panel => { panel.classList.remove('is-leaving'); panel.inert = false; });
+  };
+  // the height of the paper animates between two sizes while the page below follows it
+  const grow = (from, to, options) => {
+    gloss.classList.add('is-moving');
+    return play(gloss, [{ height: `${from.height}px`, marginTop: `${from.margin}px` }, { height: `${to.height}px`, marginTop: `${to.margin}px` }], options);
+  };
+  const size = () => ({ height: gloss.getBoundingClientRect().height, margin: parseFloat(getComputedStyle(gloss).marginTop) || 0 });
+  // the parts of a meaning arrive one after another: the icon pops, then the words rise.
+  // When switching, the Lanjut row stays put, so the button never blinks under the thumb.
+  const arrive = (panel, delay, quick = false) => {
+    play(panel.querySelector('.term-icon'), [{ opacity: 0, transform: 'scale(.4) rotate(-35deg)' }, { opacity: 1, transform: 'none' }], { duration: 520, delay, easing: 'cubic-bezier(.34,1.56,.64,1)' });
+    panel.querySelectorAll(quick ? '.term-kicker, .term-title, .term-text, .term-source' : '.term-kicker, .term-title, .term-text, .term-source, .term-foot')
+      .forEach((el, i) => play(el, [{ opacity: 0, transform: 'translateY(8px)' }, { opacity: 1, transform: 'none' }], { duration: 440, delay: delay + (quick ? 30 : 60) + i * (quick ? 30 : 45) }));
+  };
+  const mark = () => terms.forEach(term => {
+    const on = term.dataset.term === current;
+    term.classList.toggle('is-active', on);
+    term.setAttribute('aria-expanded', String(on));
+  });
+  const putAway = () => {
+    statement.classList.remove('has-gloss');
+    panels.forEach(panel => panel.classList.remove('is-current'));
+  };
+  // the paper folds up from the bottom while the page below closes the gap
+  const fold = from => {
+    const panel = panels.find(item => item.classList.contains('is-current'));
+    if (panel) {
+      panel.inert = true;
+      play(panel, [{ clipPath: 'inset(0 0 0% 0 round 20px)' }, { clipPath: 'inset(0 0 100% 0 round 20px)', transform: 'translateY(-6px) scale(.985)' }], { duration: 300, easing: FOLD, fill: 'forwards' });
+    }
+    gloss.classList.add('is-moving');
+    play(gloss, [{ height: `${from.height}px`, marginTop: `${from.margin}px`, opacity: 1 }, { height: '0px', marginTop: '0px', opacity: 0 }], { duration: 300, easing: FOLD, fill: 'forwards' })
+      .finished.then(() => {
+        if (current) return;
+        putAway();
+        settle();
+      }, () => {});
+  };
+  const show = (key, focusTarget, { instant = false } = {}) => {
+    const previous = current;
+    const wasMoving = gloss.classList.contains('is-moving');
+    const from = size();
     current = key || null;
-    terms.forEach(term => {
-      const on = term.dataset.term === current;
-      term.classList.toggle('is-active', on);
-      term.setAttribute('aria-expanded', String(on));
-    });
-    panels.forEach(panel => panel.classList.toggle('is-current', panel.dataset.term === current));
-    statement.classList.toggle('has-gloss', Boolean(current));
-    termAnimation?.cancel();
+    settle();
+    mark();
+    if (!current) {
+      if (previous && motionAllowed() && !instant) fold(from);
+      else putAway();
+      return;
+    }
     const panel = panels.find(item => item.dataset.term === current);
-    if (!panel) return;
+    const old = panels.find(item => item.dataset.term === previous);
+    panels.forEach(item => item.classList.toggle('is-current', item === panel));
+    statement.classList.add('has-gloss');
     status.textContent = `${panel.querySelector('.term-title').textContent}. ${panel.querySelector('.term-text').textContent}`;
-    if (motionAllowed()) termAnimation = panel.animate([{ opacity: 0, transform: 'translateY(10px)' }, { opacity: 1, transform: 'none' }], { duration: 420, easing: 'cubic-bezier(.22,1,.36,1)' });
+    // measured before anything moves, so the scroll below aims at where the card will end up
+    const to = size();
+    const finalBottom = panel.getBoundingClientRect().bottom;
+    if (motionAllowed()) {
+      if (!old) {
+        // the paper unfolds from the top (or keeps opening from where a fold was stopped) while the page below makes room
+        grow(wasMoving ? from : { height: 0, margin: 0 }, to, { duration: 460 }).finished.then(() => gloss.classList.remove('is-moving'), () => {});
+        play(panel, [{ opacity: .3, transform: 'translateY(-6px) scale(.985)', clipPath: 'inset(0 0 100% 0 round 20px)' }, { opacity: 1, transform: 'none', clipPath: 'inset(0 0 0% 0 round 20px)' }], { duration: 560 });
+        arrive(panel, 140);
+      } else if (old !== panel) {
+        // the next meaning slides in over the last one, like a card laid on top
+        if (wasMoving) grow(from, to, { duration: 380 }).finished.then(() => gloss.classList.remove('is-moving'), () => {});
+        const dir = order.indexOf(current) > order.indexOf(previous) ? 1 : -1;
+        old.classList.add('is-leaving');
+        old.inert = true;
+        play(old, [{ opacity: 1, transform: 'none' }, { opacity: 0, transform: `translateX(${-18 * dir}px) scale(.97)` }], { duration: 380, fill: 'forwards' })
+          .finished.then(() => { old.classList.remove('is-leaving'); old.inert = false; }, () => {});
+        play(panel, [{ opacity: 0, transform: `translateX(${34 * dir}px) rotate(${dir * .8}deg)` }, { opacity: 1, transform: 'none' }], { duration: 480 });
+        arrive(panel, 40, true);
+      }
+    }
     if (focusTarget) panel.querySelector(focusTarget)?.focus({ preventScroll: true });
-    if (panel.getBoundingClientRect().bottom > innerHeight - 12) panel.scrollIntoView({ block: 'nearest', behavior: motionAllowed() ? 'smooth' : 'auto' });
+    if (finalBottom > innerHeight - 12) scrollBy({ top: finalBottom - innerHeight + 12, behavior: motionAllowed() ? 'smooth' : 'auto' });
   };
   const closeTo = () => {
+    if (!current) return;
     const term = terms.find(item => item.dataset.term === current);
     show(null);
     term?.focus();
@@ -573,7 +651,8 @@ reducedMotion.addEventListener('change', () => { if (!motionAllowed()) { panelAn
     const next = panel.querySelector('.term-next');
     next.addEventListener('click', () => {
       if (next.dataset.next) return show(next.dataset.next, '.term-next');
-      show(null);
+      // the page scrolls away to the clusters, so the meaning is put away at once instead of folding under the scroll
+      show(null, null, { instant: true });
       document.querySelector('.theme-grove').scrollIntoView({ block: 'start', behavior: motionAllowed() ? 'smooth' : 'auto' });
       document.querySelector('.cluster-open').focus({ preventScroll: true });
     });
@@ -583,7 +662,7 @@ reducedMotion.addEventListener('change', () => { if (!motionAllowed()) { panelAn
     event.preventDefault();
     closeTo();
   });
-  motionButton.addEventListener('click', () => { if (document.body.classList.contains('motion-paused')) termAnimation?.finish(); });
+  motionButton.addEventListener('click', () => { if (document.body.classList.contains('motion-paused')) moving.slice().forEach(animation => animation.finish()); });
 })();
 
 // Each cluster card opens the same member preview, already turned to its cluster.
@@ -740,6 +819,7 @@ reducedMotion.addEventListener('change', () => { if (!motionAllowed()) { panelAn
   const selection = figure.querySelector('.region-outline.is-selection');
   const focusRing = figure.querySelector('.region-outline.is-focus');
   const viewButtons = [...gmap.querySelectorAll('.gmap-view button')];
+  const switches = [...figure.querySelectorAll('.map-switch button')];
   let current;
   let view = 'k';
 
@@ -864,15 +944,31 @@ reducedMotion.addEventListener('change', () => { if (!motionAllowed()) { panelAn
     });
   });
 
+  // The map card shows either the schematic map or Google's map in the same place; Google still loads only on request.
+  const setView = name => {
+    figure.dataset.view = name;
+    switches.forEach(button => button.setAttribute('aria-pressed', String(button.dataset.mapview === name)));
+    hideTip();
+  };
+  switches.forEach(button => button.addEventListener('click', () => setView(button.dataset.mapview)));
   gmap.querySelector('.gmap-load').addEventListener('click', () => loadMap().focus());
-  // The in-panel button scrolls to the Google map and opens it on the chosen kalurahan.
-  section.querySelectorAll('.place-button.is-map').forEach(link => link.addEventListener('click', () => loadMap()));
+  // The in-panel button turns the card to Google's map on the chosen kalurahan, and brings the card into view if needed.
+  section.querySelectorAll('.place-button.is-map').forEach(link => link.addEventListener('click', event => {
+    event.preventDefault();
+    setView('google');
+    loadMap().focus({ preventScroll: true });
+    const box = figure.getBoundingClientRect();
+    if (box.top < 70 || box.bottom > innerHeight) figure.scrollIntoView({ block: 'center', behavior: motionAllowed() ? 'smooth' : 'auto' });
+  }));
   viewButtons.forEach(button => button.addEventListener('click', () => {
     view = button.dataset.view;
     viewButtons.forEach(item => item.setAttribute('aria-pressed', String(item === button)));
     loadMap();
   }));
   select(placeTabs[0].dataset.place);
+  const fromHash = () => { if (location.hash === '#peta-google') setView('google'); };
+  fromHash();
+  addEventListener('hashchange', fromHash);
 })();
 
 // Each word of the name shows its own meaning.
