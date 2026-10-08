@@ -529,34 +529,175 @@ reducedMotion.addEventListener('change', () => { if (!motionAllowed()) { panelAn
   footerPhilosophy.addEventListener('click', () => philosophy.open(footerPhilosophy));
 })();
 
-// The theme statement and its four cards point at each other: a phrase lights its card, and a card lights its phrase.
+// The theme statement explains itself: each underlined phrase opens its meaning inside the card, one at a time.
 (() => {
-  const terms = [...document.querySelectorAll('.theme-term')];
-  const pillars = [...document.querySelectorAll('.theme-pillar')];
-  let pinned = null;
-  const show = key => {
-    terms.forEach(term => term.classList.toggle('is-active', term.dataset.term === key));
-    pillars.forEach(pillar => pillar.classList.toggle('is-active', pillar.dataset.term === key));
+  const statement = document.querySelector('.theme-statement');
+  const status = statement.querySelector('.term-status');
+  const terms = [...statement.querySelectorAll('.theme-term')];
+  const panels = [...statement.querySelectorAll('.term-panel')];
+  let current = null;
+  let termAnimation;
+  const show = (key, focusTarget) => {
+    current = key || null;
+    terms.forEach(term => {
+      const on = term.dataset.term === current;
+      term.classList.toggle('is-active', on);
+      term.setAttribute('aria-expanded', String(on));
+    });
+    panels.forEach(panel => panel.classList.toggle('is-current', panel.dataset.term === current));
+    statement.classList.toggle('has-gloss', Boolean(current));
+    termAnimation?.cancel();
+    const panel = panels.find(item => item.dataset.term === current);
+    if (!panel) return;
+    status.textContent = `${panel.querySelector('.term-title').textContent}. ${panel.querySelector('.term-text').textContent}`;
+    if (motionAllowed()) termAnimation = panel.animate([{ opacity: 0, transform: 'translateY(10px)' }, { opacity: 1, transform: 'none' }], { duration: 420, easing: 'cubic-bezier(.22,1,.36,1)' });
+    if (focusTarget) panel.querySelector(focusTarget)?.focus({ preventScroll: true });
+    if (panel.getBoundingClientRect().bottom > innerHeight - 12) panel.scrollIntoView({ block: 'nearest', behavior: motionAllowed() ? 'smooth' : 'auto' });
+  };
+  const closeTo = () => {
+    const term = terms.find(item => item.dataset.term === current);
+    show(null);
+    term?.focus();
   };
   // The phrases are inline spans so their underline wraps with the sentence; Enter and Space work like a button.
-  terms.forEach(term => term.addEventListener('keydown', event => {
-    if (event.key !== 'Enter' && event.key !== ' ') return;
-    event.preventDefault();
-    term.click();
-  }));
-  terms.forEach(term => term.addEventListener('click', () => {
-    pinned = pinned === term.dataset.term ? null : term.dataset.term;
-    terms.forEach(item => item.setAttribute('aria-pressed', String(item.dataset.term === pinned)));
-    show(pinned);
-    const pillar = pillars.find(item => item.dataset.term === pinned);
-    if (!pillar) return;
-    const rect = pillar.getBoundingClientRect();
-    if (rect.top < 70 || rect.bottom > innerHeight) pillar.scrollIntoView({ block: 'center', behavior: motionAllowed() ? 'smooth' : 'auto' });
-  }));
-  pillars.forEach(pillar => {
-    pillar.addEventListener('pointerenter', event => { if (event.pointerType === 'mouse') show(pillar.dataset.term); });
-    pillar.addEventListener('pointerleave', event => { if (event.pointerType === 'mouse') show(pinned); });
+  terms.forEach(term => {
+    term.addEventListener('keydown', event => {
+      if (event.key !== 'Enter' && event.key !== ' ') return;
+      event.preventDefault();
+      term.click();
+    });
+    term.addEventListener('click', () => show(current === term.dataset.term ? null : term.dataset.term));
   });
+  panels.forEach(panel => {
+    panel.querySelector('.term-close').addEventListener('click', closeTo);
+    const next = panel.querySelector('.term-next');
+    next.addEventListener('click', () => {
+      if (next.dataset.next) return show(next.dataset.next, '.term-next');
+      show(null);
+      document.querySelector('.theme-grove').scrollIntoView({ block: 'start', behavior: motionAllowed() ? 'smooth' : 'auto' });
+      document.querySelector('.cluster-open').focus({ preventScroll: true });
+    });
+  });
+  statement.addEventListener('keydown', event => {
+    if (event.key !== 'Escape' || !current) return;
+    event.preventDefault();
+    closeTo();
+  });
+  motionButton.addEventListener('click', () => { if (document.body.classList.contains('motion-paused')) termAnimation?.finish(); });
+})();
+
+// Each cluster card opens the same member preview, already turned to its cluster.
+(() => {
+  const modal = document.querySelector('#klaster-anggota');
+  const openers = [...document.querySelectorAll('.cluster-open')];
+  const tabs = [...modal.querySelectorAll('[role="tab"]')];
+  const panels = [...modal.querySelectorAll('[role="tabpanel"]')];
+  const card = modal.querySelector('.members-card');
+  const nameSlot = modal.querySelector('.members-name');
+  const nextButton = modal.querySelector('.members-next');
+  const nextLabel = nextButton.querySelector('.members-next-label');
+  let current = 0;
+  let rowAnimations = [];
+  // Initials come from the names, so editing a name in index.html is enough.
+  const initial = word => (word.match(/\p{L}/u) || [''])[0];
+  modal.querySelectorAll('.member').forEach(row => {
+    const words = row.querySelector('.member-name').textContent.trim().split(/\s+/);
+    row.querySelector('.member-mono').textContent = (initial(words[0]) + (words.length > 1 ? initial(words[words.length - 1]) : '')).toUpperCase();
+  });
+  const select = (index, { focusTab = false, animate = true } = {}) => {
+    current = (index + tabs.length) % tabs.length;
+    const tab = tabs[current];
+    tabs.forEach((item, i) => {
+      item.setAttribute('aria-selected', String(i === current));
+      item.tabIndex = i === current ? 0 : -1;
+    });
+    const hadFocus = panels.some(panel => panel.contains(document.activeElement));
+    panels.forEach((panel, i) => { panel.hidden = i !== current; });
+    if (hadFocus && !focusTab) panels[current].focus({ preventScroll: true });
+    modal.dataset.cluster = tab.dataset.cluster;
+    nameSlot.textContent = tab.dataset.name;
+    nextLabel.textContent = current === tabs.length - 1 ? `Kembali ke ${tabs[0].dataset.name}` : `Lanjut ke ${tabs[current + 1].dataset.name}`;
+    if (focusTab) tab.focus({ preventScroll: true });
+    card.scrollTop = 0;
+    rowAnimations.forEach(animation => animation.cancel());
+    rowAnimations = [];
+    if (!animate || !motionAllowed()) return;
+    rowAnimations = [...panels[current].querySelectorAll('.members-subtema, .member')].map((row, i) => row.animate(
+      [{ opacity: 0, transform: 'translateY(10px)' }, { opacity: 1, transform: 'none' }],
+      { duration: 420, delay: 80 + i * 35, easing: 'cubic-bezier(.22,1,.36,1)', fill: 'backwards' }
+    ));
+  };
+  const indexOf = key => Math.max(0, tabs.findIndex(tab => tab.dataset.cluster === key));
+  // Order matters: this listener runs before the one connectDialog adds to the first card,
+  // so the dialog always opens on the cluster that was tapped.
+  openers.forEach(button => button.addEventListener('click', () => { modal.dataset.cluster = button.dataset.cluster; }));
+  const members = connectDialog(modal, openers[0], '.members-card');
+  openers.slice(1).forEach(button => button.addEventListener('click', () => members.open(button)));
+  modal.addEventListener('dialog-open', () => {
+    modal.style.transform = '';
+    select(indexOf(modal.dataset.cluster));
+  });
+  tabs.forEach((tab, index) => {
+    tab.addEventListener('click', () => select(index));
+    tab.addEventListener('keydown', event => {
+      let target;
+      if (event.key === 'ArrowRight') target = index + 1;
+      if (event.key === 'ArrowLeft') target = index - 1;
+      if (event.key === 'Home') target = 0;
+      if (event.key === 'End') target = tabs.length - 1;
+      if (target === undefined) return;
+      event.preventDefault();
+      select(target, { focusTab: true });
+    });
+  });
+  nextButton.addEventListener('click', () => select(current + 1, { focusTab: true }));
+  // A sideways swipe over the list turns to the next or previous cluster; vertical drags still scroll.
+  const list = modal.querySelector('.members-panels');
+  let swipe = null;
+  list.addEventListener('pointerdown', event => {
+    if (event.pointerType === 'mouse' || event.clientX < 24 || event.clientX > innerWidth - 24) return;
+    swipe = { x: event.clientX, y: event.clientY };
+  });
+  list.addEventListener('pointercancel', () => { swipe = null; });
+  list.addEventListener('pointerup', event => {
+    if (!swipe) return;
+    const dx = event.clientX - swipe.x;
+    const dy = event.clientY - swipe.y;
+    swipe = null;
+    if (Math.abs(dx) < 56 || Math.abs(dx) < Math.abs(dy) * 1.5) return;
+    const target = current + (dx < 0 ? 1 : -1);
+    if (target >= 0 && target < tabs.length) select(target);
+  });
+  // On phones the sheet follows a downward pull on its handle or title, and closes past 96px or on a quick flick.
+  const sheet = matchMedia('(max-width: 760px)');
+  let drag = null;
+  const startDrag = event => {
+    if (!sheet.matches || event.button !== 0 || event.target.closest('button')) return;
+    drag = { y: event.clientY, t: performance.now(), dy: 0 };
+    event.currentTarget.setPointerCapture(event.pointerId);
+    modal.style.transition = 'none';
+  };
+  const moveDrag = event => {
+    if (!drag) return;
+    drag.dy = Math.max(0, event.clientY - drag.y);
+    modal.style.transform = `translateY(${drag.dy}px)`;
+  };
+  const endDrag = () => {
+    if (!drag) return;
+    const { dy, t } = drag;
+    drag = null;
+    if (dy > 96 || (dy > 24 && dy / Math.max(1, performance.now() - t) > .6)) return members.close();
+    modal.style.transition = motionAllowed() ? 'transform .3s cubic-bezier(.22,1,.36,1)' : '';
+    modal.style.transform = '';
+  };
+  modal.querySelectorAll('.members-grab, .members-intro').forEach(handle => {
+    handle.addEventListener('pointerdown', startDrag);
+    handle.addEventListener('pointermove', moveDrag);
+    handle.addEventListener('pointerup', endDrag);
+    handle.addEventListener('pointercancel', endDrag);
+  });
+  modal.addEventListener('close', () => { modal.style.transform = ''; modal.style.transition = ''; });
+  motionButton.addEventListener('click', () => { if (document.body.classList.contains('motion-paused')) rowAnimations.forEach(animation => animation.finish()); });
 })();
 
 // Numbers count up once their row comes into view.
@@ -932,6 +1073,8 @@ reducedMotion.addEventListener('change', () => { if (!motionAllowed()) { panelAn
 // Senja di Pakem: the sun follows a sideways drag (or a tap by day) through the day. At night the fireflies
 // come out; each one caught flies up as a star, and all six draw the sprig from the title.
 // On phones the arc is mirrored, so the sun rises over Merapi and sets on the open side.
+// Once the sixth star is caught, the constellation glides to the middle, waits for one more tap,
+// and the stars write the wordmark: the leaves grow to meet them and the sprig flies beside Tentrem.
 (() => {
   const footer = document.querySelector('.site-footer');
   const scene = footer.querySelector('.senja');
@@ -939,6 +1082,7 @@ reducedMotion.addEventListener('change', () => { if (!motionAllowed()) { panelAn
   const field = scene.querySelector('.senja-fireflies');
   const sky = scene.querySelector('.senja-constellation');
   const text = scene.querySelector('.senja-text');
+  const liveText = scene.querySelector('.senja-live');
   const reset = scene.querySelector('.senja-reset');
   const narrow = matchMedia('(max-width: 599px)');
   // star positions inside the square constellation box: stem, then the leaves
@@ -965,18 +1109,56 @@ reducedMotion.addEventListener('change', () => { if (!motionAllowed()) { panelAn
   let night = 0;
   let message = '';
   let quietUntil = 0;
+  const mark = scene.querySelector('.senja-mark');
+  const markSprig = mark.querySelector('.mark-sprig');
+  const swayGroup = mark.querySelector('.mark-sway');
+  const lineEls = [...mark.querySelectorAll('.mark-line')];
+  const words = [...mark.querySelectorAll('.mark-word')];
+  const dot = mark.querySelector('.mark-dot');
+  const leaners = [...words, dot];
+  const glints = [...mark.querySelectorAll('.mark-glint')];
+  const hint = mark.querySelector('.senja-hint');
+  const veil = scene.querySelector('.senja-veil');
+  const halo = scene.querySelector('.senja-halo');
+  const bloomButton = scene.querySelector('.senja-bloom');
+  const keepsake = scene.querySelector('.senja-keepsake');
+  const linePath = sky.querySelector('path');
+  const coarse = matchMedia('(pointer: coarse)');
+  // where each star lands on the drawn sprig (264 x 244 units), in SLOTS order: stem base, junction, stem tip, leaf 1, leaf 2, leaf 4
+  const TIPS = [[6, 238], [112, 154], [258, 5], [62, 88], [111, 20], [258, 174]];
+  const FOLDS = { 1: 50, 4: -45, 2: 40, 3: -20 };
+  const EASE = 'cubic-bezier(.22,1,.36,1)', GLIDE = 'cubic-bezier(.65,0,.35,1)', WRITE = 'cubic-bezier(.45,0,.25,1)', SPRING = 'cubic-bezier(.34,1.56,.64,1)';
+  const SIGNOFF = 'Matur nuwun sampun mampir. Sugeng dalu!';
+  const FINALE = ['gather', 'await', 'bloom'];
+  let stage = 'play'; // play, gather, await, bloom, mark
+  let anims = [];
+  let geo = null;
+  let generation = 0;
+  let holdTimer = 0, autoTimer = 0, glossTimer = 0;
+  let bloomQueued = false, hurried = false, wasNight = false;
+  const stats = { rounds: 0 };
+  const resetStats = () => Object.assign(stats, { start: 0, moves: 0, sunsets: 0, keyCatches: 0, catches: [], trails: [], date: null, duration: 0, fastest: 0, sways: 0 });
+  resetStats();
+  keepsake.prepend(document.querySelector('#spark-icon').content.cloneNode(true));
+  const inView = () => scene.classList.contains('is-inview') && !document.hidden;
+  const live = () => anims.filter(a => a.playState === 'running' || a.playState === 'paused');
+  const caughtFlies = () => [...field.children].filter(fly => fly.classList.contains('is-caught'));
+  const spot = ([x, y], w, h) => [geo.left + x / w * geo.W, geo.top + y / h * geo.H];
 
   const isNight = () => p > NIGHT;
-  function say(words) {
+  // quiet updates change only what is seen, so screen readers are not told the same sign-off again
+  function say(words, quiet = false) {
     if (words === message) return;
     message = words;
     text.textContent = words;
+    if (!quiet) liveText.textContent = words;
   }
   function story() {
     const dark = isNight();
-    if (caught === SLOTS.length) say(dark ? 'Matur nuwun sampun mampir. Sugeng dalu!' : 'Matur nuwun sampun mampir.');
-    else if (dark) say(caught ? `Kunang-kunang tertangkap: ${caught} dari ${SLOTS.length}.` : `Kunang-kunang keluar. Ketuk untuk menangkap: 0 dari ${SLOTS.length}.`);
-    else say('Geser mataharinya. Saat gelap, kunang-kunang keluar.');
+    if (stage === 'play') {
+      if (dark) say(caught ? `Kunang-kunang tertangkap: ${caught} dari ${SLOTS.length}.` : `Kunang-kunang keluar. Ketuk untuk menangkap: 0 dari ${SLOTS.length}.`);
+      else say('Geser mataharinya. Saat gelap, kunang-kunang keluar.');
+    }
     // one tab stop for the fireflies: the first one still flying, and only at night
     const flying = [...field.children].filter(fly => !fly.classList.contains('is-caught'));
     flying.forEach((fly, i) => { fly.tabIndex = dark && i === 0 ? 0 : -1; });
@@ -992,10 +1174,13 @@ reducedMotion.addEventListener('change', () => { if (!motionAllowed()) { panelAn
     night = clamp((p - .98) / .2, 0, 1);
     footer.style.setProperty('--night', night.toFixed(3));
     scene.classList.toggle('is-night', isNight());
+    const dark = isNight();
+    if (dark && !wasNight) stats.sunsets += 1;
+    wasNight = dark;
     const along = 76 * p;
     let x = narrow.matches ? 12 + along : 88 - along;
     let y = p <= 1 ? 82 - 62 * Math.sin(Math.PI * p) : 82 + 140 * (p - 1);
-    // a focused sun stays on screen, so the keyboard focus never disappears below the hills
+    // a sun focused from the keyboard stays on screen, so the focus ring never disappears below the hills
     if (sun.matches(':focus-visible')) { x = clamp(x, 6, 94); y = Math.min(y, 72); }
     sun.style.left = `${x}%`;
     sun.style.top = `${y}%`;
@@ -1019,14 +1204,16 @@ reducedMotion.addEventListener('change', () => { if (!motionAllowed()) { panelAn
     const share = (clientX - box.left) / box.width;
     return narrow.matches ? (share - .12) / .76 : (.88 - share) / .76;
   };
-  const touch = () => { touched = true; scene.classList.add('is-touched'); };
+  // the clock for the recap starts at the first real touch, not when the sun only gets keyboard focus
+  const touch = (clock = true) => { touched = true; if (clock && !stats.start) stats.start = performance.now(); scene.classList.add('is-touched'); };
 
   // Only a sideways drag moves the sun, so vertical scrolling over the scene stays a scroll.
   let press = null;
   let dragged = false;
   scene.addEventListener('pointerdown', event => {
-    if (event.target.closest('.firefly, .senja-reset')) return;
-    press = { id: event.pointerId, x: event.clientX, y: event.clientY, dragging: false, slack: event.pointerType === 'mouse' ? 3 : 8 };
+    if (event.target.closest('.firefly, .senja-reset, .senja-keepsake, .senja-bloom')) return;
+    if (FINALE.includes(stage)) return;
+    press = { id: event.pointerId, x: event.clientX, y: event.clientY, lastX: event.clientX, dragging: false, slack: event.pointerType === 'mouse' ? 3 : 8 };
     dragged = false;
   });
   scene.addEventListener('pointermove', event => {
@@ -1038,7 +1225,10 @@ reducedMotion.addEventListener('change', () => { if (!motionAllowed()) { panelAn
       scene.setPointerCapture(event.pointerId);
       scene.classList.add('is-dragging');
       touch();
+      if (stage === 'mark') { if (motionAllowed()) stats.sways += 1; scene.classList.add('has-swayed'); } else stats.moves += 1;
     }
+    // after the finale the same gesture blows wind through the sprig instead of moving the sun
+    if (stage === 'mark') { gust(clamp(event.clientX - press.lastX, -30, 30) * 1.4); press.lastX = event.clientX; return; }
     goTo(fromX(event.clientX));
   });
   const release = event => {
@@ -1049,10 +1239,17 @@ reducedMotion.addEventListener('change', () => { if (!motionAllowed()) { panelAn
   scene.addEventListener('pointerup', release);
   scene.addEventListener('pointercancel', release);
   // A real tap by day sends the sun there. Browsers drop the click when a tap only stops a scroll.
+  // During the finale a tap moves the show along instead; the bloom button's own clicks bubble here too.
   scene.addEventListener('click', event => {
+    if (FINALE.includes(stage)) {
+      if (performance.now() < quietUntil || event.target.closest('.firefly, .senja-reset')) return;
+      advance();
+      return;
+    }
     if (dragged || isNight() || performance.now() < quietUntil) return;
     if (event.target.closest('.firefly, .senja-reset, .senja-sun')) return;
     touch();
+    stats.moves += 1;
     goTo(fromX(event.clientX));
   });
   sun.addEventListener('keydown', event => {
@@ -1060,9 +1257,10 @@ reducedMotion.addEventListener('change', () => { if (!motionAllowed()) { panelAn
     if (step === undefined && event.key !== 'Home' && event.key !== 'End') return;
     event.preventDefault();
     touch();
+    if (!event.repeat) stats.moves += 1;
     goTo(event.key === 'Home' ? 0 : event.key === 'End' ? MAX : target + step);
   });
-  sun.addEventListener('focus', () => { touch(); paint(); });
+  sun.addEventListener('focus', () => { touch(false); paint(); });
   sun.addEventListener('blur', paint);
   narrow.addEventListener('change', paint);
 
@@ -1085,40 +1283,343 @@ reducedMotion.addEventListener('change', () => { if (!motionAllowed()) { panelAn
   }
   field.addEventListener('click', event => {
     const fly = event.target.closest('.firefly');
-    if (!fly || fly.classList.contains('is-caught') || !isNight()) return;
+    if (!fly || fly.classList.contains('is-caught') || !isNight() || stage !== 'play') return;
     touch();
     quietUntil = performance.now() + 450;
-    const [sx, sy] = SLOTS[caught];
+    const slot = caught;
+    const [sx, sy] = SLOTS[slot];
     caught += 1;
     // fly from where the drifting dot is now to its star in the sprig
-    const box = sky.getBoundingClientRect(), area = scene.getBoundingClientRect();
+    const box = sky.getBoundingClientRect(), area = scene.getBoundingClientRect(), here = fly.getBoundingClientRect();
+    const now = performance.now();
+    stats.catches.push(now);
+    if (event.detail === 0) stats.keyCatches += 1;
     fly.style.translate = getComputedStyle(fly).translate;
     fly.classList.add('is-caught');
     fly.tabIndex = -1;
     fly.setAttribute('aria-hidden', 'true');
-    fly.style.left = `${(box.left - area.left + box.width * sx / 100) / area.width * 100}%`;
-    fly.style.top = `${(box.top - area.top + box.height * sy / 100) / area.height * 100}%`;
+    fly.dataset.slot = String(slot);
+    const to = [(box.left - area.left + box.width * sx / 100) / area.width * 100, (box.top - area.top + box.height * sy / 100) / area.height * 100];
+    stats.trails[slot] = { from: [(here.left + here.width / 2 - box.left) / box.width * 100, (here.top + here.height / 2 - box.top) / box.height * 100], to: SLOTS[slot].slice() };
+    fly.style.left = `${to[0]}%`;
+    fly.style.top = `${to[1]}%`;
     requestAnimationFrame(() => { fly.style.translate = '0px 0px'; });
     if (caught === SLOTS.length) {
       scene.classList.add('is-complete');
       reset.hidden = false;
+      complete(now);
     }
     story();
     if (document.activeElement === fly || document.activeElement === document.body) {
       const next = [...field.children].find(item => !item.classList.contains('is-caught'));
-      (next || reset).focus({ preventScroll: true });
+      (next || bloomButton).focus({ preventScroll: true });
     }
   });
-  reset.addEventListener('click', event => {
+
+  function complete(now) {
+    const c = stats.catches;
+    stats.rounds += 1;
+    stats.duration = now - (stats.start || c[0]);
+    stats.fastest = Math.min(...c.slice(1).map((t, i) => t - c[i]));
+    stats.date = new Date();
+    stats.sways = 0;
+    startFinale();
+  }
+  // re-aim every caught star at its slot in the box as it is laid out now (e.g. after a rotation mid-game)
+  function snapStars() {
+    const box = sky.getBoundingClientRect(), area = scene.getBoundingClientRect();
+    caughtFlies().forEach(fly => {
+      const [sx, sy] = SLOTS[fly.dataset.slot];
+      fly.style.left = `${(box.left - area.left + box.width * sx / 100) / area.width * 100}%`;
+      fly.style.top = `${(box.top - area.top + box.height * sy / 100) / area.height * 100}%`;
+    });
+  }
+  // one layout read; the mark is already laid out at its final place while it is still invisible
+  function measure() {
+    const area = scene.getBoundingClientRect(), box = sky.getBoundingClientRect(), R = markSprig.getBoundingClientRect(), M = mark.getBoundingClientRect();
+    const cx = M.left + M.width / 2, cy = M.top + M.height / 2;
+    const H = Math.min(area.height * .42, area.width * .4), S = H / R.height, W = R.width * S;
+    const O = [R.left + R.width * .019, R.top + R.height * .975], c = [R.left + R.width / 2, R.top + R.height / 2];
+    geo = {
+      box, W, H, left: cx - W / 2, top: cy - H / 2,
+      stars: SLOTS.map(([sx, sy]) => [box.left + box.width * sx / 100, box.top + box.height * sy / 100]),
+      sprigT: `translate(${(cx - O[0] - S * (c[0] - O[0])).toFixed(2)}px,${(cy - O[1] - S * (c[1] - O[1])).toFixed(2)}px) scale(${S.toFixed(4)})`
+    };
+    scene.style.setProperty('--stage-x', `${(cx - area.left).toFixed(1)}px`);
+    scene.style.setProperty('--stage-y', `${(cy - area.top).toFixed(1)}px`);
+    scene.style.setProperty('--stage-w', `${W.toFixed(1)}px`);
+  }
+  function startFinale() {
+    const id = ++generation;
+    stage = 'gather';
+    scene.dataset.finale = 'gather';
+    bloomButton.hidden = false;
+    if (document.activeElement === sun) bloomButton.focus({ preventScroll: true });
+    sun.tabIndex = -1;
+    sun.setAttribute('aria-hidden', 'true');
+    snapStars();
+    measure();
+    if (!motionAllowed()) {
+      say('Enam bintang lengkap.');
+      holdTimer = setTimeout(() => { if (id === generation) endFinale(); }, 1500);
+      return;
+    }
+    say('Enam bintang lengkap. Rasinya bergerak ke tengah.');
+    const phone = narrow.matches, A0 = phone ? 1700 : 1900, DA = phone ? 1100 : 1300, set = [];
+    const run = (el, keyframes, delay, duration, easing = EASE, fill = 'backwards') => { const a = el.animate(keyframes, { delay, duration, easing, fill }); anims.push(a); set.push(a); return a; };
+    const { box, left, top, W, H } = geo;
+    // the box and its stars share timing and easing, so the lines stay on the stars
+    run(sky, [{ transform: 'translate(0px,0px) scale(1,1)' }, { transform: `translate(${left - box.left}px,${top - box.top}px) scale(${W / box.width},${H / box.height})` }], A0, DA, GLIDE, 'forwards');
+    caughtFlies().forEach(fly => {
+      const i = Number(fly.dataset.slot), [x, y] = geo.stars[i], [ax, ay] = spot(SLOTS[i], 100, 100);
+      run(fly.firstElementChild, [{ transform: 'scale(1)' }, { transform: 'scale(1.9)', offset: .4 }, { transform: 'scale(1)' }], A0 - 380 + i * 35, 380, 'ease-in-out', 'none');
+      run(fly, [{ transform: 'translate(0px,0px) scale(1)' }, { transform: `translate(${ax - x}px,${ay - y}px) scale(1.5)` }], A0, DA, GLIDE, 'forwards');
+    });
+    run(veil, [{ opacity: 0 }, { opacity: 1 }], A0, 1200, 'ease');
+    run(halo, [{ opacity: 0, transform: 'scale(.6)' }, { opacity: .55, transform: 'none' }], A0 + DA / 2, DA / 2 + 300, 'ease-out', 'forwards');
+    Promise.all(set.map(a => a.finished)).then(() => { if (id === generation && stage === 'gather') toAwait(); }, () => {});
+    if (!inView()) set.forEach(a => a.pause());
+  }
+  function toAwait() {
+    stage = 'await';
+    scene.dataset.finale = 'await';
+    if (bloomQueued) { bloom(); return; }
+    say(coarse.matches ? 'Ketuk rasinya untuk menyalakannya.' : 'Klik rasinya untuk menyalakannya.');
+    armAuto();
+  }
+  // with no tap, the constellation lights itself, but only while someone can see it
+  function armAuto() {
+    clearTimeout(autoTimer);
+    if (stage === 'await' && inView()) autoTimer = setTimeout(() => { if (stage === 'await') bloom(); }, 2600);
+  }
+  // a tap while the stars glide speeds them up; a tap in the bloom speeds it up, and a second one finishes it
+  function advance() {
+    if (!motionAllowed()) { endFinale(); return; }
+    if (stage === 'gather') {
+      if (!bloomQueued) { bloomQueued = true; live().forEach(a => a.updatePlaybackRate(4)); }
+      return;
+    }
+    if (stage === 'await') { bloom(); return; }
+    if (hurried) { endFinale(); return; }
+    hurried = true;
+    live().forEach(a => a.updatePlaybackRate(3));
+  }
+  function bloom() {
+    if (stage !== 'await') return;
+    clearTimeout(autoTimer);
+    const id = generation;
+    stage = 'bloom';
+    scene.dataset.finale = 'bloom';
+    hurried = false;
+    say('Bintang-bintang menulis nama kami.');
+    if (!motionAllowed()) { endFinale(); return; }
+    const phone = narrow.matches, C0 = phone ? 1350 : 1500, FLY = phone ? 900 : 1000, set = [];
+    const run = (el, keyframes, delay, duration, easing = EASE, fill = 'backwards') => { const a = el.animate(keyframes, { delay, duration, easing, fill }); anims.push(a); set.push(a); return a; };
+    // each star steps onto the tip of its leaf, then hands its light to a glint
+    caughtFlies().forEach(fly => {
+      const i = Number(fly.dataset.slot), [x, y] = geo.stars[i], [ax, ay] = spot(SLOTS[i], 100, 100), [bx, by] = spot(TIPS[i], 264, 244);
+      run(fly, [{ transform: `translate(${ax - x}px,${ay - y}px) scale(1.5)` }, { transform: `translate(${bx - x}px,${by - y}px) scale(1.15)` }], 0, 500, EASE, 'forwards');
+      run(fly, [{ opacity: 1 }, { opacity: 0 }], 520 + i * 60, 320, 'ease-out', 'forwards');
+    });
+    run(linePath, [{ opacity: .85 }, { opacity: 0 }], 0, 500, 'ease-out', 'forwards');
+    run(halo, [{ opacity: .55, transform: 'none' }, { opacity: 1, transform: 'scale(1.12)', offset: .3 }, { opacity: 0, transform: 'scale(1.2)' }], 0, C0 + 900, 'ease-out', 'forwards');
+    run(mark.querySelector('.mark-stem'), [{ transform: 'scale(0)' }, { transform: 'none' }], 0, 600);
+    [[1, 150], [4, 250], [2, 350], [3, 450]].forEach(([n, d]) => run(mark.querySelector(`.mark-leaf-${n}`), [{ transform: `rotate(${FOLDS[n]}deg) scale(0)` }, { transform: 'none' }], d, 700, SPRING));
+    glints.forEach((g, i) => run(g, [{ opacity: 0, transform: 'scale(.3)' }, { opacity: 1, transform: 'scale(1.6)', offset: .5 }, { opacity: 1, transform: 'none' }], 420 + i * 70, 420, 'ease-out'));
+    // the sprig flies into its place beside Tentrem while a star writes the name
+    run(markSprig, [{ transform: geo.sprigT }, { transform: 'translate(0px,0px) scale(1)' }], C0, FLY, GLIDE);
+    lineEls.forEach((line, k) => {
+      const wipe = line.querySelector('.mark-wipe'), pen = line.querySelector('.mark-pen'), start = C0 + (k ? 650 : 100);
+      const from = wipe.offsetLeft, to = from + wipe.offsetWidth; // offsets ignore transforms; the offset parent is .mark-line
+      run(wipe, [{ clipPath: 'inset(0 100% 0 0)' }, { clipPath: 'inset(0 0% 0 0)' }], start, 700, WRITE);
+      run(pen, [{ transform: `translateX(${from}px)`, opacity: 0 }, { opacity: 1, offset: .12 }, { opacity: 1, offset: .85 }, { transform: `translateX(${to}px)`, opacity: 0 }], start, 700, WRITE, 'none');
+    });
+    run(dot, [{ opacity: 0, transform: 'translateY(-1.1em) scale(.5)' }, { opacity: 1, transform: 'translateY(.06em) scale(1.2,.85)', offset: .55 }, { opacity: 1, transform: 'translateY(-.04em) scale(.95,1.05)', offset: .8 }, { opacity: 1, transform: 'none' }], C0 + 1250, 750);
+    Promise.all(set.map(a => a.finished)).then(() => { if (id === generation && stage === 'bloom') endFinale(); }, () => {});
+    if (!inView()) set.forEach(a => a.pause());
+  }
+  function endFinale() {
+    if (!FINALE.includes(stage)) return;
+    clearTimeout(holdTimer);
+    clearTimeout(autoTimer);
+    anims.forEach(a => a.cancel()); // CSS now holds the same end state, with no transforms left
+    anims = [];
+    bloomQueued = hurried = false;
+    stage = 'mark';
+    scene.dataset.finale = 'mark';
+    hint.textContent = motionAllowed() ? (coarse.matches ? 'Usap langitnya. Ketuk katanya.' : 'Seret langitnya. Klik katanya.') : (coarse.matches ? 'Ketuk katanya.' : 'Klik katanya.');
+    mark.inert = false;
+    keepsake.hidden = false;
+    if (document.activeElement === bloomButton || document.activeElement === document.body) keepsake.focus({ preventScroll: true });
+    bloomButton.hidden = true; // only after focus has moved
+    say(SIGNOFF);
+    scene.dispatchEvent(new CustomEvent('senja-done', { detail: stats }));
+  }
+
+  function clearFinale() {
+    generation += 1;
+    clearTimeout(holdTimer);
+    clearTimeout(autoTimer);
+    clearTimeout(glossTimer);
+    bloomQueued = hurried = false;
+    anims.forEach(a => a.cancel());
+    anims = [];
+    stopWind();
+    mark.inert = true;
+    mark.classList.remove('is-bright');
+    keepsake.hidden = true;
+    bloomButton.hidden = true;
+    sun.tabIndex = 0;
+    sun.removeAttribute('aria-hidden');
+    ['--stage-x', '--stage-y', '--stage-w'].forEach(name => scene.style.removeProperty(name));
+    scene.classList.remove('has-swayed');
+    stage = 'play';
+  }
+  // the leaves fold away and the name fades while the sun comes up
+  function fold(id) {
+    const set = [
+      mark.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 520, easing: 'ease-in', fill: 'forwards' }),
+      veil.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 900, easing: 'ease', fill: 'forwards' }),
+      ...[3, 2, 4, 1].map((n, i) => mark.querySelector(`.mark-leaf-${n}`).animate([{ transform: 'none' }, { transform: `rotate(${FOLDS[n]}deg) scale(0)` }], { duration: 380, delay: i * 50, easing: 'cubic-bezier(.55,0,.75,.2)', fill: 'forwards' }))
+    ];
+    anims = set;
+    Promise.all(set.map(a => a.finished)).then(() => {
+      if (id !== generation) return;
+      delete scene.dataset.finale;
+      set.forEach(a => a.cancel());
+      anims = [];
+    }, () => {});
+  }
+  function restart(focusSun) {
+    const fromMark = stage === 'mark';
+    clearFinale();
+    if (fromMark && motionAllowed()) fold(generation);
+    else delete scene.dataset.finale;
     quietUntil = performance.now() + 450;
     caught = 0;
+    // the box returns to its corner unseen, so skip the lines' slow fade once
+    linePath.style.transition = 'none';
     scene.classList.remove('is-complete');
+    getComputedStyle(linePath).opacity;
+    requestAnimationFrame(() => { linePath.style.transition = ''; });
     reset.hidden = true;
+    resetStats();
     spawn();
     touch();
     goTo(.3);
-    // keyboard users land on the sun; a tap keeps the page as it is
-    if (event.detail === 0) sun.focus({ preventScroll: true });
+    if (focusSun) sun.focus({ preventScroll: true });
+  }
+  reset.addEventListener('click', event => restart(event.detail === 0));
+  scene.addEventListener('senja-restart', () => restart(true));
+
+  // After the finale, a sideways swipe is wind: a damped spring sways the sprig, and the words lean a few frames late.
+  const wind = { angle: 0, speed: 0, frame: 0, last: 0, trail: [] };
+  function gust(push) {
+    if (!motionAllowed() || stage !== 'mark') return;
+    wind.speed += push;
+    if (!wind.frame) { wind.last = performance.now(); wind.frame = requestAnimationFrame(blow); }
+  }
+  function blow(now) {
+    const dt = Math.max(0, Math.min(.05, (now - wind.last) / 1000));
+    wind.last = now;
+    wind.speed += (-60 * wind.angle - 6 * wind.speed) * dt;
+    wind.angle = clamp(wind.angle + wind.speed * dt, -14, 14);
+    wind.trail.unshift(wind.angle);
+    wind.trail.length = Math.min(wind.trail.length, 16);
+    swayGroup.style.transform = `rotate(${wind.angle.toFixed(2)}deg)`;
+    leaners.forEach((el, i) => {
+      const lean = wind.trail[Math.min(wind.trail.length - 1, 2 + i * 3)];
+      el.style.transform = `skewX(${(-lean * .35).toFixed(2)}deg)`;
+    });
+    if (Math.abs(wind.angle) < .03 && Math.abs(wind.speed) < .3) { stopWind(); return; }
+    wind.frame = requestAnimationFrame(blow);
+  }
+  function stopWind() {
+    cancelAnimationFrame(wind.frame);
+    Object.assign(wind, { angle: 0, speed: 0, frame: 0, trail: [] });
+    swayGroup.style.transform = '';
+    leaners.forEach(el => { el.style.transform = ''; });
+  }
+  // the site's own spark burst, as on the title
+  function spark(el) {
+    const rect = el.getBoundingClientRect(), s = document.createElement('span');
+    s.className = 'spark';
+    s.setAttribute('aria-hidden', 'true');
+    s.append(document.querySelector('#spark-icon').content.cloneNode(true));
+    s.style.left = `${rect.left + rect.width / 2 - 9}px`;
+    s.style.top = `${rect.top}px`;
+    s.style.setProperty('--dx', `${Math.round((Math.random() - .5) * 24)}px`);
+    s.style.setProperty('--dy', '-30px');
+    document.body.append(s);
+    setTimeout(() => s.remove(), 900);
+  }
+  // a tapped word hops and its meaning, read from the name gloss in the Pakem section, shows in the caption
+  function poke(word) {
+    if (motionAllowed()) stats.sways += 1;
+    scene.classList.add('has-swayed');
+    const gloss = document.querySelector(`.gloss-meaning[data-word="${word.dataset.word}"]`);
+    if (gloss) {
+      const line = gloss.textContent.replace(/\s+/g, ' ').trim();
+      say(line.charAt(0).toUpperCase() + line.slice(1));
+      clearTimeout(glossTimer);
+      glossTimer = setTimeout(() => { if (stage === 'mark') say(SIGNOFF, true); }, 4200);
+    }
+    if (!motionAllowed()) return;
+    word.animate([{ transform: 'none' }, { transform: 'translateY(-.16em)', offset: .32 }, { transform: 'translateY(.03em) scaleY(.96)', offset: .62 }, { transform: 'none' }], { duration: 520, easing: 'cubic-bezier(.3,.7,.4,1)' });
+    spark(word);
+    gust(word.dataset.word === 'pakem' ? -26 : 26);
+  }
+  // tapping the sprig or the period rings its six stars
+  function ring() {
+    if (motionAllowed()) stats.sways += 1;
+    scene.classList.add('has-swayed');
+    if (!motionAllowed()) { mark.classList.toggle('is-bright'); return; }
+    [0, 1, 3, 4, 5, 2].forEach((n, i) => glints[n].animate([{ transform: 'none' }, { transform: 'scale(2.4)', offset: .35 }, { transform: 'none' }], { duration: 560, delay: i * 90, easing: 'ease-out' }));
+    gust(60);
+  }
+  mark.addEventListener('click', event => {
+    if (stage !== 'mark' || (dragged && event.detail !== 0)) return;
+    const word = event.target.closest('.mark-word');
+    if (word) poke(word);
+    else ring();
+  });
+  mark.addEventListener('keydown', event => {
+    const push = { ArrowRight: 70, ArrowLeft: -70 }[event.key];
+    if (push === undefined || stage !== 'mark' || !event.target.closest('.mark-word')) return;
+    event.preventDefault();
+    if (motionAllowed()) stats.sways += 1;
+    scene.classList.add('has-swayed');
+    gust(push);
+  });
+
+  // Nothing plays unseen: animations pause off screen or in a hidden tab and resume on return.
+  const pauseOrPlay = () => {
+    const on = inView();
+    anims.forEach(a => {
+      if (!on && a.playState === 'running') a.pause();
+      else if (on && a.playState === 'paused') a.play(); // never play() a finished animation
+    });
+    if (on) armAuto();
+    else { clearTimeout(autoTimer); stopWind(); }
+  };
+  document.addEventListener('visibilitychange', pauseOrPlay);
+  // the pixel geometry is stale after a real resize, and the end state is pure CSS, so jump to it
+  let lastSize = '';
+  new ResizeObserver(([entry]) => {
+    const size = `${Math.round(entry.contentRect.width)}x${Math.round(entry.contentRect.height)}`;
+    if (lastSize && size !== lastSize && FINALE.includes(stage)) endFinale();
+    lastSize = size;
+  }).observe(scene);
+  const settle = () => {
+    if (motionAllowed()) return;
+    if (FINALE.includes(stage)) endFinale();
+    stopWind();
+  };
+  motionButton.addEventListener('click', settle);
+  reducedMotion.addEventListener('change', settle);
+  document.addEventListener('keydown', event => {
+    if (event.key !== 'Escape' || !FINALE.includes(stage) || document.querySelector('dialog[open]') || !scene.classList.contains('is-inview')) return;
+    endFinale();
   });
 
   // Until someone touches it, the sun sets on its own as the scene rises to the middle of the screen,
@@ -1135,9 +1636,460 @@ reducedMotion.addEventListener('change', () => { if (!motionAllowed()) { panelAn
   const onScroll = () => { if (!queued) queued = requestAnimationFrame(follow); };
   new IntersectionObserver(([entry]) => {
     scene.classList.toggle('is-inview', entry.isIntersecting);
+    pauseOrPlay();
     if (entry.isIntersecting) { addEventListener('scroll', onScroll, { passive: true }); onScroll(); }
     else removeEventListener('scroll', onScroll);
   }).observe(scene);
   spawn();
   paint();
+})();
+
+// Kilas balik senjamu: six cards about the visitor's own night, opened from the Senja caption.
+(() => {
+  const scene = document.querySelector('.senja');
+  const modal = document.querySelector('#senja-kilas');
+  const opener = scene.querySelector('.senja-keepsake');
+  const kilas = connectDialog(modal, opener, '.kilas-card');
+  const card = modal.querySelector('.kilas-card');
+  const slides = [...modal.querySelectorAll('.kilas-slide')];
+  const segments = [...modal.querySelectorAll('.kilas-progress i')];
+  const stack = modal.querySelector('.kilas-slides');
+  const prev = modal.querySelector('.kilas-prev');
+  const next = modal.querySelector('.kilas-next');
+  const count = modal.querySelector('.kilas-count');
+  const status = modal.querySelector('.kilas-status');
+  const post = modal.querySelector('.kilas-post');
+  const [front, back] = post.querySelectorAll('.kilas-face');
+  const flipButton = modal.querySelector('.kilas-flip');
+  const shareButton = modal.querySelector('.kilas-share');
+  const saveButton = modal.querySelector('.kilas-save');
+  const shareStatus = modal.querySelector('.kilas-share-status');
+  const linkField = modal.querySelector('.kilas-link');
+  const coarse = matchMedia('(pointer: coarse)');
+  const dayFormat = new Intl.DateTimeFormat('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+  const clockFormat = new Intl.DateTimeFormat('id-ID', { hour: '2-digit', minute: '2-digit' });
+  const START = Date.parse(document.querySelector('.countdown')?.dataset.target || '2026-10-19T00:00:00+07:00');
+  const END = Date.parse('2026-12-07T00:00:00+07:00');
+  const url = `${document.querySelector('link[rel="canonical"]')?.href || location.href.split('#')[0]}#senja`;
+  const EDGES = [[0, 1], [1, 2], [0, 3], [1, 4], [1, 5]]; // the constellation path, by slot
+  const TIPS = [[6, 238], [112, 154], [258, 5], [62, 88], [111, 20], [258, 174]]; // where the stars landed on the sprig, in slot order
+  const NS = 'http://www.w3.org/2000/svg', EASE = 'cubic-bezier(.22,1,.36,1)', SPRING = 'cubic-bezier(.34,1.56,.64,1)';
+  // team figures come from the klaster dialog, so there is one source of truth
+  const TEAM = (() => {
+    const found = [...document.querySelectorAll('#klaster-anggota [role="tab"][data-cluster]')]
+      .map(tab => [tab.dataset.name, document.querySelectorAll(`#klaster-${tab.dataset.cluster} .members-list > .member`).length])
+      .filter(([name, n]) => name && n);
+    return found.length ? found : [['Medika', 9], ['Saintek', 7], ['Soshum', 6]];
+  })();
+  const TOTAL = TEAM.reduce((sum, [, n]) => sum + n, 0);
+  let stats = null, slide = 0, moving = [], counting = [], flipped = false, image = null, press = null, swiped = false, title = '';
+
+  const set = (name, value) => modal.querySelectorAll(`[data-fill="${name}"]`).forEach(el => { el.textContent = value; });
+  const setCount = (name, n) => modal.querySelectorAll(`[data-fill="${name}"]`).forEach(el => { el.textContent = n; el.dataset.count = n; });
+  const node = (name, attrs, parent) => { const el = document.createElementNS(NS, name); Object.entries(attrs).forEach(([k, v]) => el.setAttribute(k, v)); parent.append(el); return el; };
+  const tell = words => { shareStatus.textContent = words; };
+  const lama = ms => {
+    const s = Math.max(1, Math.round(ms / 1000)), h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60), r = s % 60;
+    const parts = (h ? [[h, 'jam'], [m, 'menit']] : m ? [[m, 'menit'], [r, 'detik']] : [[r, 'detik']]).filter(([n]) => n);
+    return { parts, text: parts.map(([n, u]) => `${n} ${u}`).join(' ') };
+  };
+  const big = parts => parts.flatMap(([n, unit]) => {
+    const b = document.createElement('b');
+    b.textContent = n;
+    b.dataset.count = n;
+    const small = document.createElement('small');
+    small.textContent = unit;
+    return [b, small];
+  });
+  const wib = t => Math.floor((t + 252e5) / 864e5); // calendar day in WIB
+  function whenLine() {
+    const d0 = wib(START), d1 = wib(END), now = wib(Date.now());
+    if (now < d0) return d0 - now === 1 ? 'Besok kami tiba di Pakem.' : `${d0 - now} hari lagi kami tiba di Pakem.`;
+    if (now === d0) return 'Hari ini kami tiba di Pakem.';
+    if (now <= d1) return `Hari ke-${now - d0 + 1} kami di Pakem.`;
+    return 'Tugas kami di Pakem selesai 7 Desember 2026.';
+  }
+  // playful and deterministic: the first rule that matches names the night
+  function rank(s, time) {
+    if (s.keyCatches === 6) return ['Penjelajah Papan Ketik', 'Keenam kunang-kunang kamu tangkap dengan papan ketik.'];
+    if (s.duration <= 20000) return ['Penangkap Kilat', `Rasimu selesai dalam ${time}.`];
+    if (s.sunsets >= 3) return ['Penikmat Senja', `Senja turun ${s.sunsets} kali selama kamu di sini.`];
+    if (s.rounds >= 2) return ['Pengunjung Setia', `Ini rasi ke-${s.rounds} di kunjungan ini.`];
+    return ['Pemetik Bintang', 'Enam kunang-kunang kini jadi bintang di atas Merapi.'];
+  }
+  const seeded = () => { let seed = Math.round(stats.duration) % 2147483646 + 1; return () => (seed = seed * 16807 % 2147483647) / 2147483647; };
+  // stars and trail starts in constellation-box units; a far catch is pulled in so the shape stays readable on wide screens
+  const points = () => {
+    const stars = stats.trails.map(t => t.to), REACH = 110;
+    const froms = stats.trails.map((t, i) => {
+      const [sx, sy] = stars[i], dx = t.from[0] - sx, dy = t.from[1] - sy, k = Math.min(1, REACH / Math.max(1, Math.hypot(dx, dy)));
+      return [sx + dx * k, sy + dy * k];
+    });
+    return { stars, froms };
+  };
+  function fitter(pts, x, y, w, h, pad) {
+    const xs = pts.map(q => q[0]), ys = pts.map(q => q[1]);
+    const minX = Math.min(...xs), minY = Math.min(...ys), bw = Math.max(1, Math.max(...xs) - minX), bh = Math.max(1, Math.max(...ys) - minY);
+    const k = Math.min((w - 2 * pad) / bw, (h - 2 * pad) / bh), ox = x + (w - bw * k) / 2 - minX * k, oy = y + (h - bh * k) / 2 - minY * k;
+    return Object.assign(q => [+(ox + q[0] * k).toFixed(1), +(oy + q[1] * k).toFixed(1)], { k });
+  }
+
+  // the team card: one small star per member, a cluster of stars per klaster
+  const teamSvg = modal.querySelector('.kilas-team svg');
+  TEAM.forEach(([, size], g) => {
+    const cx = 50 + g * 100;
+    for (let i = 0; i < size; i += 1) {
+      const r = 7 * Math.sqrt(i + .5), t = i * 2.39996, x = (cx + r * Math.cos(t)).toFixed(1), y = (60 + r * Math.sin(t)).toFixed(1);
+      const star = node('g', { class: 'kilas-star' }, teamSvg);
+      node('circle', { cx: x, cy: y, r: 5, 'fill-opacity': .2 }, star);
+      node('circle', { cx: x, cy: y, r: 2.2 }, star);
+    }
+  });
+  modal.querySelector('.kilas-clusters').replaceChildren(...TEAM.map(([name, n]) => Object.assign(document.createElement('li'), { textContent: `${name} · ${n}` })));
+  setCount('total', TOTAL);
+  set('total-text', TOTAL);
+
+  function drawStars(svg, at) {
+    node('path', { class: 'kilas-lines', 'stroke-opacity': .8, d: EDGES.map(([a, b]) => `M${at[a].join(' ')}L${at[b].join(' ')}`).join('') }, svg);
+    at.forEach(([x, y]) => {
+      const g = node('g', { class: 'kilas-star' }, svg);
+      node('circle', { cx: x, cy: y, r: 5.5, 'fill-opacity': .2 }, g);
+      node('circle', { cx: x, cy: y, r: 2.3 }, g);
+    });
+  }
+  function drawSky(svg, { ghost = false, trails = false, fitH = 1 } = {}) {
+    svg.replaceChildren();
+    const { width: vw, height: vh } = svg.viewBox.baseVal, rand = seeded();
+    for (let i = 0; i < 34; i += 1) node('circle', { class: 'kilas-dust', cx: (rand() * vw).toFixed(1), cy: (rand() * vh * .9).toFixed(1), r: (.4 + rand() * .7).toFixed(2), 'fill-opacity': (.3 + rand() * .5).toFixed(2) }, svg);
+    if (ghost) { // the cover shows the stars where they landed in the finale: on the tips of the sprig
+      const at = fitter(TIPS.concat([[0, 0], [264, 244]]), 0, 0, vw, vh * fitH, 26), [gx, gy] = at([0, 0]);
+      node('use', { href: '#sprig-shape', class: 'kilas-ghost', 'fill-opacity': .16, transform: `translate(${gx} ${gy}) scale(${at.k.toFixed(4)})` }, svg);
+      drawStars(svg, TIPS.map(at));
+      return;
+    }
+    const { stars, froms } = points(), at = fitter(trails ? stars.concat(froms) : stars, 0, 0, vw, vh * fitH, 18);
+    if (trails) froms.forEach((f, i) => {
+      const g = node('g', { class: 'kilas-trail' }, svg), [x1, y1] = at(f), [x2, y2] = at(stars[i]);
+      node('line', { x1, y1, x2, y2, 'stroke-opacity': .55 }, g);
+      node('circle', { cx: x1, cy: y1, r: 1.6, 'fill-opacity': .7 }, g);
+    });
+    drawStars(svg, stars.map(at));
+  }
+
+  function fill() {
+    const s = stats, time = lama(s.duration), date = dayFormat.format(s.date);
+    const fastest = (s.fastest / 1000).toLocaleString('id-ID', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+    const [name, why] = rank(s, time.text);
+    title = name;
+    set('date', date);
+    set('stamp-date', date.toUpperCase());
+    set('stamp-time', clockFormat.format(s.date));
+    modal.querySelector('[data-fill="duration"]').replaceChildren(...big(time.parts));
+    setCount('sunsets', s.sunsets);
+    setCount('moves', s.moves);
+    set('fastest', fastest);
+    set('title', name);
+    set('reason', why);
+    modal.querySelectorAll('[data-gloss]').forEach(dd => {
+      const g = document.querySelector(`.gloss-meaning[data-word="${dd.dataset.gloss}"]`);
+      if (g?.lastChild) dd.textContent = g.lastChild.textContent.trim();
+    });
+    const when = whenLine();
+    set('when', when);
+    set('tally-time', `Rasi selesai: ${time.text}`);
+    set('tally-sun', s.moves ? `Matahari digeser: ${s.moves} kali` : 'Matahari turun sendiri');
+    set('tally-dusk', `Senja turun: ${s.sunsets} kali`);
+    set('tally-title', `Gelar: ${name}`);
+    const sway = modal.querySelector('[data-fill="tally-sway"]');
+    sway.hidden = !s.sways;
+    sway.textContent = `Daun digoyang: ${s.sways} kali`;
+    set('flip-hint', coarse.matches ? 'Ketuk kartu untuk membaliknya.' : 'Klik kartu untuk membaliknya.');
+    const says = [
+      'Enam bintang, setangkai daun. Kamu menyalakan langit di kaki Merapi.',
+      `Waktumu ${time.text}, dari sentuhan pertama sampai bintang keenam. Senja turun ${s.sunsets} kali, matahari kamu geser ${s.moves} kali, tangkapan tercepat ${fastest} detik.`,
+      `Gelarmu malam ini: ${name}. ${why}`,
+      'Yang kamu tulis: Tentrem ing Pakem, artinya tenteram di Pakem.',
+      `${TOTAL} mahasiswa dari tiga klaster: ${TEAM.map(([n, k]) => `${n} ${k}`).join(', ')}. ${when}`,
+      'Kartu posmu. Matur nuwun sampun mampir. Sugeng dalu!'
+    ];
+    slides.forEach((item, i) => { item.dataset.say = says[i]; });
+    drawSky(modal.querySelector('[data-sky="cover"]'), { ghost: true });
+    drawSky(modal.querySelector('[data-sky="trails"]'), { trails: true });
+    drawSky(modal.querySelector('[data-sky="post"]'), { trails: true, fitH: .76 }); // clear of the name below
+  }
+
+  function countUp(el) {
+    const end = Number(el.dataset.count);
+    if (!Number.isFinite(end)) return;
+    const t0 = performance.now();
+    const step = now => {
+      const k = Math.min(1, Math.max(0, (now - t0) / 900));
+      el.textContent = String(Math.round(end * (1 - (1 - k) ** 3)));
+      if (k < 1) counting.push(requestAnimationFrame(step));
+    };
+    el.textContent = '0';
+    counting.push(requestAnimationFrame(step));
+  }
+  function enter(item, dir) {
+    const play = (el, kf, delay, duration, easing = EASE) => moving.push(el.animate(kf, { delay, duration, easing, fill: 'backwards' }));
+    play(item, [{ opacity: 0, transform: `translateX(${dir * 28}px) rotate(${dir * 1.2}deg)` }, { opacity: 1, transform: 'none' }], 0, 460);
+    item.querySelectorAll('[data-k]').forEach(el => play(el, [{ opacity: 0, transform: 'translateY(12px)' }, { opacity: 1, transform: 'none' }], 90 + 80 * Number(el.dataset.k), 520));
+    const stars = item.querySelectorAll('.kilas-star'), step = Math.min(70, 900 / Math.max(1, stars.length));
+    stars.forEach((el, i) => play(el, [{ opacity: 0, transform: 'scale(.2)' }, { opacity: 1, transform: 'none' }], 260 + i * step, 420, SPRING));
+    item.querySelectorAll('.kilas-trail').forEach((el, i) => play(el, [{ opacity: 0 }, { opacity: 1 }], 300 + i * 160, 500));
+    item.querySelectorAll('.kilas-lines').forEach(el => play(el, [{ opacity: 0 }, { opacity: 1 }], 700, 600));
+    item.querySelectorAll('.kilas-ghost').forEach(el => play(el, [{ opacity: 0 }, { opacity: 1 }], 1000, 600));
+    item.querySelectorAll('[data-count]').forEach(countUp);
+  }
+  function show(index, { animate = true, announce = true } = {}) {
+    moving.forEach(a => a.finish());
+    moving = [];
+    counting.forEach(cancelAnimationFrame);
+    counting = [];
+    modal.querySelectorAll('[data-count]').forEach(el => { el.textContent = el.dataset.count; });
+    const from = slide;
+    slide = Math.max(0, Math.min(slides.length - 1, index));
+    const last = slide === slides.length - 1;
+    if (from !== slide && slides[from].contains(document.activeElement)) next.focus({ preventScroll: true }); // move focus before hiding
+    slides.forEach((item, i) => { item.hidden = i !== slide; });
+    segments.forEach((seg, i) => { seg.classList.toggle('is-done', i < slide); seg.classList.toggle('is-current', i === slide); });
+    count.textContent = `${slide + 1} / ${slides.length}`;
+    if (slide === 0 && document.activeElement === prev) next.focus({ preventScroll: true });
+    prev.disabled = slide === 0;
+    next.classList.toggle('is-last', last);
+    next.querySelector('.kilas-next-label').textContent = last ? 'Selesai' : 'Lanjut';
+    if (announce) status.textContent = `${slide + 1} dari ${slides.length}. ${slides[slide].dataset.say}`;
+    card.scrollTop = 0;
+    if (last) prepareImage();
+    if (animate && motionAllowed()) enter(slides[slide], slide >= from ? 1 : -1);
+  }
+  const go = i => { if (i >= 0 && i < slides.length && i !== slide) show(i); };
+
+  // Tap the right side to go on and the left side to go back, swipe sideways, or use the buttons and arrow keys.
+  prev.addEventListener('click', () => go(slide - 1));
+  next.addEventListener('click', () => { if (slide === slides.length - 1) kilas.close(); else go(slide + 1); });
+  modal.addEventListener('keydown', event => {
+    if (event.altKey || event.ctrlKey || event.metaKey || event.target === linkField) return;
+    const to = { ArrowRight: slide + 1, ArrowLeft: slide - 1, Home: 0, End: slides.length - 1 }[event.key];
+    if (to === undefined) return;
+    event.preventDefault();
+    go(to);
+  });
+  stack.addEventListener('pointerdown', event => {
+    swiped = false;
+    if (event.target.closest('button, a, input')) return;
+    press = { id: event.pointerId, x: event.clientX, y: event.clientY };
+  });
+  stack.addEventListener('pointerup', event => {
+    if (!press || press.id !== event.pointerId) return;
+    const dx = event.clientX - press.x, dy = event.clientY - press.y;
+    press = null;
+    if (Math.abs(dx) > 48 && Math.abs(dx) > Math.abs(dy) * 1.4) { swiped = true; go(slide + (dx < 0 ? 1 : -1)); }
+  });
+  stack.addEventListener('pointercancel', () => { press = null; });
+  stack.addEventListener('click', event => {
+    if (swiped) { swiped = false; return; }
+    if (event.target.closest('.kilas-post, button, a, input')) return;
+    const r = stack.getBoundingClientRect();
+    go(slide + (event.clientX - r.left < r.width * .3 ? -1 : 1));
+  });
+
+  // The postcard turns over on a tap or with its button.
+  function flip(to = !flipped) {
+    moving.forEach(a => a.finish()); // an opacity animation on an ancestor would flatten the 3D turn
+    moving = [];
+    flipped = to;
+    post.classList.toggle('is-flipped', to);
+    flipButton.setAttribute('aria-pressed', String(to));
+    front.inert = to;
+    back.inert = !to;
+    front.setAttribute('aria-hidden', String(to));
+    back.setAttribute('aria-hidden', String(!to));
+  }
+  const sayFace = () => { status.textContent = flipped ? 'Sisi belakang kartu.' : 'Sisi depan kartu.'; };
+  flipButton.addEventListener('click', () => { flip(); sayFace(); });
+  post.addEventListener('click', event => {
+    if (swiped || event.target.closest('button')) return;
+    flip();
+    sayFace();
+  });
+
+  // Share: nothing is awaited before navigator.share, so the tap still counts as the user's gesture.
+  const shareText = () => `Aku menyalakan enam bintang di kaki Merapi dalam ${lama(stats.duration).text}. Gelarku: ${title}. Coba juga di Tentrem ing Pakem.`;
+  function copy() {
+    const line = `${shareText()} ${url}`;
+    const fallback = () => {
+      linkField.hidden = false;
+      linkField.value = line;
+      linkField.focus();
+      linkField.select();
+      tell('Salin teks di kolom ini.');
+    };
+    if (!navigator.clipboard?.writeText) { fallback(); return; }
+    navigator.clipboard.writeText(line).then(() => tell('Teks dan tautan tersalin. Tinggal tempel.'), fallback);
+  }
+  shareButton.addEventListener('click', () => {
+    const data = { title: 'Senja di Pakem', text: shareText(), url };
+    if (navigator.share && (!navigator.canShare || navigator.canShare(data))) {
+      navigator.share(data).catch(error => { if (error.name !== 'AbortError') copy(); });
+      return;
+    }
+    copy();
+  });
+
+  // The postcard as a picture is an extra: if anything fails, the button stays hidden and the text share still works.
+  function prepareImage() {
+    if (image || !stats || typeof Path2D !== 'function' || !HTMLCanvasElement.prototype.toBlob) return;
+    (window.requestIdleCallback || (fn => setTimeout(fn, 60)))(() => {
+      try { drawCard(); } catch { /* the text share still works */ }
+    });
+  }
+  function wordmark(ctx, size, cx, base1, base2) {
+    const track = -.058 * size, spacing = 'letterSpacing' in ctx;
+    const f = (px, italic) => `${italic ? 'italic ' : ''}400 ${px}px Georgia, "Times New Roman", serif`;
+    const measure = (s, font) => {
+      ctx.font = font;
+      if (spacing) { ctx.letterSpacing = `${track}px`; return ctx.measureText(s).width; }
+      return [...s].reduce((w, ch) => w + ctx.measureText(ch).width + track, 0);
+    };
+    const draw = (s, font, color, x, y) => {
+      ctx.font = font;
+      ctx.fillStyle = color;
+      ctx.textAlign = 'left';
+      if (spacing) { ctx.letterSpacing = `${track}px`; ctx.fillText(s, x, y); return; }
+      [...s].forEach(ch => { ctx.fillText(ch, x, y); x += ctx.measureText(ch).width + track; });
+    };
+    const bigF = f(size), smallF = f(size * .81, true);
+    const wT = measure('Tentrem', bigF), x1 = cx - (wT + .937 * size) / 2;
+    draw('Tentrem', bigF, '#f6f1e4', x1, base1);
+    ctx.save();
+    ctx.translate(x1 + wT + .223 * size, base1 + .0435 * size - .66 * size);
+    ctx.scale(.714 * size / 264, .66 * size / 244);
+    ctx.fillStyle = '#e2c3a0';
+    ctx.fill(new Path2D(document.querySelector('#sprig-shape').getAttribute('d')));
+    ctx.restore();
+    const wI = measure('ing', smallF), wP = measure(' Pakem', bigF), wD = measure('.', bigF), x2 = cx - (wI + wP + wD) / 2 - .0215 * size;
+    draw('ing', smallF, '#e2c3a0', x2, base2);
+    draw(' Pakem', bigF, '#f6f1e4', x2 + wI, base2);
+    draw('.', bigF, '#e2c3a0', x2 + wI + wP, base2);
+    if (spacing) ctx.letterSpacing = '0px';
+  }
+  // 1080 x 1350: the postcard front, for saving and sharing
+  function drawCard() {
+    const W = 1080, H = 1350, canvas = document.createElement('canvas');
+    canvas.width = W;
+    canvas.height = H;
+    const ctx = canvas.getContext('2d'), rand = seeded(), hills = document.querySelector('.senja-hills');
+    const bg = ctx.createLinearGradient(0, 0, 0, H);
+    bg.addColorStop(0, '#0d1729');
+    bg.addColorStop(.6, '#16243a');
+    bg.addColorStop(1, '#263a50');
+    ctx.fillStyle = bg;
+    ctx.fillRect(0, 0, W, H);
+    ctx.fillStyle = '#fffbe6';
+    for (let i = 0; i < 140; i += 1) { ctx.globalAlpha = .3 + rand() * .5; ctx.beginPath(); ctx.arc(rand() * W, rand() * 900, .8 + rand() * 1.8, 0, 7); ctx.fill(); }
+    ctx.globalAlpha = 1;
+    // Merapi from the scene's own paths: scale 1.3, aligned to the bottom right, so the peak sits under the name
+    ctx.save();
+    ctx.translate(-792, 752);
+    ctx.scale(1.3, 1.3);
+    ctx.fillStyle = '#1a2925';
+    ctx.fill(new Path2D(hills.querySelector('.hill-back').getAttribute('d')));
+    ctx.fillStyle = '#ffd27a';
+    hills.querySelectorAll('.village-lights circle').forEach(c => { ctx.beginPath(); ctx.arc(+c.getAttribute('cx'), +c.getAttribute('cy'), 2.6, 0, 7); ctx.fill(); });
+    ctx.fillStyle = '#16231d';
+    ctx.fill(new Path2D(hills.querySelector('.hill-mid').getAttribute('d')));
+    ctx.fillStyle = '#162019';
+    ctx.fill(new Path2D(hills.querySelector('.hill-front').getAttribute('d')));
+    ctx.restore();
+    const shade = ctx.createRadialGradient(540, 760, 0, 540, 760, 520);
+    shade.addColorStop(0, '#0a1322b0');
+    shade.addColorStop(1, '#0a132200');
+    ctx.fillStyle = shade;
+    ctx.fillRect(0, 0, W, H);
+    const { stars, froms } = points(), at = fitter(stars.concat(froms), 180, 110, 720, 450, 30);
+    ctx.lineCap = 'round';
+    ctx.setLineDash([3, 7]);
+    ctx.strokeStyle = '#f3e27a';
+    ctx.lineWidth = 2;
+    froms.forEach((f, i) => {
+      const [a, b] = [at(f), at(stars[i])];
+      ctx.globalAlpha = .55;
+      ctx.beginPath(); ctx.moveTo(...a); ctx.lineTo(...b); ctx.stroke();
+      ctx.globalAlpha = .7;
+      ctx.fillStyle = '#f3e27a';
+      ctx.beginPath(); ctx.arc(...a, 3.5, 0, 7); ctx.fill();
+    });
+    ctx.setLineDash([]);
+    ctx.globalAlpha = .8;
+    ctx.strokeStyle = '#fff2c4';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    EDGES.forEach(([a, b]) => { ctx.moveTo(...at(stars[a])); ctx.lineTo(...at(stars[b])); });
+    ctx.stroke();
+    ctx.fillStyle = '#fffbe6';
+    stars.forEach(q => {
+      const [x, y] = at(q);
+      ctx.globalAlpha = .2;
+      ctx.beginPath(); ctx.arc(x, y, 14, 0, 7); ctx.fill();
+      ctx.globalAlpha = 1;
+      ctx.shadowColor = '#f3e27a';
+      ctx.shadowBlur = 18;
+      ctx.beginPath(); ctx.arc(x, y, 6, 0, 7); ctx.fill();
+      ctx.shadowBlur = 0;
+    });
+    ctx.globalAlpha = 1;
+    wordmark(ctx, 128, 540, 820, 938);
+    ctx.textAlign = 'center';
+    ctx.font = 'italic 40px Georgia, "Times New Roman", serif';
+    ctx.fillStyle = '#e2c3a0';
+    ctx.fillText(`Enam bintang dalam ${lama(stats.duration).text}`, 540, 1130);
+    ctx.font = '30px Georgia, "Times New Roman", serif';
+    ctx.fillStyle = '#f6f1e4';
+    ctx.fillText(`Gelar: ${title}`, 540, 1185);
+    ctx.font = '24px Arial, Helvetica, sans-serif';
+    ctx.fillStyle = '#b9c0a8';
+    ctx.fillText(`SENJA DI PAKEM · ${dayFormat.format(stats.date).toUpperCase()}`, 540, 1240);
+    ctx.font = '26px Arial, Helvetica, sans-serif';
+    ctx.fillText('tentremingpakem.com', 540, 1295);
+    canvas.toBlob(blob => {
+      if (!blob) return;
+      image = new File([blob], 'senja-di-pakem.png', { type: 'image/png' });
+      saveButton.hidden = false;
+    }, 'image/png');
+  }
+  function download() {
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(image);
+    link.download = image.name;
+    document.body.append(link);
+    link.click();
+    link.remove();
+    setTimeout(() => URL.revokeObjectURL(link.href), 4000);
+    tell('Gambar sedang diunduh.');
+  }
+  saveButton.addEventListener('click', () => {
+    if (!image) return;
+    if (navigator.canShare?.({ files: [image] })) {
+      navigator.share({ files: [image], title: 'Senja di Pakem' }).catch(error => { if (error.name !== 'AbortError') download(); });
+      return;
+    }
+    download();
+  });
+
+  modal.querySelector('.kilas-again').addEventListener('click', () => {
+    kilas.close();
+    setTimeout(() => scene.dispatchEvent(new Event('senja-restart')), motionAllowed() ? 260 : 0);
+  });
+  scene.addEventListener('senja-done', event => { stats = event.detail; image = null; saveButton.hidden = true; });
+  modal.addEventListener('dialog-open', () => {
+    if (!stats) return;
+    fill();
+    flip(false);
+    linkField.hidden = true;
+    tell('');
+    show(0, { announce: false });
+    setTimeout(() => { if (modal.open) status.textContent = `1 dari ${slides.length}. ${slides[0].dataset.say}`; }, 450);
+  });
+  motionButton.addEventListener('click', () => { if (!motionAllowed()) { moving.forEach(a => a.finish()); moving = []; } });
 })();
