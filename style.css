@@ -791,9 +791,6 @@ body.motion-paused .senja-bloom::before{animation:none}
 @keyframes glint-twinkle{50%{opacity:.45}}
 .senja-mark.is-bright .mark-glint circle:first-child{fill-opacity:.75}
 .mark-pen{position:absolute;left:0;bottom:.16em;width:.1em;height:.1em;margin-left:-.05em;border-radius:50%;background:#fffbe6;box-shadow:0 0 .08em .04em #fff2c4,0 0 .36em .14em #f3e27a59;opacity:0;pointer-events:none}
-.senja-hint{position:absolute;left:50%;top:100%;margin-top:6px;font:italic 12.5px/1.3 Georgia,'Times New Roman',serif;letter-spacing:0;white-space:nowrap;color:#f6f1e4d9;text-shadow:none;opacity:0;transform:translateX(-50%);pointer-events:none;transition:opacity .5s ease}
-.senja[data-finale="mark"]:not(.has-swayed) .senja-hint{opacity:1;transition-delay:.6s}
-body.motion-paused .senja-hint{transition:none}
 .senja-keepsake{position:relative;display:inline-flex;align-items:center;gap:7px;min-height:36px;padding:0 15px 0 11px;border:0;border-radius:999px;background:#f6f1e4;color:#1b2a1a;font-size:12px;font-weight:700;pointer-events:auto;animation:keepsake-in .5s var(--ease) backwards}
 .senja-keepsake .icon{width:14px;height:14px;color:#a36b1f}
 .senja-keepsake::after{content:"";position:absolute;inset:-4px;border:1.5px solid #f3e27a;border-radius:inherit;opacity:0;pointer-events:none;animation:keepsake-ping 1.8s ease-out .6s 2}
@@ -1062,7 +1059,19 @@ body.motion-paused dialog[open] .kilas-card{animation:none}
 .kilas-hint{margin:0;font-size:12px;text-align:center;color:#b9c0a8}
 .kilas-actions{display:flex;gap:8px}
 .kilas-actions button{flex:1;display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:46px;border-radius:999px;font-size:13.5px}
-.kilas-share{border:0;background:#f6f1e4;color:#1b2a1a;font-weight:700}
+.kilas-share{border:1px solid #f6f1e466;background:#f6f1e40f;color:#f6f1e4}
+.kilas-story{display:flex;align-items:center;justify-content:center;gap:9px;width:100%;min-height:50px;padding:0 18px;border:0;border-radius:999px;background:#f6f1e4;color:#1b2a1a;font-size:14px;font-weight:700;box-shadow:0 0 0 1px #f3e27a55,0 12px 28px #0007}
+.kilas-story .icon{width:19px;height:19px;color:#a36b1f}
+@media(hover:hover) and (pointer:fine){.kilas-story:hover{background:#fffaf0}}
+.kilas-card.has-shot{overflow:hidden}
+.kilas-shot{position:absolute;inset:0;z-index:6;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:60px 20px 20px;background:#0d1729f5}
+.kilas-shot-img{display:block;width:auto;max-width:100%;height:auto;max-height:min(60svh,560px);border-radius:14px;box-shadow:0 18px 40px #0009;-webkit-touch-callout:default;-webkit-user-select:auto;user-select:auto}
+.kilas-shot-note{max-width:36ch;margin:0;font-size:13px;line-height:1.55;text-align:center;color:#d9dccb}
+.kilas-shot-actions{display:flex;gap:8px;width:100%;max-width:340px}
+.kilas-shot-actions>*{flex:1;display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:46px;border-radius:999px;font-size:13.5px;text-decoration:none}
+.kilas-shot-save{border:0;background:#f6f1e4;color:#1b2a1a;font-weight:700}
+.kilas-shot-close{border:1px solid #f6f1e466;background:#f6f1e40f;color:#f6f1e4}
+.kilas-shot .icon{width:17px;height:17px}
 .kilas-save{border:1px solid #f6f1e466;background:#f6f1e40f;color:#f6f1e4}
 .kilas-more{display:flex;flex-wrap:wrap;justify-content:center;gap:0 4px;margin:0}
 .kilas-more button,.kilas-more a{display:inline-flex;align-items:center;min-height:44px;padding:0 10px;border:0;background:none;color:#e8e6d6;font-size:12.5px;text-decoration:underline;text-decoration-color:#e8e6d666;text-underline-offset:4px}

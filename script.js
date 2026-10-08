@@ -1213,7 +1213,6 @@ reducedMotion.addEventListener('change', () => { if (!motionAllowed()) { panelAn
   const dot = mark.querySelector('.mark-dot');
   const leaners = [...words, dot];
   const glints = [...mark.querySelectorAll('.mark-glint')];
-  const hint = mark.querySelector('.senja-hint');
   const veil = scene.querySelector('.senja-veil');
   const halo = scene.querySelector('.senja-halo');
   const bloomButton = scene.querySelector('.senja-bloom');
@@ -1321,7 +1320,7 @@ reducedMotion.addEventListener('change', () => { if (!motionAllowed()) { panelAn
       scene.setPointerCapture(event.pointerId);
       scene.classList.add('is-dragging');
       touch();
-      if (stage === 'mark') { if (motionAllowed()) stats.sways += 1; scene.classList.add('has-swayed'); } else stats.moves += 1;
+      if (stage === 'mark') { if (motionAllowed()) stats.sways += 1; } else stats.moves += 1;
     }
     // after the finale the same gesture blows wind through the sprig instead of moving the sun
     if (stage === 'mark') { gust(clamp(event.clientX - press.lastX, -30, 30) * 1.4); press.lastX = event.clientX; return; }
@@ -1543,7 +1542,6 @@ reducedMotion.addEventListener('change', () => { if (!motionAllowed()) { panelAn
     bloomQueued = hurried = false;
     stage = 'mark';
     scene.dataset.finale = 'mark';
-    hint.textContent = motionAllowed() ? (coarse.matches ? 'Usap langitnya. Ketuk katanya.' : 'Seret langitnya. Klik katanya.') : (coarse.matches ? 'Ketuk katanya.' : 'Klik katanya.');
     mark.inert = false;
     keepsake.hidden = false;
     if (document.activeElement === bloomButton || document.activeElement === document.body) keepsake.focus({ preventScroll: true });
@@ -1568,7 +1566,6 @@ reducedMotion.addEventListener('change', () => { if (!motionAllowed()) { panelAn
     sun.tabIndex = 0;
     sun.removeAttribute('aria-hidden');
     ['--stage-x', '--stage-y', '--stage-w'].forEach(name => scene.style.removeProperty(name));
-    scene.classList.remove('has-swayed');
     stage = 'play';
   }
   // the leaves fold away and the name fades while the sun comes up
@@ -1652,7 +1649,6 @@ reducedMotion.addEventListener('change', () => { if (!motionAllowed()) { panelAn
   // a tapped word hops and its meaning, read from the name gloss in the Pakem section, shows in the caption
   function poke(word) {
     if (motionAllowed()) stats.sways += 1;
-    scene.classList.add('has-swayed');
     const gloss = document.querySelector(`.gloss-meaning[data-word="${word.dataset.word}"]`);
     if (gloss) {
       const line = gloss.textContent.replace(/\s+/g, ' ').trim();
@@ -1668,7 +1664,6 @@ reducedMotion.addEventListener('change', () => { if (!motionAllowed()) { panelAn
   // tapping the sprig or the period rings its six stars
   function ring() {
     if (motionAllowed()) stats.sways += 1;
-    scene.classList.add('has-swayed');
     if (!motionAllowed()) { mark.classList.toggle('is-bright'); return; }
     [0, 1, 3, 4, 5, 2].forEach((n, i) => glints[n].animate([{ transform: 'none' }, { transform: 'scale(2.4)', offset: .35 }, { transform: 'none' }], { duration: 560, delay: i * 90, easing: 'ease-out' }));
     gust(60);
@@ -1684,7 +1679,6 @@ reducedMotion.addEventListener('change', () => { if (!motionAllowed()) { panelAn
     if (push === undefined || stage !== 'mark' || !event.target.closest('.mark-word')) return;
     event.preventDefault();
     if (motionAllowed()) stats.sways += 1;
-    scene.classList.add('has-swayed');
     gust(push);
   });
 
@@ -1759,6 +1753,12 @@ reducedMotion.addEventListener('change', () => { if (!motionAllowed()) { panelAn
   const flipButton = modal.querySelector('.kilas-flip');
   const shareButton = modal.querySelector('.kilas-share');
   const saveButton = modal.querySelector('.kilas-save');
+  const storyButton = modal.querySelector('.kilas-story');
+  const shot = modal.querySelector('.kilas-shot');
+  const shotImg = shot.querySelector('.kilas-shot-img');
+  const shotNote = shot.querySelector('.kilas-shot-note');
+  const shotSave = shot.querySelector('.kilas-shot-save');
+  const shotClose = shot.querySelector('.kilas-shot-close');
   const shareStatus = modal.querySelector('.kilas-share-status');
   const linkField = modal.querySelector('.kilas-link');
   const coarse = matchMedia('(pointer: coarse)');
@@ -1778,7 +1778,7 @@ reducedMotion.addEventListener('change', () => { if (!motionAllowed()) { panelAn
     return found.length ? found : [['Medika', 9], ['Saintek', 7], ['Soshum', 6]];
   })();
   const TOTAL = TEAM.reduce((sum, [, n]) => sum + n, 0);
-  let stats = null, slide = 0, moving = [], counting = [], flipped = false, image = null, press = null, swiped = false, title = '';
+  let stats = null, slide = 0, moving = [], counting = [], flipped = false, image = null, story = null, storyAt = 0, shotUrl = '', press = null, swiped = false, title = '';
 
   const set = (name, value) => modal.querySelectorAll(`[data-fill="${name}"]`).forEach(el => { el.textContent = value; });
   const setCount = (name, n) => modal.querySelectorAll(`[data-fill="${name}"]`).forEach(el => { el.textContent = n; el.dataset.count = n; });
@@ -1965,7 +1965,7 @@ reducedMotion.addEventListener('change', () => { if (!motionAllowed()) { panelAn
   prev.addEventListener('click', () => go(slide - 1));
   next.addEventListener('click', () => { if (slide === slides.length - 1) kilas.close(); else go(slide + 1); });
   modal.addEventListener('keydown', event => {
-    if (event.altKey || event.ctrlKey || event.metaKey || event.target === linkField) return;
+    if (event.altKey || event.ctrlKey || event.metaKey || event.target === linkField || !shot.hidden) return;
     const to = { ArrowRight: slide + 1, ArrowLeft: slide - 1, Home: 0, End: slides.length - 1 }[event.key];
     if (to === undefined) return;
     event.preventDefault();
@@ -2033,11 +2033,15 @@ reducedMotion.addEventListener('change', () => { if (!motionAllowed()) { panelAn
     copy();
   });
 
-  // The postcard as a picture is an extra: if anything fails, the button stays hidden and the text share still works.
+  // The pictures are an extra: if anything fails, their buttons stay hidden and the text share still works.
+  // The Story picture is redrawn when it is older than half a minute, so its countdown stays close to the hero's.
   function prepareImage() {
-    if (image || !stats || typeof Path2D !== 'function' || !HTMLCanvasElement.prototype.toBlob) return;
+    if (!stats || typeof Path2D !== 'function' || !HTMLCanvasElement.prototype.toBlob) return;
+    const stale = !story || Date.now() - storyAt > 30000;
+    if (image && !stale) return;
     (window.requestIdleCallback || (fn => setTimeout(fn, 60)))(() => {
-      try { drawCard(); } catch { /* the text share still works */ }
+      try { if (!image) drawCard(); } catch { /* the text share still works */ }
+      try { if (stale) drawStory(); } catch { /* the text share still works */ }
     });
   }
   function wordmark(ctx, size, cx, base1, base2) {
@@ -2070,9 +2074,18 @@ reducedMotion.addEventListener('change', () => { if (!motionAllowed()) { panelAn
     draw('.', bigF, '#e2c3a0', x2 + wI + wP, base2);
     if (spacing) ctx.letterSpacing = '0px';
   }
-  // 1080 x 1350: the postcard front, for saving and sharing
-  function drawCard() {
-    const W = 1080, H = 1350, canvas = document.createElement('canvas');
+  const label = (ctx, s, font, color, x, y, spacing = 0) => {
+    ctx.font = font;
+    ctx.fillStyle = color;
+    ctx.textAlign = 'center';
+    if ('letterSpacing' in ctx) ctx.letterSpacing = `${spacing}px`;
+    ctx.fillText(s, x, y);
+    if ('letterSpacing' in ctx) ctx.letterSpacing = '0px';
+  };
+  const toFile = (canvas, name, done) => canvas.toBlob(blob => { if (blob) done(new File([blob], name, { type: 'image/png' })); }, 'image/png');
+  // One painter for both pictures: the night sky, Merapi from the scene's own paths, the visitor's constellation and the wordmark.
+  function paintNight(W, H, L) {
+    const canvas = document.createElement('canvas');
     canvas.width = W;
     canvas.height = H;
     const ctx = canvas.getContext('2d'), rand = seeded(), hills = document.querySelector('.senja-hills');
@@ -2083,12 +2096,12 @@ reducedMotion.addEventListener('change', () => { if (!motionAllowed()) { panelAn
     ctx.fillStyle = bg;
     ctx.fillRect(0, 0, W, H);
     ctx.fillStyle = '#fffbe6';
-    for (let i = 0; i < 140; i += 1) { ctx.globalAlpha = .3 + rand() * .5; ctx.beginPath(); ctx.arc(rand() * W, rand() * 900, .8 + rand() * 1.8, 0, 7); ctx.fill(); }
+    for (let i = 0; i < L.starCount; i += 1) { ctx.globalAlpha = .3 + rand() * .5; ctx.beginPath(); ctx.arc(rand() * W, rand() * L.starDepth, .8 + rand() * 1.8, 0, 7); ctx.fill(); }
     ctx.globalAlpha = 1;
-    // Merapi from the scene's own paths: scale 1.3, aligned to the bottom right, so the peak sits under the name
+    const [tx, ty, k] = L.hills;
     ctx.save();
-    ctx.translate(-792, 752);
-    ctx.scale(1.3, 1.3);
+    ctx.translate(tx, ty);
+    ctx.scale(k, k);
     ctx.fillStyle = '#1a2925';
     ctx.fill(new Path2D(hills.querySelector('.hill-back').getAttribute('d')));
     ctx.fillStyle = '#ffd27a';
@@ -2098,12 +2111,14 @@ reducedMotion.addEventListener('change', () => { if (!motionAllowed()) { panelAn
     ctx.fillStyle = '#162019';
     ctx.fill(new Path2D(hills.querySelector('.hill-front').getAttribute('d')));
     ctx.restore();
-    const shade = ctx.createRadialGradient(540, 760, 0, 540, 760, 520);
+    const ground = ty + 460 * k;
+    if (ground < H) { ctx.fillStyle = '#162019'; ctx.fillRect(0, ground - 1, W, H - ground + 1); }
+    const [sx, sy, sr] = L.shade, shade = ctx.createRadialGradient(sx, sy, 0, sx, sy, sr);
     shade.addColorStop(0, '#0a1322b0');
     shade.addColorStop(1, '#0a132200');
     ctx.fillStyle = shade;
     ctx.fillRect(0, 0, W, H);
-    const { stars, froms } = points(), at = fitter(stars.concat(froms), 180, 110, 720, 450, 30);
+    const { stars, froms } = points(), at = fitter(stars.concat(froms), ...L.sky, 30);
     ctx.lineCap = 'round';
     ctx.setLineDash([3, 7]);
     ctx.strokeStyle = '#f3e27a';
@@ -2135,49 +2150,132 @@ reducedMotion.addEventListener('change', () => { if (!motionAllowed()) { panelAn
       ctx.shadowBlur = 0;
     });
     ctx.globalAlpha = 1;
-    wordmark(ctx, 128, 540, 820, 938);
-    ctx.textAlign = 'center';
-    ctx.font = 'italic 40px Georgia, "Times New Roman", serif';
-    ctx.fillStyle = '#e2c3a0';
-    ctx.fillText(`Enam bintang dalam ${lama(stats.duration).text}`, 540, 1130);
-    ctx.font = '30px Georgia, "Times New Roman", serif';
-    ctx.fillStyle = '#f6f1e4';
-    ctx.fillText(`Gelar: ${title}`, 540, 1185);
-    ctx.font = '24px Arial, Helvetica, sans-serif';
-    ctx.fillStyle = '#b9c0a8';
-    ctx.fillText(`SENJA DI PAKEM · ${dayFormat.format(stats.date).toUpperCase()}`, 540, 1240);
-    ctx.font = '26px Arial, Helvetica, sans-serif';
-    ctx.fillText('tentremingpakem.com', 540, 1295);
-    canvas.toBlob(blob => {
-      if (!blob) return;
-      image = new File([blob], 'senja-di-pakem.png', { type: 'image/png' });
-      saveButton.hidden = false;
-    }, 'image/png');
+    wordmark(ctx, ...L.mark);
+    return { canvas, ctx };
   }
-  function download() {
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(image);
-    link.download = image.name;
-    document.body.append(link);
-    link.click();
-    link.remove();
-    setTimeout(() => URL.revokeObjectURL(link.href), 4000);
-    tell('Gambar sedang diunduh.');
+  // 1080 x 1350: the postcard front, for saving as a photo
+  function drawCard() {
+    const { canvas, ctx } = paintNight(1080, 1350, { starCount: 140, starDepth: 900, hills: [-792, 752, 1.3], shade: [540, 760, 520], sky: [180, 110, 720, 450], mark: [128, 540, 820, 938] });
+    label(ctx, `Enam bintang dalam ${lama(stats.duration).text}`, 'italic 40px Georgia, "Times New Roman", serif', '#e2c3a0', 540, 1130);
+    label(ctx, `Gelar: ${title}`, '30px Georgia, "Times New Roman", serif', '#f6f1e4', 540, 1185);
+    label(ctx, `SENJA DI PAKEM · ${dayFormat.format(stats.date).toUpperCase()}`, '24px Arial, Helvetica, sans-serif', '#b9c0a8', 540, 1240);
+    label(ctx, 'tentremingpakem.com', '26px Arial, Helvetica, sans-serif', '#b9c0a8', 540, 1295);
+    toFile(canvas, 'senja-di-pakem.png', file => { image = file; saveButton.hidden = false; });
   }
-  saveButton.addEventListener('click', () => {
-    if (!image) return;
-    if (navigator.canShare?.({ files: [image] })) {
-      navigator.share({ files: [image], title: 'Senja di Pakem' }).catch(error => { if (error.name !== 'AbortError') download(); });
+  // The hero's countdown card, read from the page as it is now, so the Story follows whatever the card says
+  // (counting down to deployment today, and whatever it counts later).
+  const readCountdown = () => {
+    const box = document.querySelector('.countdown');
+    if (!box) return null;
+    const units = box.querySelector('.countdown-units'), message = box.querySelector('.countdown-message');
+    return {
+      heading: (box.querySelector('.countdown-heading')?.textContent || '').trim(),
+      date: (box.querySelector('.countdown-date')?.textContent || '').replace(/^[\s·]+/, '').trim(),
+      units: units && !units.hidden ? [...box.querySelectorAll('.countdown-unit')].map(unit => [(unit.querySelector('.countdown-value')?.textContent || '').trim(), (unit.querySelector('.countdown-label')?.textContent || '').trim()]) : [],
+      message: message && !message.hidden ? message.textContent.trim() : ''
+    };
+  };
+  function countdownCard(ctx, x, y, w, h) {
+    const now = readCountdown();
+    if (!now || (!now.units.length && !now.message)) return false;
+    ctx.save();
+    ctx.shadowColor = '#0008';
+    ctx.shadowBlur = 40;
+    ctx.shadowOffsetY = 16;
+    ctx.fillStyle = 'rgba(246,241,228,.95)';
+    ctx.beginPath();
+    ctx.roundRect ? ctx.roundRect(x, y, w, h, 34) : ctx.rect(x, y, w, h);
+    ctx.fill();
+    ctx.restore();
+    const heading = (now.date ? `${now.heading} · ${now.date}` : now.heading).toUpperCase();
+    ctx.font = '600 20px Arial, Helvetica, sans-serif';
+    if ('letterSpacing' in ctx) ctx.letterSpacing = '2.5px';
+    const hw = ctx.measureText(heading).width;
+    if ('letterSpacing' in ctx) ctx.letterSpacing = '0px';
+    ctx.fillStyle = '#87634c';
+    ctx.beginPath(); ctx.arc(x + w / 2 - hw / 2 - 6, y + 44, 7, 0, 7); ctx.fill();
+    label(ctx, heading, '600 20px Arial, Helvetica, sans-serif', '#5d6852', x + w / 2 + 12, y + 51, 2.5);
+    if (now.units.length) {
+      const cw = (w - 48) / now.units.length;
+      ctx.strokeStyle = '#d9d4c3';
+      ctx.lineWidth = 2;
+      now.units.forEach(([value, unit], i) => {
+        const cx = x + 24 + cw * (i + .5);
+        label(ctx, value, '400 80px Georgia, "Times New Roman", serif', '#2f3d2c', cx, y + 150);
+        label(ctx, unit.toUpperCase(), '20px Arial, Helvetica, sans-serif', '#7a8269', cx, y + h - 34, 3);
+        if (i) { ctx.beginPath(); ctx.moveTo(x + 24 + cw * i, y + 82); ctx.lineTo(x + 24 + cw * i, y + h - 26); ctx.stroke(); }
+      });
+    } else {
+      label(ctx, now.message, 'italic 40px Georgia, "Times New Roman", serif', '#2f3d2c', x + w / 2, y + h / 2 + 34);
+    }
+    return true;
+  }
+  // 1080 x 1920 for Instagram Story: the visitor's sky, the wordmark, the countdown under it, then Senja di Pakem.
+  // Nothing important sits in the top 220px or the bottom 280px, where Instagram draws its own bars.
+  function drawStory() {
+    const at = Date.now();
+    const { canvas, ctx } = paintNight(1080, 1920, { starCount: 210, starDepth: 1300, hills: [-1177, 1033, 1.7], shade: [540, 960, 720], sky: [150, 220, 780, 520], mark: [150, 540, 900, 1038] });
+    const card = countdownCard(ctx, 150, 1100, 780, 240);
+    const base = card ? 1490 : 1300;
+    label(ctx, `SENJA DI PAKEM · ${dayFormat.format(stats.date).toUpperCase()}`, '30px Arial, Helvetica, sans-serif', '#e2c3a0', 540, base, 5);
+    label(ctx, `Enam bintang dalam ${lama(stats.duration).text} · ${title}`, 'italic 34px Georgia, "Times New Roman", serif', '#e8e6d6', 540, base + 60);
+    label(ctx, 'tentremingpakem.com', '28px Arial, Helvetica, sans-serif', '#b9c0a8', 540, base + 122, 2);
+    toFile(canvas, 'senja-di-pakem-story.png', file => { story = file; storyAt = at; storyButton.hidden = false; });
+  }
+  // Where a browser cannot hand a picture to other apps (desktop, or Instagram's own in-app browser),
+  // the picture opens inside the card with plain steps to save it.
+  const inApp = /Instagram|FBAN|FBAV/i.test(navigator.userAgent);
+  function openShot(file, forStory) {
+    if (shotUrl) URL.revokeObjectURL(shotUrl);
+    shotUrl = URL.createObjectURL(file);
+    shotImg.src = shotUrl;
+    shotImg.alt = forStory ? 'Gambar Story Senja di Pakem' : 'Kartu pos Senja di Pakem';
+    shotSave.href = shotUrl;
+    shotSave.download = file.name;
+    const steps = [];
+    if (inApp && forStory) steps.push('Kamu membuka dari aplikasi Instagram. Supaya tombol Story langsung jalan, buka halaman ini di Chrome atau Safari lewat menu di pojok kanan atas.');
+    steps.push(coarse.matches ? 'Tekan lama gambarnya lalu simpan, atau ketuk Unduh gambar.' : 'Klik Unduh gambar untuk menyimpannya.');
+    if (forStory) steps.push(coarse.matches ? 'Lalu buka Instagram, buat Story, dan pilih gambar ini dari galeri.' : 'Lalu kirim ke HP, buka Instagram, buat Story, dan pilih gambar ini.');
+    shotNote.textContent = steps.join(' ');
+    card.scrollTop = 0;
+    card.classList.add('has-shot');
+    shot.hidden = false;
+    shotClose.focus({ preventScroll: true });
+  }
+  function closeShot(refocus = true) {
+    if (shot.hidden) return;
+    shot.hidden = true;
+    card.classList.remove('has-shot');
+    if (refocus) (shot.dataset.from === 'story' ? storyButton : saveButton).focus({ preventScroll: true });
+  }
+  // A picture goes straight to the phone's share sheet (Instagram, then Story); nothing is awaited first,
+  // so the tap still counts as the visitor's own gesture.
+  const offer = (file, forStory) => {
+    shot.dataset.from = forStory ? 'story' : 'photo';
+    if (navigator.canShare?.({ files: [file] })) {
+      navigator.share({ files: [file] }).catch(error => { if (error.name !== 'AbortError') openShot(file, forStory); });
       return;
     }
-    download();
-  });
+    openShot(file, forStory);
+  };
+  storyButton.addEventListener('click', () => { if (story) offer(story, true); });
+  saveButton.addEventListener('click', () => { if (image) offer(image, false); });
+  shotClose.addEventListener('click', () => closeShot());
+  shotSave.addEventListener('click', () => tell('Gambar sedang diunduh.'));
+  // Escape closes the picture first, and only then the whole recap
+  modal.addEventListener('cancel', event => {
+    if (shot.hidden) return;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    closeShot();
+  }, true);
+  modal.addEventListener('close', () => closeShot(false));
 
   modal.querySelector('.kilas-again').addEventListener('click', () => {
     kilas.close();
     setTimeout(() => scene.dispatchEvent(new Event('senja-restart')), motionAllowed() ? 260 : 0);
   });
-  scene.addEventListener('senja-done', event => { stats = event.detail; image = null; saveButton.hidden = true; });
+  scene.addEventListener('senja-done', event => { stats = event.detail; image = story = null; saveButton.hidden = storyButton.hidden = true; });
   modal.addEventListener('dialog-open', () => {
     if (!stats) return;
     fill();
@@ -2185,6 +2283,7 @@ reducedMotion.addEventListener('change', () => { if (!motionAllowed()) { panelAn
     linkField.hidden = true;
     tell('');
     show(0, { announce: false });
+    prepareImage();
     setTimeout(() => { if (modal.open) status.textContent = `1 dari ${slides.length}. ${slides[0].dataset.say}`; }, 450);
   });
   motionButton.addEventListener('click', () => { if (!motionAllowed()) { moving.forEach(a => a.finish()); moving = []; } });
