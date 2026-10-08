@@ -1087,3 +1087,172 @@ body.motion-paused dialog[open] .kilas-card{animation:none}
 body.motion-paused .kilas-progress i::after,body.motion-paused .kilas-post-inner{transition:none}
 @media(max-width:360px){.kilas-card{padding:14px 14px 10px}.kilas-big{font-size:clamp(56px,20vw,72px)}}
 @media(max-height:500px) and (orientation:landscape){.kilas-dialog{width:min(780px,calc(100% - 24px))}.kilas-card{height:calc(100svh - 16px);padding:12px 18px 10px}.kilas-slide{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-content:center;column-gap:22px;row-gap:8px;padding-top:6px}.kilas-slide.is-text{display:flex}.kilas-slide>.kilas-visual{grid-column:1;grid-row:1/span 8;max-height:calc(100svh - 150px);justify-self:center}.kilas-slide>:not(.kilas-visual){grid-column:2}.kilas-post{width:auto;height:calc(100svh - 150px)}.kilas-big{font-size:clamp(48px,14svh,72px)}}
+
+/* 04 Sponsor dan mitra: a small night between Lokasi and the Senja sky. The title rolls through the ways to say thanks,
+   a firefly writes the last words in light, then fireflies carry that light down to each sponsor's card. */
+/* The section ships with the hidden attribute and shows itself once a <li class="sponsor"> exists (script.js, or :has() without JS). */
+.chapter-sponsor{padding:clamp(8px,2vw,24px) 0 clamp(56px,7vw,96px);background:#e6ece0}
+.chapter-sponsor[hidden]:has(.sponsor),.sponsor-group[hidden]:has(.sponsor){display:block!important}
+.sponsor-night{--spring:cubic-bezier(.34,1.56,.64,1);position:relative;isolation:isolate;overflow:clip;width:calc(100% - 20px);max-width:1120px;margin:0 auto;padding:34px 14px 40px;border-radius:24px;background:radial-gradient(110% 55% at 50% 0,#2e46624d,#2e466200 70%),radial-gradient(60% 40% at 80% 100%,#fccc3d12,#fccc3d00 70%),linear-gradient(180deg,#15233a 0,#142a31 58%,#12261f 100%);box-shadow:0 18px 40px -16px #0a1a1452,inset 0 0 0 1px #f6f1e412;text-align:center;color:#e8e6d6}
+@media(min-width:600px){.sponsor-night{width:min(1120px,calc(100% - 2 * clamp(20px,5vw,64px)));padding:clamp(44px,5.4vw,72px) clamp(24px,4.4vw,56px) clamp(52px,6vw,80px);border-radius:32px}}
+.sponsor-sky{position:absolute;inset:0;z-index:0;pointer-events:none;background-image:radial-gradient(1.4px 1.4px at 7% 12%,#fffbe6b3 50%,#fffbe600),radial-gradient(1px 1px at 18% 30%,#fffbe68c 50%,#fffbe600),radial-gradient(1.2px 1.2px at 31% 8%,#fffbe699 50%,#fffbe600),radial-gradient(1px 1px at 46% 22%,#fffbe673 50%,#fffbe600),radial-gradient(1.4px 1.4px at 63% 10%,#fffbe6a6 50%,#fffbe600),radial-gradient(1px 1px at 77% 26%,#fffbe680 50%,#fffbe600),radial-gradient(1.2px 1.2px at 91% 14%,#fffbe6a6 50%,#fffbe600),radial-gradient(1px 1px at 86% 44%,#fffbe659 50%,#fffbe600),radial-gradient(1px 1px at 11% 52%,#fffbe659 50%,#fffbe600)}
+.sponsor-ridge{position:absolute;left:0;bottom:0;z-index:0;width:100%;height:clamp(40px,7vw,90px);pointer-events:none}
+.sponsor-ridge path:first-child{fill:#0f211d;fill-opacity:.55}
+.sponsor-ridge path:last-child{fill:#0d1c18;fill-opacity:.7}
+.sponsor-head{position:relative;z-index:1;max-width:680px;margin:0 auto clamp(30px,4.4vw,48px)}
+.sponsor-night .section-eyebrow{justify-content:center;color:#b9c0a8}
+.sponsor-night .section-eyebrow::before{border-color:#e2c3a0;background:#fccc3d;color:#17352f}
+.js .sponsor-night .section-eyebrow:not(.is-revealed)::before{background:#15233a;color:#e2c3a0}
+.sponsor-night .section-eyebrow.is-revealed::before{animation-name:pos-ping-sun}
+@media(prefers-reduced-motion:reduce){.js .sponsor-night .section-eyebrow:not(.is-revealed)::before{background:#fccc3d;color:#17352f}}
+.sponsor-head .section-lead{max-width:440px;margin:0 auto;color:#c9cfbd;text-wrap:balance}
+/* The title: line 1 is a credits slot (Disponsori oleh, Ditenagai oleh, Terima kasih), line 2 is written in light. */
+.sponsor-title{margin-bottom:16px;font-size:min(clamp(40px,5.4vw,70px),10.4vw);color:#f6f1e4}
+.sponsor-title i{color:#e2c3a0}
+.sponsor-line{position:relative;display:block}
+.sponsor-slot{display:inline-grid;justify-items:center;vertical-align:top;margin:-.06em -.1em -.22em;padding:.06em .1em .22em;overflow:clip}
+.sponsor-slot>span{grid-area:1/1;white-space:nowrap;color:#c9cfbd;opacity:0}
+.sponsor-slot>span:nth-child(2){--k:1}
+.sponsor-slot>.is-final{color:inherit;opacity:1}
+.sponsor-wipe{display:inline-block;margin:-.1em -.14em -.2em -.06em;padding:.1em .14em .2em .06em}
+.sponsor-dot{display:inline-block;color:#e2c3a0;transform-origin:50% 90%}
+.sponsor-pen{position:absolute;left:0;bottom:.16em;width:.1em;height:.1em;margin-left:-.05em;border-radius:50%;background:#fffbe6;box-shadow:0 0 .08em .04em #fff2c4,0 0 .36em .14em #f3e27a59;opacity:0;pointer-events:none}
+.sponsor-night.is-armed .sponsor-wipe{white-space:nowrap}
+.sponsor-title.is-played:not(.is-settled) .sponsor-slot>span{animation:slot-pass .7s cubic-bezier(.65,0,.25,1) calc(var(--k,0) * .45s) both}
+.sponsor-title.is-played:not(.is-settled) .sponsor-slot>.is-final{animation:slot-land .85s var(--ease) .9s both}
+@keyframes slot-pass{0%{opacity:0;transform:translateY(.9em)}30%,62%{opacity:1;transform:none}100%{opacity:0;transform:translateY(-.9em)}}
+@keyframes slot-land{0%{opacity:0;transform:translateY(.9em)}55%{opacity:1;transform:translateY(-.05em)}100%{opacity:1;transform:none}}
+/* Ambient fireflies wander behind the cards; they pause off screen and stop with the pause button. */
+.sponsor-fly{position:absolute;left:var(--x);top:var(--y);width:7px;height:7px;margin:-3.5px 0 0 -3.5px;animation:firefly-drift var(--dur) ease-in-out var(--delay) infinite;transition:opacity 1.4s ease var(--fade,0s)}
+.sponsor-fly span{display:block;width:100%;height:100%;border-radius:50%;background:#fff6b8;box-shadow:0 0 8px 3px #f3e27a,0 0 22px 8px #f3e27a55;animation:firefly-glow 2.2s ease-in-out var(--delay) infinite alternate}
+.js .sponsor-night:not(.is-revealed) .sponsor-fly{opacity:0}
+.sponsor-night:not(.is-inview) :is(.sponsor-fly,.sponsor-fly span){animation-play-state:paused}
+/* Groups and optional tier headings. Headings show only when two or more groups have sponsors. */
+.sponsor-field{position:relative;z-index:1;display:grid;gap:clamp(30px,4.4vw,48px)}
+.sponsor-tier{display:flex;align-items:center;justify-content:center;gap:12px;margin:0 0 18px;font:700 10.5px/1.3 Arial,Helvetica,sans-serif;letter-spacing:2.4px;text-transform:uppercase;color:#e2c3a0}
+.sponsor-tier::before,.sponsor-tier::after{content:"";flex:0 1 56px;height:1px;background:#e2c3a059}
+.chapter-sponsor.is-single-tier .sponsor-tier{display:none}
+/* Columns follow the number of sponsors in each list; a partial last row stays centred. */
+.sponsor-list{--cols:2;--gap:12px;--box-h:50px;--base:48px;--card-max:260px;--pad:16px 10px 13px;--name:11.5px;--aura:#fccc3d;--aura-soft:#fccc3d59;--aura-rest:.5;display:flex;flex-wrap:wrap;justify-content:center;gap:var(--gap);margin:0;padding:0;list-style:none}
+.sponsor-list:has(>:nth-child(9)){--cols:3;--gap:10px;--box-h:40px;--base:38px;--pad:13px 8px 10px;--name:11px;--aura-rest:.36}
+@media(min-width:600px){
+.sponsor-list{--cols:3;--gap:16px;--box-h:56px;--base:56px;--pad:20px 16px 16px;--name:12px}
+.sponsor-list:has(>:nth-child(4)):not(:has(>:nth-child(5))),.sponsor-list:has(>:nth-child(7)){--cols:4}
+.sponsor-list:has(>:nth-child(9)){--gap:14px;--box-h:48px;--base:46px;--pad:16px 12px 14px;--name:11.5px}
+}
+@media(min-width:900px){
+.sponsor-list{--gap:18px;--box-h:62px;--base:62px}
+.sponsor-list:has(>:nth-child(9)){--cols:5;--box-h:54px;--base:54px}
+.sponsor-list:has(>:nth-child(11)){--cols:6;--box-h:50px;--base:50px}
+}
+.sponsor-list:not(:has(>:nth-child(3))){--cols:2}
+.sponsor-list:not(:has(>:nth-child(2))){--cols:1}
+/* Tiers are optional. Utama is larger and warmer, never more than three across; mitra media is smaller and denser. */
+[data-tier="mitra"]>.sponsor-list{--box-h:36px;--base:34px;--card-max:200px;--pad:12px 8px 10px;--name:11px;--aura:#e2c3a0;--aura-soft:#e2c3a04d;--aura-rest:.4}
+[data-tier="mitra"]>.sponsor-list:has(>:nth-child(3)){--cols:3;--gap:10px}
+@media(min-width:600px){
+[data-tier="mitra"]>.sponsor-list{--box-h:40px;--base:40px;--pad:14px 10px 12px;--name:11px}
+[data-tier="mitra"]>.sponsor-list:has(>:nth-child(5)){--cols:5}
+}
+@media(min-width:900px){
+[data-tier="mitra"]>.sponsor-list{--box-h:44px;--base:44px}
+[data-tier="mitra"]>.sponsor-list:has(>:nth-child(6)){--cols:6}
+}
+/* Sponsor utama: one big card per row on phones, two side by side from tablet up, three across only on wide screens. */
+[data-tier="utama"]>.sponsor-list{--cols:1;--gap:14px;--box-h:64px;--base:80px;--card-max:340px;--pad:22px 18px 16px;--name:12.5px;--aura-rest:.6}
+@media(min-width:600px){[data-tier="utama"]>.sponsor-list{--cols:2;--gap:20px;--box-h:84px;--base:92px;--card-max:400px;--pad:28px 22px 20px;--name:13px}}
+@media(min-width:900px){[data-tier="utama"]>.sponsor-list{--box-h:96px;--base:104px;--card-max:440px}[data-tier="utama"]>.sponsor-list:has(>:nth-child(5)){--cols:3}}
+/* A lone sponsor in a list (except mitra media) gets a wide card of its own. */
+:is([data-tier="utama"],[data-tier="pendukung"])>.sponsor-list:not(:has(>:nth-child(2))){--box-h:70px;--base:68px;--card-max:300px;--pad:24px 18px 18px;--name:12.5px;--aura-rest:.6}
+@media(min-width:600px){:is([data-tier="utama"],[data-tier="pendukung"])>.sponsor-list:not(:has(>:nth-child(2))){--box-h:92px;--base:92px;--card-max:380px;--pad:30px 24px 22px;--name:13px}}
+.sponsor{position:relative;display:flex;flex:0 0 calc((100% - (var(--cols) - 1) * var(--gap)) / var(--cols));max-width:var(--card-max);min-width:0}
+/* Every logo sits on the same cream card, so any colour reads; a white background in the file melts into it (multiply).
+   Nothing between the card and the img may animate opacity or transform, or the blend is isolated and the white shows. */
+.sponsor-card{position:relative;z-index:1;display:grid;grid-template-rows:var(--box-h) auto;align-content:center;justify-items:center;gap:10px;width:100%;padding:var(--pad);border-radius:16px;background:#fbf8ef;box-shadow:0 8px 16px -6px #050d1a80,inset 0 0 0 1px #fffdf6;color:#5d6852;text-decoration:none;overflow:hidden;-webkit-tap-highlight-color:transparent;transition:transform .35s var(--ease)}
+.sponsor-card>img,.sponsor-mark img{display:block;max-width:100%;max-height:var(--box-h);width:auto;height:auto;mix-blend-mode:multiply}
+.sponsor-logo{display:flex;align-items:center;justify-content:center;width:100%;height:var(--box-h);min-width:0}
+.sponsor-mark{position:relative;display:block;max-width:100%}
+.sponsor.is-fit .sponsor-mark{width:min(100%,calc(var(--base) * var(--lw)),calc(var(--box-h) * var(--r)));aspect-ratio:var(--r)}
+.sponsor.is-fit .sponsor-mark img{position:absolute;left:calc(var(--ox) * -100%);top:calc(var(--oy) * -100%);width:calc(var(--zx) * 100%);max-width:none;max-height:none;height:auto}
+.sponsor-name{max-width:100%;font-size:var(--name);line-height:1.3;letter-spacing:.2px;text-align:center;text-wrap:balance;overflow-wrap:anywhere}
+.chapter-sponsor[data-nama="sembunyi"] .sponsor-name{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.chapter-sponsor[data-nama="sembunyi"] .sponsor-card{grid-template-rows:var(--box-h)}
+/* A logo made for dark backgrounds (white on transparent) gets a night card: found automatically, or set with data-latar="gelap". */
+.sponsor.is-light .sponsor-card{background:#1f3236;box-shadow:0 8px 16px -6px #050d1a80,inset 0 0 0 1px #f6f1e42e;color:#d9dccb}
+.sponsor.is-light .sponsor-mark img,.sponsor.is-light .sponsor-card>img{mix-blend-mode:normal}
+/* A file that fails to load shows the name as a small wordmark, never an empty card. */
+.sponsor.is-broken .sponsor-logo,.sponsor.is-broken .sponsor-card>img{display:none}
+.sponsor.is-broken .sponsor-card{grid-template-rows:auto}
+.sponsor.is-broken .sponsor-name{display:grid;place-items:center;min-height:var(--box-h);font:italic 400 calc(var(--name) * 1.55)/1.15 Georgia,'Times New Roman',serif;letter-spacing:-.01em;color:#303e31}
+.chapter-sponsor[data-nama="sembunyi"] .sponsor.is-broken .sponsor-name{position:static;width:auto;height:auto;clip-path:none;white-space:normal}
+/* One logo that already says who it is can drop its name too: data-nama="sembunyi" on its li. The name is still read aloud, and the logo grows into the space. */
+.sponsor[data-nama="sembunyi"] .sponsor-name{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.sponsor[data-nama="sembunyi"] .sponsor-card{grid-template-rows:var(--box-h)}
+.sponsor[data-nama="sembunyi"].is-broken .sponsor-name{position:static;width:auto;height:auto;clip-path:none;white-space:normal}
+[data-tier="utama"] .sponsor[data-nama="sembunyi"]{--box-h:88px;--base:88px}
+@media(min-width:600px){[data-tier="utama"] .sponsor[data-nama="sembunyi"]{--box-h:110px;--base:110px}}
+@media(min-width:900px){[data-tier="utama"] .sponsor[data-nama="sembunyi"]{--box-h:112px;--base:112px}}
+/* Linked cards carry a small arrow, like every other outside link on the page. */
+a.sponsor-card::before{content:"";position:absolute;top:8px;right:8px;width:11px;height:11px;background:#87634c;opacity:.75;-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 18 18 6M8 6h10v10'/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 18 18 6M8 6h10v10'/%3E%3C/svg%3E") center/contain no-repeat}
+.sponsor.is-light a.sponsor-card::before{background:#e2c3a0}
+/* The aura: a gold halo hugging each card, painted once; only its opacity and scale ever move. Its warm fill shows as a rim of light when it swells.
+   It sits on the list item (which must never become a stacking context), so every halo stays behind every card. */
+.sponsor::before{content:"";position:absolute;inset:0;z-index:0;border-radius:16px;background:#fff1c4;box-shadow:0 0 12px 2px var(--aura),0 0 40px 10px var(--aura-soft);opacity:var(--aura-rest);pointer-events:none;transition:opacity .35s}
+.sponsor.is-landing::after{content:"";position:absolute;inset:-5px;z-index:2;border:1.5px solid #fff2c4;border-radius:21px;opacity:0;pointer-events:none}
+.sponsor.is-landing .sponsor-card::after,a.sponsor-card:hover::after{content:"";position:absolute;inset:0;z-index:2;background:linear-gradient(105deg,#fff8dc00 32%,#fff8dcc2 48%,#fff8dc00 64%);transform:translateX(-115%);pointer-events:none}
+/* Long lists (9 or more) keep the flight, the bloom and the halo, and drop the ring, the sheen and the name rise, so fewer layers move at once. */
+.sponsor-list:has(>:nth-child(9)) .sponsor.is-landing::after,.sponsor-list:has(>:nth-child(9)) .sponsor.is-landing .sponsor-card::after{content:none}
+.sponsor-spark{position:absolute;left:50%;top:50%;z-index:3;width:8px;height:8px;margin:-4px 0 0 -4px;border-radius:50%;background:#fff6b8;box-shadow:0 0 8px 3px #f3e27a,0 0 22px 8px #f3e27a55;opacity:0;pointer-events:none}
+/* Landing: the firefly flashes, the card blooms, the halo swells and settles, a ring of light opens, a sheen crosses the logo. */
+.sponsor.is-landing .sponsor-card{animation:sponsor-card .7s var(--spring) var(--at,0ms) backwards}
+.sponsor.is-landing .sponsor-name{animation:sponsor-name .5s var(--ease) calc(var(--at,0ms) + 220ms) backwards}
+.sponsor.is-landing .sponsor-card::after{animation:sponsor-sweep .85s cubic-bezier(.45,0,.25,1) calc(var(--at,0ms) + 180ms)}
+.sponsor.is-landing::before{animation:sponsor-aura 1.4s ease-out var(--at,0ms) backwards}
+.sponsor.is-landing::after{animation:sponsor-ring 1s ease-out var(--at,0ms) backwards}
+.sponsor.is-visited::before{animation:sponsor-visit 2.2s ease-in-out}
+.sponsor-list:has(>:nth-child(9)) .sponsor.is-landing .sponsor-name{animation:none}
+@keyframes sponsor-card{from{opacity:0;transform:translateY(12px) scale(.84)}}
+@keyframes sponsor-name{from{opacity:0;transform:translateY(5px)}}
+@keyframes sponsor-sweep{from{transform:translateX(-115%)}to{transform:translateX(115%)}}
+@keyframes sponsor-sweep-again{from{transform:translateX(-115%)}to{transform:translateX(115%)}}
+@keyframes sponsor-aura{0%{opacity:0;transform:scale(.7)}28%{opacity:1;transform:scale(1.05)}}
+@keyframes sponsor-ring{0%{opacity:0;transform:scale(.92)}10%{opacity:.95}100%{opacity:0;transform:scale(1.07)}}
+@keyframes sponsor-visit{45%{opacity:.95;transform:scale(1.04)}}
+/* Touch first: a press answers at once. Hover and the replayed sheen are for a mouse only. */
+a.sponsor-card:active{transform:scale(.97)}
+.sponsor:has(a.sponsor-card:active)::before,.sponsor:has(:focus-visible)::before{opacity:.95}
+.chapter-sponsor .sponsor-card:focus-visible{outline:2px solid #e2c3a0;outline-offset:4px}
+@media(hover:hover) and (pointer:fine){
+a.sponsor-card:hover{transform:translateY(-3px)}
+.sponsor:has(a.sponsor-card:hover)::before{opacity:.85}
+a.sponsor-card:hover::after{animation:sponsor-sweep-again .8s cubic-bezier(.45,0,.25,1)}
+}
+/* Waiting states exist only with motion allowed and after script.js has armed the section, so a script error leaves everything visible. */
+@media(prefers-reduced-motion:no-preference){
+.js body:not(.motion-paused) .sponsor-night.is-armed .sponsor-title:not(.is-played) :is(.sponsor-slot>.is-final,.sponsor-dot){opacity:0}
+.js body:not(.motion-paused) .sponsor-night.is-armed .sponsor-title:not(.is-played) .sponsor-wipe{clip-path:inset(0 100% 0 0)}
+.js body:not(.motion-paused) .sponsor-night.is-armed .sponsor:not(.is-lit){opacity:0;pointer-events:none}
+}
+/* Paused: the final state, lit and still. Reduced motion is covered by the site's global rule. */
+body.motion-paused .chapter-sponsor *,body.motion-paused .chapter-sponsor *::before,body.motion-paused .chapter-sponsor *::after{animation:none!important;transition:none!important}
+@media(forced-colors:active){.sponsor::before{display:none}.sponsor-card{border:1px solid CanvasText}}
+/* Sponsor utama is crowned: fireflies arrive from every side, a comet of light runs twice round the card, and a gold rim stays.
+   The rim is a masked band; only the comet inside it rotates, so the motion stays on the compositor. */
+.sponsor-crown{position:absolute;inset:-3px;z-index:2;padding:2px;border-radius:19px;overflow:hidden;pointer-events:none;-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0)}
+.sponsor-crown::before{content:"";position:absolute;inset:0;background:linear-gradient(135deg,#f6dd9a,#c99a4e 38%,#f3e2b0 62%,#b88a40);opacity:.9}
+.sponsor-crown>span{position:absolute;inset:-100%;background:conic-gradient(from 0deg,#fff8dc00 0 70%,#fff2c4 86%,#fffbe6 93%,#fff8dc00 100%);opacity:0}
+.sponsor.is-crowning .sponsor-crown>span{animation:crown-run 1.9s cubic-bezier(.45,0,.25,1) var(--at,0ms) both}
+.sponsor.is-crowning .sponsor-crown::before{animation:crown-rim 1.6s ease calc(var(--at,0ms) + .3s) backwards}
+.sponsor.is-crowning::before{animation:crown-aura 2.1s ease-out var(--at,0ms) backwards}
+@keyframes crown-run{0%{opacity:0;transform:rotate(-40deg)}12%{opacity:1}82%{opacity:1}100%{opacity:0;transform:rotate(680deg)}}
+@keyframes crown-rim{from{opacity:0}}
+@keyframes crown-aura{0%{opacity:0;transform:scale(.7)}24%{opacity:1;transform:scale(1.12)}100%{opacity:var(--aura-rest);transform:none}}
+/* The Sponsor utama heading opens with its first card: the words settle and the two rules grow out from them. */
+[data-tier="utama"] .sponsor-tier{color:#f3dfb4}
+[data-tier="utama"] .sponsor-tier::before{transform-origin:100% 50%}[data-tier="utama"] .sponsor-tier::after{transform-origin:0 50%}
+[data-tier="utama"].is-open .sponsor-tier{animation:tier-in .9s var(--ease) both}
+[data-tier="utama"].is-open .sponsor-tier::before,[data-tier="utama"].is-open .sponsor-tier::after{animation:tier-line .9s var(--ease) .15s both}
+@keyframes tier-in{from{opacity:0;letter-spacing:7px}}
+@keyframes tier-line{from{transform:scaleX(0)}}
+@media(prefers-reduced-motion:no-preference){.js body:not(.motion-paused) .sponsor-night.is-armed [data-tier="utama"]:not(.is-open) .sponsor-tier{opacity:0}}
+body.motion-paused .chapter-sponsor .sponsor-crown>span{opacity:0}

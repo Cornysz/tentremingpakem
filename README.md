@@ -29,6 +29,7 @@ Domain dan pengaturan DNS tidak perlu diubah. Vercel otomatis memasangkan deploy
 - Bagian Mengenal Pakem (pertama sesudah hero) berlatar kabut lereng dengan garis kontur yang tergambar melingkar ke arah puncak. Isinya letak Pakem, arti nama Tentrem ing Pakem (ketuk tiap kata), dan tiga angka BPS yang menghitung naik: luas wilayah, jumlah kalurahan, dan penduduk. Bilah di bawah luas dan penduduk menunjukkan porsi Purwobinangun dan Candibinangun, dan di samping angka 5 ada peta mini kelima kalurahan. Arahkan kursor ke bagian bilah atau peta untuk menyorot kalurahan yang sama di semua tempat. Klik bagian itu, atau nama kalurahan di keterangan, untuk membukanya langsung di bagian Lokasi. Porsinya dihitung dari angka yang sudah tercantum di halaman dan tidak dituliskan sebagai persen.
 - Bagian Tema berupa pita hutan hijau tua, dimasuki lewat siluet pepohonan. Tema resmi KKN tampil di kartu terang. Mengetuk salah satu dari empat frasa bergaris membuka maknanya di dalam kartu itu: kertasnya terbuka dari atas, makna berikutnya bergeser masuk menimpa yang lama, dan kertasnya terlipat saat ditutup (ESD, pangan lokal, berbasis riset, KWT Guyub Rukun), lengkap dengan tautan sumber. Tombol Lanjut berpindah ke makna berikutnya, dan makna terakhir mengantar ke klaster. Dari bawah kartu tumbuh batang hijau yang bercabang ke tiga kartu klaster: Medika, Saintek, dan Soshum, masing-masing dengan subtemanya. Jumlah daun kecil di tiap kartu sama dengan jumlah anggotanya. Tombol Lihat anggota membuka pratinjau anggota: lembar dari bawah di HP (seret turun untuk menutup, geser ke samping untuk pindah klaster), kartu kertas di layar lebar. Nama anggota tidak tampil di halaman utama. Di belakangnya, daun dari logo bergerak pelan saat digulir.
 - Bagian Lokasi dibuka dengan sawah bertingkat dan berlatar hijau sage. Isinya peta SVG Kapanewon Pakem dengan lima kalurahan. Candibinangun dan Purwobinangun bisa dipilih lewat peta, penanda, atau tab, dan panelnya berisi luas, padukuhan, penduduk, ketinggian, potensi, serta sumbernya. Kartu peta punya dua tampilan di tempat yang sama, Skematis dan Peta Google, supaya bagian ini tetap pendek. Di HP, keterangan peta ada di samping peta, bukan di bawahnya. Peta Google (satelit atau peta biasa) baru dimuat setelah tombol ditekan, jadi halaman tidak memasang cookie pihak ketiga sebelum pengunjung memilih. Saat kalurahan dipilih, penandanya di peta jatuh sebentar.
+- Bagian Sponsor dan mitra (04) ada di antara Lokasi dan footer, berupa panel malam kecil. Judulnya bergulir seperti teks penutup film: "Disponsori oleh", "Didukung oleh", lalu berhenti di "Bermitra". Seekor kunang-kunang menuliskan "dengan:" dengan cahaya, lalu terbang membawa cahayanya ke logo pertama. Sponsor utama dimahkotai: kunang-kunang datang dari segala arah, cahaya berlari dua kali mengelilingi kartunya, lalu bingkai emasnya menetap. Sponsor lain menyusul satu per satu dengan aura keemasan. Besar logo disamakan otomatis menurut bentuknya. Bagian ini tersembunyi selama belum ada sponsor. Animasinya diputar sekali, ikut tombol jeda, dan langsung tampil utuh bila perangkat meminta gerakan dikurangi.
 - Footer dibuka dengan "Senja di Pakem", pemandangan kecil yang bisa dimainkan. Geser ke samping (atau seret dengan mouse) untuk memindahkan matahari, dan langit berubah dari pagi sampai malam. Di siang hari, mengetuk langit juga memindahkan matahari. Di HP arah busurnya dibalik, jadi matahari terbit di atas Merapi dan terbenam di sisi kanan. Di keyboard, matahari adalah slider waktu: panah kanan atau atas untuk lebih sore, Home untuk pagi, End untuk malam. Bila belum disentuh, matahari terbenam sendiri saat pemandangan naik ke tengah layar. Malam membawa bintang, lampu desa di lereng Merapi, dan enam kunang-kunang. Setiap kunang-kunang yang diketuk terbang menjadi bintang, dan keenamnya membentuk rasi setangkai daun seperti di tipografi. Setelah bintang keenam, rasinya meluncur ke tengah langit dan menunggu satu ketukan lagi. Bintang-bintang lalu menapak ke ujung daun, daunnya tumbuh, dan setangkai daun itu terbang ke samping kata Tentrem sementara sebuah bintang menuliskan Tentrem ing Pakem. Usap langit untuk angin, ketuk kata untuk artinya. Tombol "Kilas balik" membuka enam kartu tentang malammu, ditutup kartu pos yang bisa dibagikan. Tombol "Bagikan ke Story" membuat gambar 1080×1920 (rasi pengunjung, Tentrem ing Pakem, hitung mundur yang dibaca langsung dari kartu hitung mundur di hero, lalu Senja di Pakem) dan membuka menu bagikan HP; pilih Instagram lalu Story. Situs web tidak bisa membuka editor Story Instagram secara langsung, jadi di browser yang tidak mendukung (desktop atau browser bawaan Instagram) gambarnya tampil dengan petunjuk untuk menyimpannya. SLOTS, TIPS, dan urutan animasinya ada di script.js. Geser vertikal tetap menggulir halaman. Di bawahnya ada lokasi, tautan bagian, jurnal, Filosofi logo, Instagram, dan kembali ke atas.
 - Tidak menggunakan analytics, formulir atau layanan berbayar. Cookie pihak ketiga hanya muncul bila pengunjung sendiri memuat peta Google.
 
@@ -54,6 +55,56 @@ Bukit di bawah hero, tepi hutan, sawah bertingkat, pemandangan senja di footer, 
 Teks makna ada di index.html, di dalam `dialog#logo-philosophy`: satu `article.makna` untuk tampilan utuh dan satu untuk tiap bentuk (`data-part` matahari, gunung, huruf-p, daun). Label di sekeliling logo dan titik penunjuknya memakai `data-part` yang sama. Tombol sebelumnya dan berikutnya mengambil nama bagian dari teks label itu, jadi cukup ganti labelnya. Tulisan "Mulai dari ..." dan "Lihat utuh" ada di script.js, sedangkan tanda kecil Merapi, Lereng, dan P adalah `.anatomy-tag` dengan `data-for`.
 
 Bentuk logo di dialog adalah SVG hasil penelusuran logo asli dari tim (PNG 1254 px, 7 Oktober 2026). Gradasi warnanya diukur dari file itu, dan hasilnya dicek berimpit dengan aslinya: selisih rata-rata 2 dari 255 per piksel, hanya di tepi. Bila logo resmi berubah, telusuri ulang; jangan menggambar bentuknya dengan tangan. Logo kecil di header tetap memakai `logo.png`.
+
+## Menambah sponsor
+
+Bagian Sponsor ada di index.html, di dalam `section#sponsor`, tepat sesudah bagian Lokasi. Selama belum ada sponsor, bagian ini tidak tampil sama sekali, begitu juga penanda 04 dan tautan "Sponsor dan mitra" di footer. Begitu sponsor pertama ditambahkan, semuanya muncul sendiri bersama animasinya. Tidak ada saklar yang perlu diubah.
+
+Sponsor yang sudah terpasang: Hassa Batik dan PT Sandang Andalan Indonesia (keduanya Sponsor utama). Jangan pernah memasang logo contoh atau sponsor yang belum pasti di index.html. Push ke main langsung tayang.
+
+1. Siapkan logo.
+   - Simpan di folder `assets/sponsor/`. Buat foldernya saat menambah logo pertama. Nama berkas huruf kecil dengan tanda hubung, misalnya `assets/sponsor/nama-sponsor.svg`.
+   - Paling bagus SVG. Kalau tidak ada, PNG atau WebP selebar sekitar 600 px.
+   - Latar transparan atau putih sama-sama boleh. Ruang kosong di sekeliling logo tidak perlu dipotong.
+   - Logo putih di latar transparan otomatis dipasang di kartu gelap.
+   - Pakai berkas logo resmi dari sponsor. Jangan menggambar ulang, mengubah warna, atau menautkan gambar dari situs lain.
+2. Pilih kelompok. Di dalam `section#sponsor` ada tiga kelompok: `utama` (Sponsor utama), `pendukung` (Sponsor pendukung), dan `mitra` (Mitra media). Masing-masing punya satu `<ul class="sponsor-list">`. Bila sponsor tidak perlu dikelompokkan, masukkan semuanya ke `pendukung`. Kelompok yang kosong tidak tampil. Judul kelompok tampil bila dua kelompok atau lebih terisi, atau bila yang terisi hanya Sponsor utama. Kartu Sponsor utama mendapat bingkai emas dan sambutan kunang-kunang yang lebih ramai.
+3. Salin blok ini ke dalam `<ul>` kelompoknya. Satu blok untuk satu sponsor.
+
+   Sponsor yang punya situs:
+
+       <li class="sponsor">
+         <a class="sponsor-card" href="https://alamat-situs-sponsor" target="_blank" rel="noopener noreferrer">
+           <img src="assets/sponsor/nama-berkas.svg" alt="" loading="lazy" decoding="async">
+           <span class="sponsor-name">Nama Sponsor</span>
+         </a>
+       </li>
+
+   Sponsor tanpa situs:
+
+       <li class="sponsor">
+         <div class="sponsor-card">
+           <img src="assets/sponsor/nama-berkas.png" alt="" loading="lazy" decoding="async">
+           <span class="sponsor-name">Nama Sponsor</span>
+         </div>
+       </li>
+
+4. Ganti tiga hal: alamat di `href` (lengkap dengan `https://`), nama berkas di `src`, dan nama resmi sponsor di `sponsor-name`, persis seperti yang disetujui sponsor. Nama itu tampil di bawah logo dan dibacakan pembaca layar, jadi `alt` sengaja dikosongkan.
+5. Urutan di HTML adalah urutan tampil dan urutan kunang-kunang mendarat. Taruh sponsor terbesar paling atas.
+6. Ukuran logo, jumlah kolom, dan animasi menyesuaikan sendiri dari 1 sampai sekitar 24 sponsor. Tidak ada angka yang perlu diisi.
+
+Pilihan tambahan
+- Logo PT Sandang Andalan Indonesia aslinya memakai teks dengan font Plus Jakarta Sans. Di `assets/sponsor/` teksnya sudah diubah jadi garis (outline), supaya tampil sama di semua HP tanpa memuat font.
+- Logo terlalu pucat di kartu krem, atau logo putih yang tidak terdeteksi: `<li class="sponsor" data-latar="gelap">`. Sebaliknya, `data-latar="terang"` memaksa kartu krem.
+- Menyembunyikan nama di bawah logo (misalnya bila logonya sudah memuat nama): tambahkan `data-nama="sembunyi"` pada `<li class="sponsor">` untuk satu sponsor (seperti Hassa Batik), atau pada `<section id="sponsor" ...>` untuk semuanya. Nama tetap dibacakan pembaca layar, dan logonya membesar mengisi tempat nama.
+- Bila berkas logo gagal dimuat, kartunya menampilkan nama sponsor dengan huruf miring. Cek lagi nama berkas dan foldernya. Konsol browser juga menulis "Logo sponsor tidak bisa dimuat".
+- Logo yang sangat lebar (lebih dari 5 kali tingginya) jadi kecil bila sponsor lebih dari 8. Minta versi logo yang lebih ringkas atau bertumpuk.
+- Kalimat judul ada di `h2#sponsor-title`. Tiga kalimat yang bergulir ada di `.sponsor-slot` (Disponsori oleh, Didukung oleh, Bermitra); yang terakhir (kelas `is-final`) yang tetap tampil. Setiap kalimat paling panjang 15 huruf supaya muat di HP kecil. Baris kedua ada di `.sponsor-wipe`. Jangan menaruh tautan di dalam judul.
+
+Sebelum push
+- Pastikan setiap logo, nama, dan tautan sudah disetujui sponsornya.
+- Buka di HP (lebar 360 sampai 430 px) dan di laptop. Pastikan semua logo terbaca dan tautan membuka situs yang benar. Kirim tangkapan layar dulu.
+- Menambah sponsor saja tidak perlu mengubah `?v=`. Naikkan `?v=` pada style.css dan script.js hanya bila kode bagian ini berubah.
 
 ## Menambah bab jurnal
 

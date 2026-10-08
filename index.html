@@ -24,7 +24,7 @@
   <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=20260919-gradient">
   <script>document.documentElement.className = 'js'; setTimeout(function () { var page = document.documentElement; if (!page.hasAttribute('data-reveal-ready')) page.classList.remove('js'); }, 4000);</script>
   <link rel="preload" as="image" href="assets/pakem.webp">
-  <link rel="stylesheet" href="style.css?v=20261009-story">
+  <link rel="stylesheet" href="style.css?v=20261009-sponsor">
 </head>
 <body>
   <div class="scene" aria-hidden="true"><img src="assets/pakem.webp" alt="" width="1672" height="941" fetchpriority="high"><div class="veil"></div></div>
@@ -295,6 +295,48 @@
         </div>
       </div>
     </section>
+    <section id="sponsor" class="chapter chapter-sponsor" aria-labelledby="sponsor-title" hidden>
+      <div class="sponsor-night" data-reveal>
+        <div class="sponsor-sky" aria-hidden="true"></div>
+        <svg class="sponsor-ridge" viewBox="0 0 1440 100" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path d="M0 64C150 56 300 60 450 50C560 43 640 22 720 18C800 22 880 40 990 48C1150 58 1300 54 1440 60V100H0Z"/><path d="M0 82C240 74 480 86 720 80C960 74 1200 84 1440 78V100H0Z"/></svg>
+        <div class="sponsor-head">
+          <p class="section-eyebrow" data-reveal>Sponsor dan mitra</p>
+          <h2 id="sponsor-title" class="section-title sponsor-title"><span class="sponsor-line"><span class="sponsor-slot" aria-hidden="true"><span>Disponsori oleh</span><span>Didukung oleh</span><span class="is-final">Bermitra</span></span><span class="sr-only">Bermitra</span></span> <span class="sponsor-line"><span class="sponsor-pen" aria-hidden="true"></span><span class="sponsor-wipe"><i>dengan</i></span><span class="sponsor-dot">:</span></span></h2>
+          <p class="section-lead" data-reveal style="--delay:1.6s">Para sponsor dan mitra ini ikut menerangi langkah kami di Pakem.</p>
+        </div>
+        <div class="sponsor-field">
+          <!-- SPONSOR. Satu <li class="sponsor"> untuk satu sponsor, di dalam <ul> kelompoknya. Kelompok yang kosong tidak tampil.
+               Bagian ini tersembunyi sendiri sampai ada sponsor pertama. Cara lengkapnya: README, "Menambah sponsor". -->
+          <div class="sponsor-group" data-tier="utama" hidden>
+            <h3 class="sponsor-tier" id="sponsor-tier-utama">Sponsor utama</h3>
+            <ul class="sponsor-list" role="list" aria-labelledby="sponsor-tier-utama">
+              <li class="sponsor" data-nama="sembunyi">
+                <div class="sponsor-card">
+                  <img src="assets/sponsor/hassa-batik.svg" alt="" loading="lazy" decoding="async">
+                  <span class="sponsor-name">Hassa Batik</span>
+                </div>
+              </li>
+              <li class="sponsor">
+                <div class="sponsor-card">
+                  <img src="assets/sponsor/sandang-andalan-indonesia.svg" alt="" loading="lazy" decoding="async">
+                  <span class="sponsor-name">PT Sandang Andalan Indonesia</span>
+                </div>
+              </li>
+            </ul>
+          </div>
+          <div class="sponsor-group" data-tier="pendukung" hidden>
+            <h3 class="sponsor-tier" id="sponsor-tier-pendukung">Sponsor pendukung</h3>
+            <ul class="sponsor-list" role="list" aria-labelledby="sponsor-tier-pendukung">
+            </ul>
+          </div>
+          <div class="sponsor-group" data-tier="mitra" hidden>
+            <h3 class="sponsor-tier" id="sponsor-tier-mitra">Mitra media</h3>
+            <ul class="sponsor-list" role="list" aria-labelledby="sponsor-tier-mitra">
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
   </div>
   <footer class="site-footer">
     <div class="senja" id="senja" data-phase="Senja">
@@ -327,6 +369,7 @@
           <li><a href="#pakem">Mengenal Pakem</a></li>
           <li><a href="#tema">Tema KKN</a></li>
           <li><a href="#lokasi">Lokasi pengabdian</a></li>
+          <li data-sponsor-link hidden><a href="#sponsor">Sponsor dan mitra</a></li>
           <li><button class="footer-journal" type="button" aria-haspopup="dialog" aria-controls="pakem-story">Perjalanan kami</button></li>
           <li><button class="footer-philosophy" type="button" aria-haspopup="dialog" aria-controls="logo-philosophy">Filosofi logo</button></li>
         </ul>
@@ -669,6 +712,6 @@
     </div>
   </dialog>
   <template id="spark-icon"><svg class="icon icon-spark" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false"><path d="M12 1c1.4 7.2 3.8 9.6 11 11-7.2 1.4-9.6 3.8-11 11C10.6 15.8 8.2 13.4 1 12 8.2 10.6 10.6 8.2 12 1Z"/></svg></template>
-  <script src="script.js?v=20261009-story" defer></script>
+  <script src="script.js?v=20261009-sponsor" defer></script>
 </body>
 </html>

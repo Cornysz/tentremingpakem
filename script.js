@@ -2288,3 +2288,349 @@ reducedMotion.addEventListener('change', () => { if (!motionAllowed()) { panelAn
   });
   motionButton.addEventListener('click', () => { if (!motionAllowed()) { moving.forEach(a => a.finish()); moving = []; } });
 })();
+
+// Sponsor dan mitra: the title rolls through the ways to say thanks and a firefly writes the last words in light,
+// then carries that light down to the first sponsor; more fireflies follow, one card at a time.
+// The section stays hidden until the first <li class="sponsor"> is added (README, "Menambah sponsor").
+(() => {
+  const section = document.querySelector('#sponsor');
+  if (!section) return;
+  const sponsors = [...section.querySelectorAll('.sponsor')];
+  const footerLink = document.querySelector('[data-sponsor-link]');
+  section.hidden = !sponsors.length;
+  if (footerLink) footerLink.hidden = !sponsors.length;
+  if (!sponsors.length) return;
+  // Empty groups stay hidden; group headings only mean something when two or more groups are used.
+  const groups = [...section.querySelectorAll('.sponsor-group')];
+  groups.forEach(group => { group.hidden = !group.querySelector('.sponsor'); });
+  const used = groups.filter(group => !group.hidden);
+  // A list of main sponsors alone still says so; only an untiered list drops its heading.
+  if (used.length < 2 && used[0]?.dataset.tier !== 'utama') {
+    section.classList.add('is-single-tier');
+    used[0]?.querySelector('.sponsor-list')?.setAttribute('aria-label', 'Daftar sponsor dan mitra');
+    used[0]?.querySelector('.sponsor-list')?.removeAttribute('aria-labelledby');
+  }
+  const night = section.querySelector('.sponsor-night');
+  const sky = night.querySelector('.sponsor-sky');
+  const title = night.querySelector('.sponsor-title');
+  const dot = title.querySelector('.sponsor-dot');
+  // Screen readers hear the title once, as plain text ("Terima kasih, kawan baik."), not the rolling phrases or the pen.
+  const spoken = [...title.querySelectorAll('.sponsor-line')].map(line => {
+    const final = line.querySelector('.sponsor-slot .is-final');
+    if (final) return final.textContent;
+    const copy = line.cloneNode(true);
+    copy.querySelectorAll('[aria-hidden="true"], .sr-only').forEach(node => node.remove());
+    return copy.textContent;
+  }).join(' ').replace(/\s+/g, ' ').replace(/\s+([.,!?])/g, '$1').trim();
+  const label = document.createElement('span');
+  label.className = 'sr-only';
+  label.textContent = spoken;
+  title.querySelectorAll('.sponsor-line').forEach(line => line.setAttribute('aria-hidden', 'true'));
+  title.prepend(label);
+  const narrow = matchMedia('(max-width: 599px)');
+  const EASE = 'cubic-bezier(.22,1,.36,1)', GLIDE = 'cubic-bezier(.65,0,.35,1)', WRITE = 'cubic-bezier(.45,0,.25,1)';
+  // Title timeline in ms: the credits slot lands "Terima kasih," at about 1750, the firefly writes line 2 from WRITE_AT,
+  // the gold dot drops, and the same firefly leaves for the first card at LOGOS_AFTER, just as the pen fades.
+  const WRITE_AT = 1490, LINE_MS = 720, DOT_AT = WRITE_AT + LINE_MS - 60, LOGOS_AFTER = 2150, TITLE_DONE = 3000;
+  const FLIGHT = 940; // a firefly reaches its card at 78% of its flight, then flashes
+  let moving = [];
+  const run = (el, keyframes, delay, duration, easing = EASE, fill = 'backwards') => {
+    const a = el.animate(keyframes, { delay, duration, easing, fill });
+    moving.push(a);
+    const drop = () => { moving = moving.filter(x => x !== a); };
+    a.finished.then(drop, drop);
+    return a;
+  };
+  const onScreen = el => { const box = el.getBoundingClientRect(); return box.bottom > 0 && box.top < innerHeight; };
+  const light = item => { item.classList.add('is-lit'); item.closest('.sponsor-group')?.classList.add('is-open'); };
+  const isMain = item => Boolean(item.closest('[data-tier="utama"]'));
+
+  // Links always open a new tab, safely, and say so to screen readers. The visible name is the accessible name.
+  sponsors.forEach(item => {
+    const card = item.querySelector('.sponsor-card');
+    if (card?.matches('a[href]')) {
+      card.target = '_blank';
+      card.rel = 'noopener noreferrer';
+      const name = (card.querySelector('.sponsor-name')?.textContent || '').replace(/\s+/g, ' ').trim();
+      if (name) card.setAttribute('aria-label', `${name}, membuka tab baru`); // the visible name comes first (label in name)
+    }
+  });
+
+  // Each logo gets a slot sized by its shape: wide wordmarks grow wider, square marks stay compact, so every sponsor
+  // carries about the same weight. Empty margins and white backgrounds inside the file are ignored.
+  const SPREAD = .55; // 0 = same width for all, 1 = same height for all, .5 = same area
+  function scan(img, w, h) {
+    const k = Math.min(1, 128 / Math.max(w, h));
+    const cw = Math.max(1, Math.round(w * k)), ch = Math.max(1, Math.round(h * k));
+    const canvas = document.createElement('canvas');
+    canvas.width = cw; canvas.height = ch;
+    const ctx = canvas.getContext('2d', { willReadFrequently: true });
+    ctx.drawImage(img, 0, 0, cw, ch);
+    const px = ctx.getImageData(0, 0, cw, ch).data;
+    const luma = i => (px[i] * .2126 + px[i + 1] * .7152 + px[i + 2] * .0722) / 255;
+    // the outer edge says what the background is: see-through, white, or a solid tile
+    let clear = 0, white = 0, edge = 0;
+    const look = (x, y) => { const i = (y * cw + x) * 4; edge += 1; if (px[i + 3] < 24) clear += 1; else if (luma(i) > .93) white += 1; };
+    for (let x = 0; x < cw; x++) { look(x, 0); look(x, ch - 1); }
+    for (let y = 1; y < ch - 1; y++) { look(0, y); look(cw - 1, y); }
+    const mode = clear > edge * .6 ? 'clear' : white > edge * .6 ? 'white' : 'tile';
+    const whole = { x: 0, y: 0, w, h, light: false };
+    if (mode === 'tile') return whole;
+    let x0 = cw, y0 = ch, x1 = -1, y1 = -1, sum = 0, ink = 0;
+    for (let y = 0; y < ch; y++) for (let x = 0; x < cw; x++) {
+      const i = (y * cw + x) * 4;
+      if (px[i + 3] < 24 || (mode === 'white' && luma(i) > .93)) continue;
+      if (x < x0) x0 = x;
+      if (x > x1) x1 = x;
+      if (y < y0) y0 = y;
+      if (y > y1) y1 = y;
+      sum += luma(i); ink += 1;
+    }
+    if (x1 < 0 || (x1 - x0 + 1) < cw * .04 || (y1 - y0 + 1) < ch * .04) return whole;
+    return { x: x0 / k, y: y0 / k, w: (x1 - x0 + 1) / k, h: (y1 - y0 + 1) / k, light: mode === 'clear' && sum / ink > .82 };
+  }
+  function fit(item, img) {
+    let w = img.naturalWidth || Number(img.getAttribute('width')), h = img.naturalHeight || Number(img.getAttribute('height'));
+    if (!w || !h) ({ width: w, height: h } = img.getBoundingClientRect()); // an SVG with only a viewBox, in some browsers
+    if (!w || !h) { item.classList.add('is-broken'); return; }
+    let box = { x: 0, y: 0, w, h, light: false };
+    try { box = scan(img, w, h); } catch { /* an unreadable file keeps its whole frame */ }
+    const r = box.w / box.h, set = (name, value) => item.style.setProperty(name, value.toFixed(4));
+    set('--r', r); set('--lw', r ** SPREAD); set('--zx', w / box.w); set('--ox', box.x / box.w); set('--oy', box.y / box.h);
+    item.classList.add('is-fit');
+    // data-latar="gelap" or "terang" on the li overrides the automatic choice of card
+    const latar = item.dataset.latar;
+    item.classList.toggle('is-light', latar ? latar === 'gelap' : box.light);
+  }
+  // load and error events, not decode(): older Safari rejects decode() for some valid SVG files
+  const loaded = img => new Promise(resolve => {
+    if (img.complete && (img.naturalWidth || /\.svg([?#]|$)/i.test(img.currentSrc))) return resolve(true);
+    if (img.complete && img.currentSrc) return resolve(false); // it failed before this script ran
+    img.addEventListener('load', () => resolve(true), { once: true });
+    img.addEventListener('error', () => resolve(false), { once: true });
+  });
+  // one logo per idle moment, so reading two dozen files never stalls a frame
+  const jobs = [], idle = window.requestIdleCallback || (fn => setTimeout(fn, 16));
+  const pump = () => { jobs.shift()?.(); if (jobs.length) idle(pump, { timeout: 300 }); };
+  const later = job => { jobs.push(job); if (jobs.length === 1) idle(pump, { timeout: 300 }); };
+  sponsors.forEach(item => {
+    const img = item.querySelector('.sponsor-card img');
+    if (item.dataset.latar === 'gelap') item.classList.add('is-light');
+    if (!img) { item.classList.add('is-broken'); item.ready = Promise.resolve(); return; }
+    img.alt = ''; // the visible name is the accessible name
+    const logo = document.createElement('span'), mark = document.createElement('span');
+    logo.className = 'sponsor-logo';
+    mark.className = 'sponsor-mark';
+    img.replaceWith(logo);
+    logo.append(mark);
+    mark.append(img);
+    item.ready = loaded(img).then(ok => {
+      if (ok) return new Promise(resolve => later(() => { fit(item, img); resolve(); }));
+      item.classList.add('is-broken');
+      console.warn('Logo sponsor tidak bisa dimuat:', img.getAttribute('src'));
+    });
+  });
+
+  // a few fireflies wander behind the cards
+  for (let i = 0, n = narrow.matches ? 5 : 9; i < n; i++) {
+    const fly = document.createElement('span');
+    fly.className = 'sponsor-fly';
+    fly.style.cssText = `--x:${(5 + Math.random() * 90).toFixed(1)}%;--y:${(4 + Math.random() * 88).toFixed(1)}%;--dx:${Math.round(14 + Math.random() * 26)}px;--dy:${Math.round(10 + Math.random() * 22)}px;--dur:${(7 + Math.random() * 6).toFixed(1)}s;--delay:${(-Math.random() * 8).toFixed(1)}s;--fade:${(.3 + i * .14).toFixed(2)}s`;
+    fly.append(document.createElement('span'));
+    sky.append(fly);
+  }
+
+  // The title plays once it has stayed on screen for a moment (at least 200 ms, and until the panel has mostly faded in),
+  // so a fling or the smooth jump back to the top does not spend it. Line 1 is CSS (is-played); line 2 and the dot are written here.
+  let titleAt = 0, titleTimer = 0, titleY = 0;
+  const settleTitle = () => { clearTimeout(titleTimer); title.classList.add('is-played', 'is-settled'); };
+  const playTitle = () => {
+    if (title.classList.contains('is-played')) return;
+    if (!motionAllowed()) { settleTitle(); return; }
+    titleAt = performance.now();
+    titleY = scrollY;
+    title.classList.add('is-played');
+    title.querySelectorAll('.sponsor-line').forEach(line => {
+      const wipe = line.querySelector('.sponsor-wipe'), pen = line.querySelector('.sponsor-pen');
+      if (!wipe || !pen) return;
+      const from = wipe.offsetLeft, to = from + wipe.offsetWidth; // the offset parent is .sponsor-line
+      if (wipe.offsetWidth > line.clientWidth + 4) { wipe.style.whiteSpace = 'normal'; run(wipe, [{ opacity: 0 }, { opacity: 1 }], WRITE_AT, 600); return; } // too wide for one stroke: it fades in and wraps
+      run(pen, [{ transform: `translate(${from - 30}px,-36px)`, opacity: 0 }, { transform: `translate(${from}px,0px)`, opacity: 1 }], WRITE_AT - 340, 340, EASE, 'none');
+      run(wipe, [{ clipPath: 'inset(0 100% 0 0)' }, { clipPath: 'inset(0 0% 0 0)' }], WRITE_AT, LINE_MS, WRITE);
+      run(pen, [{ transform: `translateX(${from}px)`, opacity: 1 }, { opacity: 1, offset: .86 }, { transform: `translateX(${to}px)`, opacity: 0 }], WRITE_AT, LINE_MS, WRITE, 'none');
+    });
+    if (dot) run(dot, [{ opacity: 0, transform: 'translateY(-1.1em) scale(.5)' }, { opacity: 1, transform: 'translateY(.06em) scale(1.2,.85)', offset: .55 }, { opacity: 1, transform: 'translateY(-.04em) scale(.95,1.05)', offset: .8 }, { opacity: 1, transform: 'none' }], DOT_AT, 750);
+    titleTimer = setTimeout(settleTitle, TITLE_DONE);
+    schedule();
+  };
+  let titleDwell = 0, nightAt = 0;
+  night.addEventListener('reveal', () => { nightAt = performance.now(); }, { once: true });
+  const titleWatch = new IntersectionObserver(([entry]) => {
+    clearTimeout(titleDwell);
+    if (!entry.isIntersecting) return;
+    const wait = Math.max(200, nightAt ? 650 - (performance.now() - nightAt) : 650);
+    titleDwell = setTimeout(() => { titleWatch.disconnect(); playTitle(); }, wait);
+  }, { rootMargin: '0px 0px -12% 0px' });
+  titleWatch.observe(title);
+
+  // Logos land one at a time, in page order, as they come into view. Only the first one waits for the firefly
+  // that writes the title, and only while the title is on screen; a reader who scrolls on releases it at once.
+  // A logo that has left the screen before its turn gives up its slot and lands when it is seen again.
+  const gap = Math.min(240, Math.max(90, 2000 / Math.max(1, sponsors.length - 1)));
+  const queue = [];
+  let pumpTimer = 0, lastLand = -1e9, handoff = true, titleVisible = false, waitedFrom = 0;
+  const watch = new IntersectionObserver(entries => {
+    entries.forEach(entry => { if (entry.isIntersecting && !queue.includes(entry.target)) { watch.unobserve(entry.target); queue.push(entry.target); } });
+    queue.sort((a, b) => sponsors.indexOf(a) - sponsors.indexOf(b));
+    schedule();
+  }, { rootMargin: '0px 0px -6% 0px' });
+  // the first logo waits only while the reader is watching: most of the title on screen and the page still
+  new IntersectionObserver(([entry]) => { titleVisible = entry.intersectionRatio >= .6; schedule(); }, { threshold: [0, .6] }).observe(title);
+  addEventListener('scroll', function moved() {
+    if (!handoff) { removeEventListener('scroll', moved); return; }
+    if (titleAt && Math.abs(scrollY - titleY) > 160) { handoff = false; schedule(); }
+  }, { passive: true });
+  function schedule() {
+    clearTimeout(pumpTimer);
+    if (!queue.length) return;
+    const now = performance.now();
+    // a title on screen that is about to play goes first (it waits a moment on screen before it starts)
+    if (handoff && titleVisible && !title.classList.contains('is-played') && motionAllowed()) {
+      waitedFrom ||= now;
+      if (now - waitedFrom < 700) { pumpTimer = setTimeout(schedule, 100); return; }
+    }
+    const gate = handoff && titleVisible && titleAt && !title.classList.contains('is-settled') ? titleAt + LOGOS_AFTER : 0;
+    // a reader who scrolls fast brings many logos at once: the spacing shrinks so none is left waiting on screen
+    const step = queue.length > 3 ? Math.max(45, gap * 3 / queue.length) : gap;
+    const at = Math.max(now, lastLand + step, gate);
+    pumpTimer = setTimeout(landNext, at - now);
+  }
+  function landNext() {
+    let item;
+    while ((item = queue.shift()) && motionAllowed() && !onScreen(item)) watch.observe(item);
+    if (!item) return;
+    lastLand = performance.now() + (handoff ? 400 : 0); // the hand-off flight is longer: the next logos wait for it
+    Promise.race([item.ready, new Promise(resolve => setTimeout(resolve, 700))]).then(() => {
+      if (motionAllowed() && !onScreen(item)) { watch.observe(item); return; }
+      land(item);
+    });
+    schedule();
+  }
+  function land(item) {
+    if (item.classList.contains('is-lit')) return;
+    if (!motionAllowed()) { light(item); return; }
+    const spark = document.createElement('span');
+    spark.className = 'sponsor-spark';
+    item.append(spark);
+    let sx, sy, flight = FLIGHT, first = { opacity: 0, scale: .5 };
+    // the firefly that just wrote "kawan baik" carries its light down to the first card
+    const wipe = title.querySelector('.sponsor-line:last-child .sponsor-wipe');
+    if (handoff && titleAt && performance.now() - titleAt < LOGOS_AFTER + 1800 && wipe && onScreen(wipe)) {
+      const w = wipe.getBoundingClientRect(), c = item.getBoundingClientRect(), fs = parseFloat(getComputedStyle(title).fontSize);
+      sx = w.right - fs * .14 - (c.left + c.width / 2);
+      sy = w.bottom - fs * .36 - (c.top + c.height / 2);
+      flight = Math.round(Math.min(1200, Math.max(FLIGHT, Math.hypot(sx, sy) * 2.2)));
+      first = { opacity: 1, scale: .9 };
+    } else {
+      const R = narrow.matches ? 70 : 150;
+      sx = (Math.random() * 2 - 1) * R;
+      sy = -(70 + Math.random() * (narrow.matches ? 80 : 130));
+    }
+    handoff = false;
+    const mx = sx * .3 + (Math.random() * 2 - 1) * 26, my = sy * .4;
+    run(spark, [
+      { transform: `translate(${sx.toFixed(1)}px,${sy.toFixed(1)}px) scale(${first.scale})`, opacity: first.opacity },
+      { transform: `translate(${mx.toFixed(1)}px,${my.toFixed(1)}px) scale(1)`, opacity: 1, offset: .5 },
+      { transform: 'translate(0px,0px) scale(1.15)', opacity: 1, offset: .82 },
+      { transform: 'translate(0px,0px) scale(2.8)', opacity: 0 }
+    ], 0, flight, GLIDE, 'none').finished.then(() => spark.remove(), () => spark.remove());
+    item.style.setProperty('--at', `${Math.round(flight * .78)}ms`);
+    light(item);
+    item.classList.add('is-landing');
+    if (isMain(item)) crown(item, Math.round(flight * .78));
+    setTimeout(() => item.classList.remove('is-landing'), flight + 1500);
+  }
+  sponsors.forEach(item => {
+    watch.observe(item);
+    // a keyboard user who tabs ahead never waits for a firefly
+    item.addEventListener('focusin', () => { if (!item.classList.contains('is-lit')) { watch.unobserve(item); light(item); } });
+    item.querySelector('.sponsor-card')?.addEventListener('click', () => visit(item));
+  });
+  section.addEventListener('touchstart', () => {}, { passive: true }); // lets iOS Safari show :active on the cards
+
+  // Main sponsors are crowned: four more fireflies arrive from every side as the first one lands, a comet of light
+  // runs twice round the card, and a gold rim stays (the rim is in the markup below, so it shows even without motion).
+  sponsors.filter(isMain).forEach(item => {
+    const ring = document.createElement('span');
+    ring.className = 'sponsor-crown';
+    ring.setAttribute('aria-hidden', 'true');
+    ring.append(document.createElement('span'));
+    item.append(ring);
+  });
+  function crown(item, at) {
+    const w = item.offsetWidth / 2, h = item.offsetHeight / 2;
+    [[-1.25, -1.5], [1.3, -1.35], [-1.45, .95], [1.35, 1.15]].forEach(([fx, fy], i) => {
+      const spark = document.createElement('span'), sx = fx * w + (Math.random() * 2 - 1) * 18, sy = fy * h + (Math.random() * 2 - 1) * 18;
+      spark.className = 'sponsor-spark';
+      item.append(spark);
+      run(spark, [
+        { transform: `translate(${sx.toFixed(1)}px,${sy.toFixed(1)}px) scale(.6)`, opacity: 0 },
+        { transform: `translate(${(sx * .35).toFixed(1)}px,${(sy * .35).toFixed(1)}px) scale(1)`, opacity: 1, offset: .55 },
+        { transform: 'translate(0px,0px) scale(1.1)', opacity: 1, offset: .86 },
+        { transform: 'translate(0px,0px) scale(2.4)', opacity: 0 }
+      ], Math.max(0, at - 640 + i * 80), 860, GLIDE, 'none').finished.then(() => spark.remove(), () => spark.remove());
+    });
+    item.classList.add('is-crowning');
+    setTimeout(() => item.classList.remove('is-crowning'), at + 2400);
+  }
+
+  // Afterwards, now and then, a firefly visits one of the cards on screen, and its halo swells. Tapping a card calls one too.
+  let visitTimer = 0;
+  function visit(item) {
+    if (!motionAllowed() || !item.classList.contains('is-lit') || item.classList.contains('is-landing') || item.classList.contains('is-visited')) return;
+    const spark = document.createElement('span'), w = item.offsetWidth / 2, h = item.offsetHeight / 2;
+    const cx = 18 - w, cy = 1 - h, sx = cx - 30 - Math.random() * 40, sy = cy - 50 - Math.random() * 30; // perches on the top edge, left, clear of the logo and the link arrow
+    spark.className = 'sponsor-spark';
+    item.append(spark);
+    run(spark, [
+      { transform: `translate(${sx}px,${sy}px) scale(.6)`, opacity: 0 },
+      { transform: `translate(${cx}px,${cy}px) scale(1)`, opacity: 1, offset: .4 },
+      { transform: `translate(${cx - 3}px,${cy + 2}px) scale(.9)`, opacity: 1, offset: .72 },
+      { transform: `translate(${cx + 26}px,${cy - 34}px) scale(.6)`, opacity: 0 }
+    ], 0, 2200, 'ease-in-out', 'none').finished.then(() => spark.remove(), () => spark.remove());
+    item.classList.add('is-visited');
+    setTimeout(() => item.classList.remove('is-visited'), 2250);
+  }
+  function loopVisits() {
+    clearTimeout(visitTimer);
+    if (!night.classList.contains('is-inview') || document.hidden || !motionAllowed()) return;
+    visitTimer = setTimeout(() => {
+      const seen = sponsors.filter(item => item.classList.contains('is-lit') && onScreen(item));
+      if (seen.length) visit(seen[Math.floor(Math.random() * seen.length)]);
+      loopVisits();
+    }, 3800 + Math.random() * 3200);
+  }
+  new IntersectionObserver(([entry]) => {
+    night.classList.toggle('is-inview', entry.isIntersecting);
+    loopVisits();
+  }).observe(night);
+  document.addEventListener('visibilitychange', () => loopVisits());
+
+  // Pausing or reducing motion jumps the whole section to its final state; it does not replay afterwards.
+  const settle = () => {
+    if (motionAllowed()) { loopVisits(); return; }
+    clearTimeout(visitTimer);
+    clearTimeout(titleDwell);
+    titleWatch.disconnect();
+    clearTimeout(pumpTimer);
+    moving.slice().forEach(a => a.finish());
+    night.querySelectorAll('.sponsor-spark').forEach(spark => spark.remove());
+    sponsors.forEach(item => { watch.unobserve(item); item.classList.remove('is-landing', 'is-visited', 'is-crowning'); light(item); });
+    queue.length = 0;
+    settleTitle();
+  };
+  motionButton.addEventListener('click', settle);
+  reducedMotion.addEventListener('change', settle);
+  // Armed last: only now may CSS hide the parts that wait for their turn. If anything above failed, they simply show.
+  night.classList.add('is-armed');
+})();
