@@ -1132,8 +1132,8 @@ reducedMotion.addEventListener('change', () => { if (!motionAllowed()) { panelAn
 // Senja di Pakem: the sun follows a sideways drag (or a tap by day) through the day. At night the fireflies
 // come out; each one caught flies up as a star, and all six draw the sprig from the title.
 // On phones the arc is mirrored, so the sun rises over Merapi and sets on the open side.
-// Once the sixth star is caught, the constellation glides to the middle, waits for one more tap,
-// and the stars write the wordmark: the leaves grow to meet them and the sprig flies beside Tentrem.
+// Once the sixth star is caught, the whole page dims, the constellation lifts to the middle of the screen,
+// waits for one more tap, and the stars write the wordmark large; closing it sends the name down into the scene.
 (() => {
   const footer = document.querySelector('.site-footer');
   const scene = footer.querySelector('.senja');
@@ -1177,7 +1177,6 @@ reducedMotion.addEventListener('change', () => { if (!motionAllowed()) { panelAn
   const leaners = [...words, dot];
   const glints = [...mark.querySelectorAll('.mark-glint')];
   const veil = scene.querySelector('.senja-veil');
-  const halo = scene.querySelector('.senja-halo');
   const bloomButton = scene.querySelector('.senja-bloom');
   const keepsake = scene.querySelector('.senja-keepsake');
   const linePath = sky.querySelector('path');
@@ -1201,7 +1200,6 @@ reducedMotion.addEventListener('change', () => { if (!motionAllowed()) { panelAn
   const inView = () => scene.classList.contains('is-inview') && !document.hidden;
   const live = () => anims.filter(a => a.playState === 'running' || a.playState === 'paused');
   const caughtFlies = () => [...field.children].filter(fly => fly.classList.contains('is-caught'));
-  const spot = ([x, y], w, h) => [geo.left + x / w * geo.W, geo.top + y / h * geo.H];
 
   const isNight = () => p > NIGHT;
   // quiet updates change only what is seen, so screen readers are not told the same sign-off again
@@ -1369,7 +1367,8 @@ reducedMotion.addEventListener('change', () => { if (!motionAllowed()) { panelAn
     story();
     if (document.activeElement === fly || document.activeElement === document.body) {
       const next = [...field.children].find(item => !item.classList.contains('is-caught'));
-      (next || bloomButton).focus({ preventScroll: true });
+      if (next) next.focus({ preventScroll: true });
+      else fly.blur();
     }
   });
 
@@ -1391,73 +1390,103 @@ reducedMotion.addEventListener('change', () => { if (!motionAllowed()) { panelAn
       fly.style.top = `${(box.top - area.top + box.height * sy / 100) / area.height * 100}%`;
     });
   }
-  // one layout read; the mark is already laid out at its final place while it is still invisible
+  // The finale is an easter egg over the whole page: the screen dims, the constellation lifts out of the scene
+  // to the middle, waits for one more tap, and the stars write the wordmark large. "Kilas balik" opens the recap;
+  // closing it sends the name back down into the night scene.
+  const egg = document.querySelector('.senja-egg');
+  const eggSky = egg.querySelector('.egg-sky');
+  const eggLine = eggSky.querySelector('path');
+  const eggStars = [...eggSky.querySelectorAll('.egg-star')];
+  const eggHalo = egg.querySelector('.egg-halo');
+  const eggMark = egg.querySelector('.egg-mark');
+  const eggSprig = eggMark.querySelector('.mark-sprig');
+  const eggLines = [...eggMark.querySelectorAll('.mark-line')];
+  const eggDot = eggMark.querySelector('.mark-dot');
+  const eggGlints = [...eggMark.querySelectorAll('.mark-glint')];
+  const eggHint = egg.querySelector('.egg-hint');
+  const eggActions = egg.querySelector('.egg-actions');
+  const eggKilas = egg.querySelector('.egg-kilas');
+  eggKilas.prepend(document.querySelector('#spark-icon').content.cloneNode(true));
+  const step = name => { egg.dataset.step = name; };
+  let wantKilas = false, doneAt = 0;
+  const hint = words => { eggHint.textContent = words; };
+  const run = (set, el, keyframes, delay, duration, easing = EASE, fill = 'backwards') => {
+    const a = el.animate(keyframes, { delay, duration, easing, fill });
+    anims.push(a);
+    set.push(a);
+    return a;
+  };
+  // one layout read; the large name is already laid out in the middle while it is still invisible
   function measure() {
-    const area = scene.getBoundingClientRect(), box = sky.getBoundingClientRect(), R = markSprig.getBoundingClientRect(), M = mark.getBoundingClientRect();
+    const box = eggSky.getBoundingClientRect(), R = eggSprig.getBoundingClientRect(), M = eggMark.getBoundingClientRect();
     const cx = M.left + M.width / 2, cy = M.top + M.height / 2;
-    const H = Math.min(area.height * .42, area.width * .4), S = H / R.height, W = R.width * S;
+    const H = Math.min(innerHeight * .36, innerWidth * .6), S = H / R.height, W = R.width * S;
     const O = [R.left + R.width * .019, R.top + R.height * .975], c = [R.left + R.width / 2, R.top + R.height / 2];
     geo = {
       box, W, H, left: cx - W / 2, top: cy - H / 2,
-      stars: SLOTS.map(([sx, sy]) => [box.left + box.width * sx / 100, box.top + box.height * sy / 100]),
       sprigT: `translate(${(cx - O[0] - S * (c[0] - O[0])).toFixed(2)}px,${(cy - O[1] - S * (c[1] - O[1])).toFixed(2)}px) scale(${S.toFixed(4)})`
     };
-    scene.style.setProperty('--stage-x', `${(cx - area.left).toFixed(1)}px`);
-    scene.style.setProperty('--stage-y', `${(cy - area.top).toFixed(1)}px`);
-    scene.style.setProperty('--stage-w', `${W.toFixed(1)}px`);
+    egg.style.setProperty('--stage-x', `${cx.toFixed(1)}px`);
+    egg.style.setProperty('--stage-y', `${cy.toFixed(1)}px`);
+    egg.style.setProperty('--stage-w', `${W.toFixed(1)}px`);
   }
   function startFinale() {
     const id = ++generation;
     stage = 'gather';
     scene.dataset.finale = 'gather';
-    bloomButton.hidden = false;
-    if (document.activeElement === sun) bloomButton.focus({ preventScroll: true });
     sun.tabIndex = -1;
     sun.setAttribute('aria-hidden', 'true');
     snapStars();
+    say('Enam bintang lengkap.');
+    // the sixth star lands in the scene first, then the screen dims
+    holdTimer = setTimeout(() => { if (id === generation) openEgg(id); }, motionAllowed() ? 1500 : 400);
+  }
+  function openEgg(id) {
+    // another dialog is open (or the browser has no dialogs): the finale simply ends in the scene
+    // so does a visitor who scrolled away during the hold: the name waits in the scene for their return
+    if (document.querySelector('dialog[open]') || typeof egg.showModal !== 'function' || !scene.classList.contains('is-inview')) { endFinale(); return; }
+    const box = sky.getBoundingClientRect();
+    Object.assign(eggSky.style, { left: `${box.left}px`, top: `${box.top}px`, width: `${box.width}px`, height: `${box.height}px` });
+    eggActions.hidden = true;
+    hint('');
+    step('gather');
+    egg.showModal();
+    document.documentElement.classList.add('egg-open');
+    document.body.classList.add('egg-open');
+    scene.classList.add('is-egg');
+    if (!motionAllowed()) { finishEgg(); return; }
     measure();
-    if (!motionAllowed()) {
-      say('Enam bintang lengkap.');
-      holdTimer = setTimeout(() => { if (id === generation) endFinale(); }, 1500);
-      return;
-    }
-    say('Enam bintang lengkap. Rasinya bergerak ke tengah.');
-    const phone = narrow.matches, A0 = phone ? 1700 : 1900, DA = phone ? 1100 : 1300, set = [];
-    const run = (el, keyframes, delay, duration, easing = EASE, fill = 'backwards') => { const a = el.animate(keyframes, { delay, duration, easing, fill }); anims.push(a); set.push(a); return a; };
-    const { box, left, top, W, H } = geo;
-    // the box and its stars share timing and easing, so the lines stay on the stars
-    run(sky, [{ transform: 'translate(0px,0px) scale(1,1)' }, { transform: `translate(${left - box.left}px,${top - box.top}px) scale(${W / box.width},${H / box.height})` }], A0, DA, GLIDE, 'forwards');
-    caughtFlies().forEach(fly => {
-      const i = Number(fly.dataset.slot), [x, y] = geo.stars[i], [ax, ay] = spot(SLOTS[i], 100, 100);
-      run(fly.firstElementChild, [{ transform: 'scale(1)' }, { transform: 'scale(1.9)', offset: .4 }, { transform: 'scale(1)' }], A0 - 380 + i * 35, 380, 'ease-in-out', 'none');
-      run(fly, [{ transform: 'translate(0px,0px) scale(1)' }, { transform: `translate(${ax - x}px,${ay - y}px) scale(1.5)` }], A0, DA, GLIDE, 'forwards');
-    });
-    run(veil, [{ opacity: 0 }, { opacity: 1 }], A0, 1200, 'ease');
-    run(halo, [{ opacity: 0, transform: 'scale(.6)' }, { opacity: .55, transform: 'none' }], A0 + DA / 2, DA / 2 + 300, 'ease-out', 'forwards');
+    const set = [], phone = narrow.matches, A0 = 350, DA = phone ? 1200 : 1350;
+    const { left, top, W, H } = geo;
+    eggStars.forEach((star, i) => run(set, star, [{ transform: 'scale(1)' }, { transform: 'scale(1.9)', offset: .4 }, { transform: 'scale(1)' }], 120 + i * 40, 420, 'ease-in-out', 'none'));
+    run(set, eggSky, [{ transform: 'translate(0px,0px) scale(1,1)' }, { transform: `translate(${left - box.left}px,${top - box.top}px) scale(${W / box.width},${H / box.height})` }], A0, DA, GLIDE, 'forwards');
+    run(set, eggHalo, [{ opacity: 0, transform: 'scale(.6)' }, { opacity: .6, transform: 'none' }], A0 + DA / 2, DA / 2 + 300, 'ease-out', 'forwards');
+    if (document.hidden) set.forEach(a => a.pause());
     Promise.all(set.map(a => a.finished)).then(() => { if (id === generation && stage === 'gather') toAwait(); }, () => {});
-    if (!inView()) set.forEach(a => a.pause());
   }
   function toAwait() {
     stage = 'await';
     scene.dataset.finale = 'await';
+    step('await');
     if (bloomQueued) { bloom(); return; }
-    say(coarse.matches ? 'Ketuk rasinya untuk menyalakannya.' : 'Klik rasinya untuk menyalakannya.');
+    hint(coarse.matches ? 'Ketuk untuk menyalakan rasi.' : 'Klik atau tekan Enter untuk menyalakan rasi.');
     armAuto();
   }
   // with no tap, the constellation lights itself, but only while someone can see it
   function armAuto() {
     clearTimeout(autoTimer);
-    if (stage === 'await' && inView()) autoTimer = setTimeout(() => { if (stage === 'await') bloom(); }, 2600);
+    if (stage === 'await' && !document.hidden) autoTimer = setTimeout(() => { if (stage === 'await') bloom(); }, 2600);
   }
   // a tap while the stars glide speeds them up; a tap in the bloom speeds it up, and a second one finishes it
   function advance() {
-    if (!motionAllowed()) { endFinale(); return; }
+    if (stage === 'gather' && !egg.open) return; // the hold before the egg opens
+    if (!motionAllowed()) { finishEgg(); return; }
     if (stage === 'gather') {
       if (!bloomQueued) { bloomQueued = true; live().forEach(a => a.updatePlaybackRate(4)); }
       return;
     }
     if (stage === 'await') { bloom(); return; }
-    if (hurried) { endFinale(); return; }
+    if (hurried) { finishEgg(); return; }
     hurried = true;
     live().forEach(a => a.updatePlaybackRate(3));
   }
@@ -1467,34 +1496,101 @@ reducedMotion.addEventListener('change', () => { if (!motionAllowed()) { panelAn
     const id = generation;
     stage = 'bloom';
     scene.dataset.finale = 'bloom';
+    step('bloom');
     hurried = false;
-    say('Bintang-bintang menulis nama kami.');
-    if (!motionAllowed()) { endFinale(); return; }
-    const phone = narrow.matches, C0 = phone ? 1350 : 1500, FLY = phone ? 900 : 1000, set = [];
-    const run = (el, keyframes, delay, duration, easing = EASE, fill = 'backwards') => { const a = el.animate(keyframes, { delay, duration, easing, fill }); anims.push(a); set.push(a); return a; };
-    // each star steps onto the tip of its leaf, then hands its light to a glint
-    caughtFlies().forEach(fly => {
-      const i = Number(fly.dataset.slot), [x, y] = geo.stars[i], [ax, ay] = spot(SLOTS[i], 100, 100), [bx, by] = spot(TIPS[i], 264, 244);
-      run(fly, [{ transform: `translate(${ax - x}px,${ay - y}px) scale(1.5)` }, { transform: `translate(${bx - x}px,${by - y}px) scale(1.15)` }], 0, 500, EASE, 'forwards');
-      run(fly, [{ opacity: 1 }, { opacity: 0 }], 520 + i * 60, 320, 'ease-out', 'forwards');
+    hint('');
+    if (!motionAllowed()) { finishEgg(); return; }
+    const set = [], phone = narrow.matches, C0 = phone ? 1350 : 1500, FLY = phone ? 900 : 1000;
+    const { box } = geo;
+    // each star steps onto the tip of its leaf (the box already has the sprig's shape), then hands its light to a glint
+    eggStars.forEach((star, i) => {
+      const dx = (TIPS[i][0] / 264 - SLOTS[i][0] / 100) * box.width, dy = (TIPS[i][1] / 244 - SLOTS[i][1] / 100) * box.height;
+      run(set, star, [{ transform: 'translate(0px,0px)' }, { transform: `translate(${dx.toFixed(1)}px,${dy.toFixed(1)}px)` }], 0, 500, EASE, 'forwards');
+      run(set, star, [{ opacity: 1 }, { opacity: 0 }], 520 + i * 60, 320, 'ease-out', 'forwards');
     });
-    run(linePath, [{ opacity: .85 }, { opacity: 0 }], 0, 500, 'ease-out', 'forwards');
-    run(halo, [{ opacity: .55, transform: 'none' }, { opacity: 1, transform: 'scale(1.12)', offset: .3 }, { opacity: 0, transform: 'scale(1.2)' }], 0, C0 + 900, 'ease-out', 'forwards');
-    run(mark.querySelector('.mark-stem'), [{ transform: 'scale(0)' }, { transform: 'none' }], 0, 600);
-    [[1, 150], [4, 250], [2, 350], [3, 450]].forEach(([n, d]) => run(mark.querySelector(`.mark-leaf-${n}`), [{ transform: `rotate(${FOLDS[n]}deg) scale(0)` }, { transform: 'none' }], d, 700, SPRING));
-    glints.forEach((g, i) => run(g, [{ opacity: 0, transform: 'scale(.3)' }, { opacity: 1, transform: 'scale(1.6)', offset: .5 }, { opacity: 1, transform: 'none' }], 420 + i * 70, 420, 'ease-out'));
+    run(set, eggLine, [{ opacity: .85 }, { opacity: 0 }], 0, 500, 'ease-out', 'forwards');
+    run(set, eggHalo, [{ opacity: .6, transform: 'none' }, { opacity: 1, transform: 'scale(1.12)', offset: .3 }, { opacity: 0, transform: 'scale(1.2)' }], 0, C0 + 900, 'ease-out', 'forwards');
+    run(set, eggMark.querySelector('.mark-stem'), [{ transform: 'scale(0)' }, { transform: 'none' }], 0, 600);
+    [[1, 150], [4, 250], [2, 350], [3, 450]].forEach(([n, d]) => run(set, eggMark.querySelector(`.mark-leaf-${n}`), [{ transform: `rotate(${FOLDS[n]}deg) scale(0)` }, { transform: 'none' }], d, 700, SPRING));
+    eggGlints.forEach((g, i) => run(set, g, [{ opacity: 0, transform: 'scale(.3)' }, { opacity: 1, transform: 'scale(1.6)', offset: .5 }, { opacity: 1, transform: 'none' }], 420 + i * 70, 420, 'ease-out'));
     // the sprig flies into its place beside Tentrem while a star writes the name
-    run(markSprig, [{ transform: geo.sprigT }, { transform: 'translate(0px,0px) scale(1)' }], C0, FLY, GLIDE);
-    lineEls.forEach((line, k) => {
+    run(set, eggSprig, [{ transform: geo.sprigT }, { transform: 'translate(0px,0px) scale(1)' }], C0, FLY, GLIDE);
+    eggLines.forEach((line, k) => {
       const wipe = line.querySelector('.mark-wipe'), pen = line.querySelector('.mark-pen'), start = C0 + (k ? 650 : 100);
       const from = wipe.offsetLeft, to = from + wipe.offsetWidth; // offsets ignore transforms; the offset parent is .mark-line
-      run(wipe, [{ clipPath: 'inset(0 100% 0 0)' }, { clipPath: 'inset(0 0% 0 0)' }], start, 700, WRITE);
-      run(pen, [{ transform: `translateX(${from}px)`, opacity: 0 }, { opacity: 1, offset: .12 }, { opacity: 1, offset: .85 }, { transform: `translateX(${to}px)`, opacity: 0 }], start, 700, WRITE, 'none');
+      run(set, wipe, [{ clipPath: 'inset(0 100% 0 0)' }, { clipPath: 'inset(0 0% 0 0)' }], start, 700, WRITE);
+      run(set, pen, [{ transform: `translateX(${from}px)`, opacity: 0 }, { opacity: 1, offset: .12 }, { opacity: 1, offset: .85 }, { transform: `translateX(${to}px)`, opacity: 0 }], start, 700, WRITE, 'none');
     });
-    run(dot, [{ opacity: 0, transform: 'translateY(-1.1em) scale(.5)' }, { opacity: 1, transform: 'translateY(.06em) scale(1.2,.85)', offset: .55 }, { opacity: 1, transform: 'translateY(-.04em) scale(.95,1.05)', offset: .8 }, { opacity: 1, transform: 'none' }], C0 + 1250, 750);
-    Promise.all(set.map(a => a.finished)).then(() => { if (id === generation && stage === 'bloom') endFinale(); }, () => {});
-    if (!inView()) set.forEach(a => a.pause());
+    run(set, eggDot, [{ opacity: 0, transform: 'translateY(-1.1em) scale(.5)' }, { opacity: 1, transform: 'translateY(.06em) scale(1.2,.85)', offset: .55 }, { opacity: 1, transform: 'translateY(-.04em) scale(.95,1.05)', offset: .8 }, { opacity: 1, transform: 'none' }], C0 + 1250, 750);
+    Promise.all(set.map(a => a.finished)).then(() => { if (id === generation && stage === 'bloom') finishEgg(); }, () => {});
   }
+  // the name stands written in the middle; the scene behind already holds its own end state for later
+  function finishEgg() {
+    if (FINALE.includes(stage)) endFinale();
+    if (!egg.open) return;
+    step('done');
+    doneAt = performance.now();
+    hint('');
+    eggActions.hidden = false;
+    eggKilas.focus({ preventScroll: true });
+  }
+  // the page is scroll-locked under the egg, so a rotation can leave the scene off screen; bring it back
+  function bringScene() {
+    const r = mark.getBoundingClientRect();
+    if (r.top < 0 || r.bottom > innerHeight) mark.scrollIntoView({ block: 'center', behavior: 'instant' });
+  }
+  function closeEgg(toKilas = false) {
+    if (!egg.open || egg.classList.contains('is-closing')) return;
+    if (FINALE.includes(stage)) endFinale();
+    wantKilas = toKilas;
+    const done = () => { if (egg.open) egg.close(); };
+    if (toKilas || !motionAllowed()) { done(); return; }
+    // the large name shrinks back down into its place in the night scene
+    bringScene();
+    const from = eggMark.getBoundingClientRect(), to = mark.getBoundingClientRect();
+    const k = to.width / Math.max(1, from.width);
+    egg.classList.add('is-closing');
+    eggMark.animate([{ transform: 'none' }, { transform: `translate(${(to.left + to.width / 2 - from.left - from.width / 2).toFixed(1)}px,${(to.top + to.height / 2 - from.top - from.height / 2).toFixed(1)}px) scale(${k.toFixed(4)})` }], { duration: 700, easing: GLIDE, fill: 'forwards' })
+      .finished.then(done, done);
+  }
+  egg.addEventListener('click', event => {
+    if (event.target.closest('button')) return;
+    // during the show any tap moves it along; afterwards a tap outside the name closes it,
+    // but not in the first second, when a tap is more likely a late one meant to hurry the show
+    if (FINALE.includes(stage)) advance();
+    else if (performance.now() - doneAt > 1000 && !event.target.closest('.egg-mark, .egg-actions')) closeEgg();
+  });
+  egg.addEventListener('keydown', event => {
+    if ((event.key === 'Enter' || event.key === ' ') && FINALE.includes(stage) && !event.target.closest('button')) {
+      event.preventDefault();
+      advance();
+    }
+  });
+  // Escape skips to the written name first, and closes on the second press
+  egg.addEventListener('cancel', event => {
+    if (!event.cancelable) return; // the browser closes it anyway; the close event tidies up
+    event.preventDefault();
+    if (FINALE.includes(stage)) finishEgg();
+    else closeEgg();
+  });
+  eggKilas.addEventListener('click', () => closeEgg(true));
+  egg.addEventListener('close', () => {
+    const toKilas = wantKilas;
+    wantKilas = false;
+    egg.classList.remove('is-closing');
+    eggMark.getAnimations().forEach(a => a.cancel());
+    document.documentElement.classList.remove('egg-open');
+    document.body.classList.remove('egg-open');
+    scene.classList.remove('is-egg');
+    if (FINALE.includes(stage)) endFinale();
+    if (stage !== 'mark') return; // a restart closed it
+    bringScene();
+    if (toKilas) { keepsake.click(); return; }
+    if (!keepsake.hidden) keepsake.focus({ preventScroll: true });
+    // the sign-off was written while the caption was hidden under the egg; say it now that it shows
+    setTimeout(() => { if (stage === 'mark' && !egg.open && message === SIGNOFF && liveText.textContent !== SIGNOFF) liveText.textContent = SIGNOFF; }, 150);
+  });
+  addEventListener('resize', () => { if (egg.open && FINALE.includes(stage)) finishEgg(); });
   function endFinale() {
     if (!FINALE.includes(stage)) return;
     clearTimeout(holdTimer);
@@ -1506,9 +1602,9 @@ reducedMotion.addEventListener('change', () => { if (!motionAllowed()) { panelAn
     scene.dataset.finale = 'mark';
     mark.inert = false;
     keepsake.hidden = false;
-    if (document.activeElement === bloomButton || document.activeElement === document.body) keepsake.focus({ preventScroll: true });
+    if (!egg.open && (document.activeElement === bloomButton || document.activeElement === document.body)) keepsake.focus({ preventScroll: true });
     bloomButton.hidden = true; // only after focus has moved
-    say(SIGNOFF);
+    say(SIGNOFF, egg.open);
     scene.dispatchEvent(new CustomEvent('senja-done', { detail: stats }));
   }
 
@@ -1527,7 +1623,13 @@ reducedMotion.addEventListener('change', () => { if (!motionAllowed()) { panelAn
     bloomButton.hidden = true;
     sun.tabIndex = 0;
     sun.removeAttribute('aria-hidden');
-    ['--stage-x', '--stage-y', '--stage-w'].forEach(name => scene.style.removeProperty(name));
+    wantKilas = false;
+    if (egg.open) egg.close();
+    egg.classList.remove('is-closing');
+    eggMark.getAnimations().forEach(a => a.cancel());
+    document.documentElement.classList.remove('egg-open');
+    document.body.classList.remove('egg-open');
+    scene.classList.remove('is-egg');
     stage = 'play';
   }
   // the leaves fold away and the name fades while the sun comes up
@@ -1646,7 +1748,7 @@ reducedMotion.addEventListener('change', () => { if (!motionAllowed()) { panelAn
 
   // Nothing plays unseen: animations pause off screen or in a hidden tab and resume on return.
   const pauseOrPlay = () => {
-    const on = inView();
+    const on = egg.open ? !document.hidden : inView();
     anims.forEach(a => {
       if (!on && a.playState === 'running') a.pause();
       else if (on && a.playState === 'paused') a.play(); // never play() a finished animation
@@ -1659,12 +1761,12 @@ reducedMotion.addEventListener('change', () => { if (!motionAllowed()) { panelAn
   let lastSize = '';
   new ResizeObserver(([entry]) => {
     const size = `${Math.round(entry.contentRect.width)}x${Math.round(entry.contentRect.height)}`;
-    if (lastSize && size !== lastSize && FINALE.includes(stage)) endFinale();
+    if (lastSize && size !== lastSize && FINALE.includes(stage)) finishEgg();
     lastSize = size;
   }).observe(scene);
   const settle = () => {
     if (motionAllowed()) return;
-    if (FINALE.includes(stage)) endFinale();
+    if (FINALE.includes(stage)) finishEgg();
     stopWind();
   };
   motionButton.addEventListener('click', settle);
@@ -1706,6 +1808,7 @@ reducedMotion.addEventListener('change', () => { if (!motionAllowed()) { panelAn
   const slides = [...modal.querySelectorAll('.kilas-slide')];
   const segments = [...modal.querySelectorAll('.kilas-progress i')];
   const stack = modal.querySelector('.kilas-slides');
+  let openedAt = 0;
   const prev = modal.querySelector('.kilas-prev');
   const next = modal.querySelector('.kilas-next');
   const count = modal.querySelector('.kilas-count');
@@ -1947,6 +2050,7 @@ reducedMotion.addEventListener('change', () => { if (!motionAllowed()) { panelAn
   stack.addEventListener('pointercancel', () => { press = null; });
   stack.addEventListener('click', event => {
     if (swiped) { swiped = false; return; }
+    if (performance.now() - openedAt < 400) return; // the second half of a double tap on Kilas balik
     if (event.target.closest('.kilas-post, button, a, input')) return;
     const r = stack.getBoundingClientRect();
     go(slide + (event.clientX - r.left < r.width * .3 ? -1 : 1));
@@ -2279,6 +2383,7 @@ reducedMotion.addEventListener('change', () => { if (!motionAllowed()) { panelAn
   });
   scene.addEventListener('senja-done', event => { stats = event.detail; image = story = null; saveButton.hidden = storyButton.hidden = true; });
   modal.addEventListener('dialog-open', () => {
+    openedAt = performance.now();
     if (!stats) return;
     fill();
     flip(false);

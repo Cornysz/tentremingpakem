@@ -1343,3 +1343,38 @@ body.motion-paused .chapter-sponsor :is(.sponsor-card,.sponsor-name,.sponsor-via
 .trip-step:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
 .trip-hint{margin:0 auto;font-size:12px;color:#5d6852;text-align:center}
 body.motion-paused :is(.trip-bird,.trip-print,.trip-card,.trip-line i){transition:none}
+/* The Senja easter egg: the whole page dims, the constellation lifts to the middle and writes the name large. */
+body.egg-open{overflow:hidden}
+/* the scrollbar gutter stays (html has scrollbar-gutter:stable); darken it with the dim */
+html{transition:background-color .8s ease}
+html.egg-open{background:#111418}
+dialog.senja-egg{position:fixed;inset:0;width:100%;height:100%;max-width:none;max-height:none;margin:0;padding:0;overflow:hidden;background:transparent;color:#f6f1e4;outline:none}
+dialog.senja-egg::backdrop{background:#04070dd9;-webkit-backdrop-filter:none;backdrop-filter:none;animation:egg-dim .8s ease both}
+dialog.senja-egg.is-closing::backdrop{animation:egg-undim .7s ease both}
+@keyframes egg-dim{from{opacity:0}}
+@keyframes egg-undim{to{opacity:0}}
+.egg-sky{position:absolute;transform-origin:0 0;pointer-events:none}
+.egg-lines{display:block;width:100%;height:100%;overflow:visible}
+.egg-lines path{fill:none;stroke:#fff2c4;stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke;opacity:.85}
+.egg-star{position:absolute;width:6px;height:6px;margin:-3px 0 0 -3px;border-radius:50%;background:#fffbe6;box-shadow:0 0 6px 2px #fff2c4,0 0 16px 5px #fff2c466}
+.egg-halo{position:absolute;left:var(--stage-x,50%);top:var(--stage-y,46%);width:calc(var(--stage-w,200px) * 1.7);aspect-ratio:1;translate:-50% -50%;border-radius:50%;background:radial-gradient(circle,#fff2c459 0,#fff2c426 38%,#fff2c400 68%);opacity:0;pointer-events:none}
+.senja-egg[data-step="await"] .egg-halo::after{content:"";position:absolute;inset:16%;border:1.5px solid #fff2c499;border-radius:50%;animation:bloom-ring 1.8s ease-out infinite}
+.senja-egg[data-step="done"] :is(.egg-sky,.egg-halo){visibility:hidden}
+.egg-mark{position:absolute;left:50%;top:46%;margin:0;translate:-50% -50%;transform-origin:50% 50%;font:400 clamp(54px,min(17vw,13svh),136px)/.92 Georgia,'Times New Roman',serif;letter-spacing:-.058em;text-align:center;white-space:nowrap;color:#f6f1e4;text-shadow:0 0 .35em #f3e27a40;visibility:hidden;pointer-events:none}
+.senja-egg:is([data-step="bloom"],[data-step="done"]) .egg-mark{visibility:visible}
+.senja-egg[data-step="done"] .egg-mark{pointer-events:auto}
+.egg-mark i{font-size:.81em;color:#e2c3a0}
+.senja-egg[data-step="done"] .mark-glint{animation:glint-twinkle 2.6s ease-in-out var(--tw,0s) infinite}
+.senja-egg[data-step="done"] .mark-sprig{animation:sprig-sway 7s ease-in-out infinite}
+.egg-hint{position:absolute;left:16px;right:16px;top:66%;margin:0;font:italic 15px/1.4 Georgia,'Times New Roman',serif;text-align:center;color:#f6f1e4cc;pointer-events:none}
+.egg-actions{position:absolute;left:50%;top:64%;display:flex;gap:10px;translate:-50% 0;animation:egg-actions .6s var(--ease) .1s backwards}
+@keyframes egg-actions{from{opacity:0;transform:translateY(10px)}}
+.egg-actions button{display:inline-flex;align-items:center;gap:8px;min-height:46px;padding:0 20px;border-radius:999px;font-size:14px;white-space:nowrap}
+.egg-kilas{border:0;background:#f6f1e4;color:#1b2a1a;font-weight:700;box-shadow:0 0 0 1px #f3e27a66,0 12px 28px #0008}
+.egg-kilas .icon{width:15px;height:15px;color:#a36b1f}
+@media(hover:hover) and (pointer:fine){.egg-kilas:hover{background:#fffaf0}}
+.senja-egg.is-closing .egg-actions{opacity:0;transition:opacity .2s}
+.senja-egg :focus-visible{outline:2px solid #f3e27a;outline-offset:3px}
+/* the scene hands its stars and its name to the egg while the egg is open */
+.senja.is-egg[data-finale] :is(.senja-constellation,.firefly.is-caught,.senja-mark,.senja-caption){visibility:hidden}
+body.motion-paused .senja-egg *,body.motion-paused .senja-egg *::after{animation:none!important}
