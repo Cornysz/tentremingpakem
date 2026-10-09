@@ -2367,8 +2367,7 @@ reducedMotion.addEventListener('change', () => { if (!motionAllowed()) { panelAn
       card.target = '_blank';
       card.rel = 'noopener noreferrer';
       const name = (card.querySelector('.sponsor-name')?.textContent || '').replace(/\s+/g, ' ').trim();
-      const via = (card.querySelector('.sponsor-via')?.textContent || '').trim();
-      if (name) card.setAttribute('aria-label', via ? `${name} di ${via}, membuka tab baru` : `${name}, membuka tab baru`); // the visible text stays inside the name (label in name)
+      if (name) card.setAttribute('aria-label', `${name}, membuka tab baru`); // the visible name comes first (label in name)
     }
   });
 
@@ -2570,9 +2569,19 @@ reducedMotion.addEventListener('change', () => { if (!motionAllowed()) { panelAn
     watch.observe(item);
     // a keyboard user who tabs ahead never waits for a firefly
     item.addEventListener('focusin', () => { if (!item.classList.contains('is-lit')) { watch.unobserve(item); light(item); } });
-    item.querySelector('.sponsor-card')?.addEventListener('click', () => visit(item));
+    item.querySelector('.sponsor-card')?.addEventListener('click', event => {
+      if (event.target.closest('.sponsor-via')) return;
+      visit(item);
+      // a tap keeps the logo in its own colours; a second tap, or a tap anywhere else, lets it go
+      const on = !item.classList.contains('is-color');
+      sponsors.forEach(other => other.classList.toggle('is-color', other === item && on));
+    });
   });
   section.addEventListener('touchstart', () => {}, { passive: true }); // lets iOS Safari show :active on the cards
+  document.addEventListener('click', event => { if (!event.target.closest('#sponsor .sponsor')) sponsors.forEach(item => item.classList.remove('is-color')); });
+  // A card shows its real colours while it sits in the middle band of the screen, where the eye settles while scrolling.
+  const focusBand = new IntersectionObserver(entries => entries.forEach(entry => entry.target.classList.toggle('is-focus', entry.isIntersecting)), { rootMargin: '-30% 0px -30% 0px' });
+  sponsors.forEach(item => focusBand.observe(item));
 
   // Main sponsors are crowned: four more fireflies arrive from every side as the first one lands, a comet of light
   // runs twice round the card, and a gold rim stays (the rim is in the markup below, so it shows even without motion).

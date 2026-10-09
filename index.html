@@ -24,7 +24,7 @@
   <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png?v=20260919-gradient">
   <script>document.documentElement.className = 'js'; setTimeout(function () { var page = document.documentElement; if (!page.hasAttribute('data-reveal-ready')) page.classList.remove('js'); }, 4000);</script>
   <link rel="preload" as="image" href="assets/pakem.webp">
-  <link rel="stylesheet" href="style.css?v=20261009-jurnal">
+  <link rel="stylesheet" href="style.css?v=20261009-7okt">
 </head>
 <body>
   <div class="scene" aria-hidden="true"><img src="assets/pakem.webp" alt="" width="1672" height="941" fetchpriority="high"><div class="veil"></div></div>
@@ -310,11 +310,11 @@
             <h3 class="sponsor-tier" id="sponsor-tier-utama">Sponsor utama</h3>
             <ul class="sponsor-list" role="list" aria-labelledby="sponsor-tier-utama">
               <li class="sponsor" data-nama="sembunyi">
-                <a class="sponsor-card" href="https://www.linkedin.com/company/hassabatik/" target="_blank" rel="noopener noreferrer">
+                <div class="sponsor-card">
                   <img src="assets/sponsor/hassa-batik.png" alt="" loading="lazy" decoding="async">
                   <span class="sponsor-name">Hassa Batik</span>
-                  <span class="sponsor-via">LinkedIn<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M7 17 17 7M9 7h8v8"/></svg></span>
-                </a>
+                  <a class="sponsor-via" href="https://www.linkedin.com/company/hassabatik/" target="_blank" rel="noopener noreferrer" aria-label="Hassa Batik di LinkedIn, membuka tab baru"><svg class="sponsor-via-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.14 1.45-2.14 2.94v5.67H9.35V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28ZM5.34 7.43a2.06 2.06 0 1 1 0-4.13 2.06 2.06 0 0 1 0 4.13Zm1.78 13.02H3.56V9h3.56v11.45ZM22.23 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.73V1.73C24 .77 23.2 0 22.22 0Z"/></svg></a>
+                </div>
               </li>
               <li class="sponsor" data-nama="sembunyi">
                 <div class="sponsor-card">
@@ -416,7 +416,16 @@
           </div>
           <figcaption><span class="chapter-label">29 SEPTEMBER 2026</span><span class="journal-photo-title">Sampai di Pakem.</span><span>Audiensi &amp; surat kesediaan lokasi</span></figcaption>
         </figure>
-        <figure class="journal-spread journal-waiting" data-journey-photo="3" hidden>
+        <figure class="journal-spread" data-journey-photo="3" hidden>
+          <div class="journal-collage journal-dump">
+            <img src="perjalanan-7-oktober-2026-01.webp" alt="Swafoto anggota KKN di ruang kelas pada 7 Oktober" width="1600" height="900" loading="lazy" decoding="async">
+            <img src="perjalanan-7-oktober-2026-02.webp" alt="Rapat seluruh anggota unit, duduk lesehan di ruang tamu rumah Kak Deviana" width="1600" height="1280" loading="lazy" decoding="async">
+            <img src="perjalanan-7-oktober-2026-03.webp" alt="Foto BeReal saat rapat, dengan foto kecil anggota yang sedang makan pizza" width="1200" height="1600" loading="lazy" decoding="async" style="object-position:50% 0">
+            <img src="perjalanan-7-oktober-2026-04.webp" alt="Dua anggota KKN bersantai sambil berpose di sela rapat" width="1600" height="1280" loading="lazy" decoding="async">
+          </div>
+          <figcaption><span class="chapter-label">7 OKTOBER 2026</span><span class="journal-photo-title">Siap berangkat.</span><span>Pembekalan &amp; rapat unit</span></figcaption>
+        </figure>
+        <figure class="journal-spread journal-waiting" data-journey-photo="4" hidden>
           <div class="journal-next-page" aria-hidden="true"><img src="assets/bird.png" alt="" width="130" height="150"><span>bersambung...</span><span class="journal-writing-line"></span><span class="journal-writing-line"></span><span class="journal-writing-line"></span></div>
           <figcaption><span class="chapter-label">HALAMAN BERIKUTNYA</span><span class="journal-photo-title">Masih berlanjut.</span><span>Ruang untuk cerita yang akan datang.</span></figcaption>
         </figure>
@@ -427,6 +436,7 @@
           <button id="tab-12-september" role="tab" aria-selected="true" aria-controls="panel-12-september" tabindex="0"><span aria-hidden="true">01</span> 12 Sep</button>
           <button id="tab-14-september" role="tab" aria-selected="false" aria-controls="panel-14-september" tabindex="-1"><span aria-hidden="true">02</span> 14 Sep</button>
           <button id="tab-29-september" role="tab" aria-selected="false" aria-controls="panel-29-september" tabindex="-1"><span aria-hidden="true">03</span> 29 Sep</button>
+          <button id="tab-7-oktober" role="tab" aria-selected="false" aria-controls="panel-7-oktober" tabindex="-1"><span aria-hidden="true">04</span> 7 Okt</button>
           <button id="tab-selanjutnya" role="tab" aria-selected="false" aria-controls="panel-selanjutnya" tabindex="-1"><span aria-hidden="true">…</span> Nanti, ya</button>
         </div>
         <div class="story-panels">
@@ -444,17 +454,24 @@
             <p class="story-note">“Mulai mengenal siapa yang akan berjalan bersama.”</p>
             <p class="journey-connection">Setengah bulan kemudian, kami berangkat ke Pakem.</p>
           </section>
-          <section id="panel-29-september" class="story-panel" role="tabpanel" aria-labelledby="tab-29-september" tabindex="0" data-next="Lalu, apa lagi?" hidden>
+          <section id="panel-29-september" class="story-panel" role="tabpanel" aria-labelledby="tab-29-september" tabindex="0" data-next="Delapan hari kemudian" hidden>
             <p class="chapter-label"><time datetime="2026-09-29">29 SEPTEMBER 2026</time> · AUDIENSI DI PAKEM</p>
             <h3>Kulo nuwun,<br><i>Pakem.</i></h3>
             <p>Kali ini, kami benar-benar berangkat ke Pakem. Tujuan pertama kami adalah Kapanewon Pakem untuk beraudiensi. Setelah itu, kami berbagi tugas sesuai subunit: sebagian menuju Kalurahan Candibinangun, sebagian lagi ke Kalurahan Purwobinangun.<br><br>Di masing-masing kalurahan, kami bertemu dengan sekretaris kalurahan. Pertemuan itu ditutup dengan penandatanganan surat kesediaan lokasi KKN. Hanya selembar surat, tapi sejak hari itu, langkah kami menuju Pakem terasa makin nyata.</p>
             <p class="story-note">“Kami mengetuk pintu, Pakem menjawab: monggo.”</p>
-            <p class="journey-connection">Dari sini, cerita kami masih akan berlanjut.</p>
+            <p class="journey-connection">Delapan hari kemudian, kami bersiap untuk berangkat.</p>
+          </section>
+          <section id="panel-7-oktober" class="story-panel" role="tabpanel" aria-labelledby="tab-7-oktober" tabindex="0" data-next="Lalu, apa lagi?" hidden>
+            <p class="chapter-label"><time datetime="2026-10-07">7 OKTOBER 2026</time> · PEMBEKALAN &amp; RAPAT UNIT</p>
+            <h3>Siap berangkat,<br><i>perut kenyang.</i></h3>
+            <p>Hari itu dimulai dengan pembekalan khusus untuk Kormanit, Kormasit, dan Kormashe. Setelah itu, kami rapat bersama seluruh anggota unit untuk memfinalkan mekanisme program kerja saat hari&nbsp;H dan mekanisme keberangkatan.<br><br>Terima kasih banyak untuk Kak Deviana yang sudah berkenan menjadi tuan rumah. Hari itu kami senang sekali, apalagi ada Pizza Limo, jadi kami pulang kenyang.</p>
+            <p class="story-note">“Rapat beres, perut kenyang. Tinggal berangkat.”</p>
+            <p class="journey-connection">Dua belas hari lagi menuju penerjunan.</p>
           </section>
           <section id="panel-selanjutnya" class="story-panel" role="tabpanel" aria-labelledby="tab-selanjutnya" tabindex="0" data-next="Baca dari awal" hidden>
             <p class="chapter-label">MASIH ADA HALAMAN BERIKUTNYA</p>
             <h3>Cerita berikutnya?<br><i>Tunggu, ya.</i></h3>
-            <p>Baru mengetuk pintu Pakem, masih banyak cerita yang menunggu. Catatan berikutnya belum ada di sini. Nanti, kalau sudah waktunya, kami ceritakan lagi.</p>
+            <p>Masih banyak cerita yang menunggu. Catatan berikutnya belum ada di sini. Nanti, kalau sudah waktunya, kami ceritakan lagi.</p>
             <p class="story-note">“Perjalanannya belum selesai. Mampir lagi, ya.”</p>
             <a class="source-link" href="https://www.instagram.com/tentremingpakem/" target="_blank" rel="noopener noreferrer">Ikuti cerita kami di Instagram <span aria-hidden="true"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M4 12h16m-6-6 6 6-6 6"/></svg></span></a>
           </section>
@@ -715,6 +732,6 @@
     </div>
   </dialog>
   <template id="spark-icon"><svg class="icon icon-spark" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false"><path d="M12 1c1.4 7.2 3.8 9.6 11 11-7.2 1.4-9.6 3.8-11 11C10.6 15.8 8.2 13.4 1 12 8.2 10.6 10.6 8.2 12 1Z"/></svg></template>
-  <script src="script.js?v=20261009-jurnal" defer></script>
+  <script src="script.js?v=20261009-7okt" defer></script>
 </body>
 </html>

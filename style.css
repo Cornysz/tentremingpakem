@@ -1277,9 +1277,35 @@ body.motion-paused .chapter-sponsor .sponsor-crown>span{opacity:0}
 .sponsor-cta .icon{flex:none;width:17px;height:17px;color:#e2c3a0}
 @media(hover:hover) and (pointer:fine){.sponsor-cta a:hover{background:#f6f1e41f}}
 .chapter-sponsor .sponsor-cta a:focus-visible{outline:2px solid #e2c3a0;outline-offset:3px}
-/* A sponsor link can name where it goes (data on the card: span.sponsor-via), shown small under the logo instead of the corner arrow. */
-.sponsor-via{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;letter-spacing:.4px;color:#87634c}
-.sponsor-via .icon{width:12px;height:12px}
-a.sponsor-card:has(.sponsor-via)::before{content:none}
-.sponsor[data-nama="sembunyi"] .sponsor-card:has(.sponsor-via){grid-template-rows:var(--box-h) auto;gap:8px}
-@media(hover:hover) and (pointer:fine){a.sponsor-card:hover .sponsor-via{text-decoration:underline;text-underline-offset:3px}}
+/* Sponsor cards rest as thin gold-edged glass with white logos. A card shows its logo in the real colours
+   while it sits in the middle of the screen, under the mouse, after a tap, or while its link has keyboard focus. */
+.chapter-sponsor .sponsor{--aura-rest:.22}
+.chapter-sponsor .sponsor-card{border-radius:14px;background:#f6f1e40a;box-shadow:inset 0 0 0 1px #e2c3a066;cursor:pointer;transition:background .45s ease,box-shadow .45s ease,transform .35s var(--ease)}
+.chapter-sponsor .sponsor.is-light .sponsor-card{background:#f6f1e40a;box-shadow:inset 0 0 0 1px #e2c3a066}
+.chapter-sponsor .sponsor::before{border-radius:14px}
+.chapter-sponsor .sponsor-crown{border-radius:17px}
+.chapter-sponsor .sponsor-crown::before{opacity:0}
+.chapter-sponsor :is(.sponsor-mark img,.sponsor-card>img){mix-blend-mode:normal;filter:brightness(0) invert(1);transition:filter .45s ease}
+.chapter-sponsor .sponsor-name{color:#d9dccb;transition:color .45s ease}
+.chapter-sponsor .sponsor.is-broken .sponsor-name{color:#f6f1e4}
+.chapter-sponsor .sponsor:is(.is-focus,.is-color) .sponsor-card,.chapter-sponsor .sponsor:focus-within .sponsor-card{background:#fbf8ef;box-shadow:inset 0 0 0 1px #fffdf6,0 8px 16px -6px #050d1a80}
+.chapter-sponsor .sponsor.is-light:is(.is-focus,.is-color) .sponsor-card{background:#1f3236}
+.chapter-sponsor .sponsor:is(.is-focus,.is-color) :is(.sponsor-mark img,.sponsor-card>img),.chapter-sponsor .sponsor:focus-within :is(.sponsor-mark img,.sponsor-card>img){filter:none}
+.chapter-sponsor .sponsor:is(.is-focus,.is-color):not(.is-light) .sponsor-name{color:#5d6852}
+@media(hover:hover) and (pointer:fine){
+.chapter-sponsor .sponsor:hover .sponsor-card{background:#fbf8ef;box-shadow:inset 0 0 0 1px #fffdf6,0 8px 16px -6px #050d1a80}
+.chapter-sponsor .sponsor.is-light:hover .sponsor-card{background:#1f3236}
+.chapter-sponsor .sponsor:hover :is(.sponsor-mark img,.sponsor-card>img){filter:none}
+.chapter-sponsor .sponsor:hover:not(.is-light) .sponsor-name{color:#5d6852}
+.chapter-sponsor .sponsor:hover .sponsor-via{color:#0a66c2}
+}
+/* Main sponsors stay compact. */
+[data-tier="utama"]>.sponsor-list{--card-max:300px;--gap:14px;--pad:16px 22px 14px}
+[data-tier="utama"] .sponsor[data-nama="sembunyi"]{--box-h:64px;--base:72px}
+@media(min-width:600px){[data-tier="utama"]>.sponsor-list{--card-max:320px;--gap:18px}[data-tier="utama"] .sponsor[data-nama="sembunyi"]{--box-h:70px;--base:80px}}
+/* A link that is not the sponsor's own site sits in the corner as a small icon (a.sponsor-via), so a tap on the card only shows the colours. */
+.sponsor-via{position:absolute;top:2px;right:2px;z-index:3;display:grid;place-items:center;width:40px;height:40px;border-radius:12px;color:#f6f1e4b3;transition:color .45s ease}
+.sponsor-via-icon{width:18px;height:18px}
+.chapter-sponsor .sponsor:is(.is-focus,.is-color) .sponsor-via,.chapter-sponsor .sponsor:focus-within .sponsor-via{color:#0a66c2}
+.chapter-sponsor .sponsor-via:focus-visible{outline:2px solid #e2c3a0;outline-offset:-3px}
+body.motion-paused .chapter-sponsor :is(.sponsor-card,.sponsor-name,.sponsor-via,.sponsor-mark img){transition:none}
