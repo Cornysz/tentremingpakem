@@ -1220,6 +1220,8 @@ reducedMotion.addEventListener('change', () => { if (!motionAllowed()) { panelAn
     flying.forEach((fly, i) => { fly.tabIndex = dark && i === 0 ? 0 : -1; });
     field.setAttribute('aria-hidden', String(!(dark && flying.length)));
   }
+  // where the sun sits for a time of day, in % of the scene: along the arc by day, then down behind the hills
+  const sunPath = q => [narrow.matches ? 12 + 76 * q : 88 - 76 * q, q <= 1 ? 82 - 62 * Math.sin(Math.PI * q) : 82 + 140 * (q - 1)];
   function paint() {
     let i = STOPS.findIndex(stop => stop[0] > p);
     i = i === -1 ? STOPS.length - 1 : Math.max(1, i);
@@ -1233,9 +1235,7 @@ reducedMotion.addEventListener('change', () => { if (!motionAllowed()) { panelAn
     const dark = isNight();
     if (dark && !wasNight) stats.sunsets += 1;
     wasNight = dark;
-    const along = 76 * p;
-    let x = narrow.matches ? 12 + along : 88 - along;
-    let y = p <= 1 ? 82 - 62 * Math.sin(Math.PI * p) : 82 + 140 * (p - 1);
+    let [x, y] = sunPath(p);
     // a sun focused from the keyboard stays on screen, so the focus ring never disappears below the hills
     if (sun.matches(':focus-visible')) { x = clamp(x, 6, 94); y = Math.min(y, 72); }
     sun.style.left = `${x}%`;
@@ -1260,23 +1260,36 @@ reducedMotion.addEventListener('change', () => { if (!motionAllowed()) { panelAn
     const share = (clientX - box.left) / box.width;
     return narrow.matches ? (share - .12) / .76 : (.88 - share) / .76;
   };
+  // the time of day whose point on the sun's path is nearest the finger, searched near where the sun already is,
+  // so the sun follows the finger along the arc and never jumps across it
+  const fromPoint = (cx, cy) => {
+    const box = scene.getBoundingClientRect();
+    let best = target, far = Infinity;
+    for (let q = Math.max(0, target - .3); q <= Math.min(MAX, target + .3); q += .005) {
+      const [x, y] = sunPath(q), d = (box.left + x / 100 * box.width - cx) ** 2 + (box.top + y / 100 * box.height - cy) ** 2;
+      if (d < far) { far = d; best = q; }
+    }
+    return best;
+  };
   // the clock for the recap starts at the first real touch, not when the sun only gets keyboard focus
   const touch = (clock = true) => { touched = true; if (clock && !stats.start) stats.start = performance.now(); scene.classList.add('is-touched'); };
 
-  // Only a sideways drag moves the sun, so vertical scrolling over the scene stays a scroll.
+  // A drag that starts on the sun moves it in any direction, following its path. Anywhere else only a sideways drag
+  // moves the sun, so vertical scrolling over the scene stays a scroll.
   let press = null;
   let dragged = false;
   scene.addEventListener('pointerdown', event => {
     if (event.target.closest('.firefly, .senja-reset, .senja-keepsake, .senja-bloom')) return;
     if (FINALE.includes(stage)) return;
-    press = { id: event.pointerId, x: event.clientX, y: event.clientY, lastX: event.clientX, dragging: false, slack: event.pointerType === 'mouse' ? 3 : 8 };
+    const onSun = stage === 'play' && !!event.target.closest('.senja-sun');
+    press = { id: event.pointerId, x: event.clientX, y: event.clientY, lastX: event.clientX, dragging: false, sun: onSun, slack: event.pointerType === 'mouse' ? 3 : onSun ? 4 : 8 };
     dragged = false;
   });
   scene.addEventListener('pointermove', event => {
     if (!press || press.id !== event.pointerId) return;
     if (!press.dragging) {
       const dx = Math.abs(event.clientX - press.x), dy = Math.abs(event.clientY - press.y);
-      if (dx < press.slack || dx < dy) return;
+      if (press.sun ? Math.hypot(dx, dy) < press.slack : dx < press.slack || dx < dy) return;
       press.dragging = dragged = true;
       scene.setPointerCapture(event.pointerId);
       scene.classList.add('is-dragging');
@@ -1285,7 +1298,7 @@ reducedMotion.addEventListener('change', () => { if (!motionAllowed()) { panelAn
     }
     // after the finale the same gesture blows wind through the sprig instead of moving the sun
     if (stage === 'mark') { gust(clamp(event.clientX - press.lastX, -30, 30) * 1.4); press.lastX = event.clientX; return; }
-    goTo(fromX(event.clientX));
+    goTo(press.sun ? fromPoint(event.clientX, event.clientY) : fromX(event.clientX));
   });
   const release = event => {
     if (!press || press.id !== event.pointerId) return;

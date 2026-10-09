@@ -716,6 +716,9 @@ body.motion-paused .members-dialog[open] .members-card{animation:none}
 .senja-lines path{fill:none;stroke:#fff2c4;stroke-width:1.2;stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke;opacity:0;transition:opacity 1.6s ease .9s}
 .senja.is-complete .senja-lines path{opacity:calc(var(--night,0) * .85)}
 .senja-sun{position:absolute;z-index:2;left:18%;top:80%;width:clamp(44px,3.8vw,54px);aspect-ratio:1;border-radius:50%;translate:-50% -50%;background:radial-gradient(circle at 50% 35%,#fdd75a,#ef8b2a);box-shadow:0 0 0 2px #a3561a;cursor:grab}
+/* a press on the sun never scrolls the page, and its grip reaches a little past the disc so a thumb finds it */
+.senja-sun{touch-action:none;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
+.sun-grip{position:absolute;inset:-14px;border-radius:50%}
 .senja-sun::before{content:"";position:absolute;inset:-150%;border-radius:50%;background:radial-gradient(circle,#f6a94566,#f6a94500 65%);opacity:var(--glow,1);pointer-events:none}
 .senja-sun::after{content:"";position:absolute;inset:-6px;border:2px solid #fbf8efcc;border-radius:50%;opacity:0;pointer-events:none}
 .senja:not(.is-touched):not(.is-night) .senja-sun::after{animation:sun-hint 2.6s ease-out 1s infinite}
