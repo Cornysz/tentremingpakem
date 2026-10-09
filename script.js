@@ -2659,3 +2659,132 @@ reducedMotion.addEventListener('change', () => { if (!motionAllowed()) { panelAn
   // Armed last: only now may CSS hide the parts that wait for their turn. If anything above failed, they simply show.
   night.classList.add('is-armed');
 })();
+
+// Perjalanan kami: the journal chapters as a strip of prints. Scrolling down the page slides it sideways;
+// a tap on a print opens the journal at that chapter. The prints are read from the journal itself,
+// so a new chapter there appears here too.
+(() => {
+  const section = document.querySelector('#perjalanan');
+  if (!section) return;
+  const trip = section.querySelector('.trip');
+  const track = section.querySelector('.trip-track');
+  const rail = section.querySelector('.trip-rail');
+  const dots = section.querySelector('.trip-dots');
+  const hint = section.querySelector('.trip-hint');
+  const longDate = new Intl.DateTimeFormat('id-ID', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Asia/Jakarta' });
+  const make = (tag, className, text) => {
+    const node = document.createElement(tag);
+    if (className) node.className = className;
+    if (text) node.textContent = text;
+    return node;
+  };
+  const cards = journalPhotos.map((figure, chapter) => {
+    const li = make('li', 'trip-card');
+    const button = make('button', 'trip-open');
+    button.type = 'button';
+    button.setAttribute('aria-haspopup', 'dialog');
+    button.setAttribute('aria-controls', 'pakem-story');
+    const title = figure.querySelector('.journal-photo-title')?.textContent.trim() || '';
+    const label = figure.querySelector('.chapter-label')?.textContent.trim() || '';
+    const sub = figure.querySelector('figcaption > span:last-child')?.textContent.trim() || '';
+    const time = panels[chapter]?.querySelector('time[datetime]');
+    const print = make('span', 'trip-print');
+    const photo = figure.querySelector('.journal-collage img');
+    if (photo) {
+      const img = photo.cloneNode();
+      img.loading = 'lazy';
+      img.alt = '';
+      print.append(img);
+    } else {
+      li.classList.add('is-waiting');
+      const blank = make('span');
+      const bird = make('img');
+      Object.assign(bird, { src: 'assets/bird.png', alt: '', width: 130, height: 150 });
+      blank.append(bird, document.createTextNode('bersambung...'));
+      print.append(blank);
+    }
+    button.append(print, make('span', 'trip-date', label), make('span', 'trip-title', title), make('span', 'trip-sub', sub));
+    button.setAttribute('aria-label', time ? `Buka jurnal ${longDate.format(Date.parse(`${time.getAttribute('datetime')}T00:00:00+07:00`))}: ${title}` : `Buka jurnal: ${title}`);
+    button.addEventListener('click', () => {
+      selectStory(chapter);
+      story.open(button);
+    });
+    li.append(button);
+    track.append(li);
+    return li;
+  });
+  const marks = cards.map((card, i) => {
+    const dot = make('i');
+    dot.style.left = `${cards.length > 1 ? i / (cards.length - 1) * 100 : 0}%`;
+    dots.append(dot);
+    return dot;
+  });
+
+  // Page scroll drives the strip: the section is as tall as the screen plus the sideways distance, so one
+  // pixel down is one pixel across. Off screen, nothing is measured or moved.
+  let span = 0, queued = 0, active = false;
+  const measure = () => {
+    if (!cards.length) return;
+    const first = cards[0], last = cards[cards.length - 1];
+    span = (last.offsetLeft + last.offsetWidth / 2) - (first.offsetLeft + first.offsetWidth / 2);
+    trip.style.setProperty('--trip-h', `${Math.round(innerHeight + span)}px`);
+  };
+  const paint = () => {
+    queued = 0;
+    const box = trip.getBoundingClientRect();
+    const travel = Math.max(1, box.height - innerHeight);
+    const p = Math.min(1, Math.max(0, -box.top / travel));
+    track.style.setProperty('--x', `${(-p * span).toFixed(1)}px`);
+    rail.style.setProperty('--p', p.toFixed(4));
+    const at = p * (cards.length - 1);
+    cards.forEach((card, i) => card.classList.toggle('is-near', Math.abs(i - at) < .5));
+    marks.forEach((dot, i) => dot.classList.toggle('is-passed', i <= at + .02));
+  };
+  const onScroll = () => { if (!queued) queued = requestAnimationFrame(paint); };
+  // Without motion the strip stays a plain sideways swipe, and its dots follow that swipe instead.
+  const onSwipe = () => {
+    const centre = track.scrollLeft + track.clientWidth / 2;
+    let near = 0;
+    cards.forEach((card, i) => { if (Math.abs(card.offsetLeft + card.offsetWidth / 2 - centre) < Math.abs(cards[near].offsetLeft + cards[near].offsetWidth / 2 - centre)) near = i; });
+    const p = cards.length > 1 ? near / (cards.length - 1) : 0;
+    rail.style.setProperty('--p', p.toFixed(4));
+    marks.forEach((dot, i) => dot.classList.toggle('is-passed', i <= near));
+  };
+  const mode = () => {
+    const pin = motionAllowed();
+    trip.classList.toggle('is-pinned', pin);
+    hint.textContent = `${pin ? 'Gulir' : 'Geser'} untuk menyusuri, ketuk foto untuk membaca ceritanya.`;
+    if (pin) {
+      track.scrollLeft = 0;
+      measure();
+      onScroll();
+    } else {
+      trip.style.removeProperty('--trip-h');
+      track.style.removeProperty('--x');
+      cards.forEach(card => card.classList.remove('is-near'));
+      onSwipe();
+    }
+  };
+  new IntersectionObserver(([entry]) => {
+    active = entry.isIntersecting;
+    if (active) { addEventListener('scroll', onScroll, { passive: true }); onScroll(); }
+    else removeEventListener('scroll', onScroll);
+  }).observe(trip);
+  track.addEventListener('scroll', () => { if (!trip.classList.contains('is-pinned')) onSwipe(); }, { passive: true });
+  // Tabbing to a print that is still off to the side scrolls the page until that print sits in the middle.
+  const pin = section.querySelector('.trip-pin');
+  track.addEventListener('focusin', event => {
+    if (!trip.classList.contains('is-pinned')) return;
+    const i = cards.findIndex(card => card.contains(event.target));
+    if (i < 0) return;
+    pin.scrollLeft = 0;
+    track.scrollLeft = 0;
+    const box = trip.getBoundingClientRect();
+    const travel = Math.max(0, box.height - innerHeight);
+    scrollTo({ top: scrollY + box.top + travel * (cards.length > 1 ? i / (cards.length - 1) : 0), behavior: 'instant' });
+  });
+  addEventListener('resize', () => { if (trip.classList.contains('is-pinned')) { measure(); onScroll(); } });
+  motionButton.addEventListener('click', mode);
+  reducedMotion.addEventListener('change', mode);
+  mode();
+})();
