@@ -341,15 +341,24 @@ reducedMotion.addEventListener('change', () => { if (!motionAllowed()) { panelAn
   view.addEventListener('pointercancel', () => { swipe = undefined; });
 })();
 
-// Counts down to deployment day. Every date carries the +07:00 offset, so every visitor sees Western Indonesia Time.
+// Counts down to deployment day, then counts the operational days up to the last one. Every date carries the
+// +07:00 offset, so every visitor sees Western Indonesia Time.
 (() => {
   const countdown = document.querySelector('.countdown');
-  const target = Date.parse(countdown.dataset.target);
   const day = 864e5;
+  const start = Date.parse(countdown.dataset.target);
+  const end = Date.parse(countdown.dataset.end) + day; // the last day counts in full
+  const total = Math.round((end - start) / day);
   const digits = [...countdown.querySelectorAll('.countdown-value > span')];
   const units = countdown.querySelector('.countdown-units');
   const heading = countdown.querySelector('.countdown-heading');
+  const dateSlot = countdown.querySelector('.countdown-date');
   const message = countdown.querySelector('.countdown-message');
+  const ops = countdown.querySelector('.countdown-ops');
+  const opsDay = ops.querySelector('.countdown-ops-n');
+  const opsOf = ops.querySelector('.countdown-ops-of');
+  const opsBar = ops.querySelector('.countdown-ops-bar');
+  const opsLeft = ops.querySelector('.countdown-ops-left');
   let timer;
   let state;
   let countingUp = false;
@@ -360,33 +369,49 @@ reducedMotion.addEventListener('change', () => { if (!motionAllowed()) { panelAn
     if (!animate || !motionAllowed() || document.hidden) return;
     digit.animate([{ transform: 'translateY(-75%)', opacity: 0 }, { transform: 'none', opacity: 1 }], { duration: 450, easing: 'cubic-bezier(.22,1,.36,1)' });
   };
-  // `share` scales the numbers, so the opening can count up from zero.
+  // `share` scales what the card shows, so the opening can count up from zero.
   const render = (share = 1) => {
     const now = Date.now();
-    const left = Math.max(0, target - now);
-    const current = now < target ? 'counting' : now < target + day ? 'today' : 'arrived';
+    const left = Math.max(0, start - now);
+    const current = now < start ? 'counting' : now < end ? 'ops' : 'done';
     if (current !== state) {
       state = current;
+      countdown.dataset.state = state;
       units.hidden = state !== 'counting';
-      message.hidden = state === 'counting';
+      ops.hidden = state !== 'ops';
+      message.hidden = state !== 'done';
       if (state !== 'counting') {
         heading.textContent = heading.dataset[state];
-        message.textContent = message.dataset[state];
+        dateSlot.textContent = ` · ${dateSlot.dataset.ops}`;
+        message.textContent = message.dataset.done;
       }
     }
-    [left / day, left / 36e5 % 24, left / 6e4 % 60, left / 1e3 % 60].forEach((value, i) => {
-      roll(digits[i], pad(Math.floor(Math.floor(value) * share)), share === 1);
-    });
+    if (state === 'counting') {
+      [left / day, left / 36e5 % 24, left / 6e4 % 60, left / 1e3 % 60].forEach((value, i) => {
+        roll(digits[i], pad(Math.floor(Math.floor(value) * share)), share === 1);
+      });
+    } else if (state === 'ops') {
+      const n = Math.min(total, Math.floor((now - start) / day) + 1);
+      const shown = Math.max(1, Math.round(n * share));
+      const rest = total - n;
+      opsDay.textContent = `Hari ke-${shown}`;
+      opsOf.textContent = `dari ${total}`;
+      opsBar.style.setProperty('--done', `${(shown / total * 100).toFixed(2)}%`);
+      opsBar.setAttribute('aria-valuemax', String(total));
+      opsBar.setAttribute('aria-valuenow', String(n));
+      opsBar.setAttribute('aria-valuetext', `Hari ke-${n} dari ${total}${rest ? `, ${rest} hari lagi` : ', hari terakhir'}`);
+      opsLeft.textContent = n === 1 ? 'Hari penerjunan' : rest ? `${rest} hari lagi` : 'Hari terakhir';
+    }
     return left;
   };
   const tick = () => {
     countingUp = false;
     clearTimeout(timer);
     const left = render();
-    // Waking just after the next whole second keeps the seconds from skipping; after the day, once a minute is enough.
+    // Waking just after the next whole second keeps the seconds from skipping; after that, once a minute is enough.
     timer = setTimeout(tick, left ? left % 1000 + 30 : 6e4);
   };
-  // The numbers count up while the card rises in with the rest of the opening.
+  // The card counts up while it rises in with the rest of the opening.
   if (motionAllowed() && !document.hidden) {
     countingUp = true;
     const begin = performance.now() + 1350;
@@ -1339,7 +1364,6 @@ reducedMotion.addEventListener('change', () => { if (!motionAllowed()) { panelAn
     requestAnimationFrame(() => { fly.style.translate = '0px 0px'; });
     if (caught === SLOTS.length) {
       scene.classList.add('is-complete');
-      reset.hidden = false;
       complete(now);
     }
     story();
@@ -2105,17 +2129,23 @@ reducedMotion.addEventListener('change', () => { if (!motionAllowed()) { panelAn
   const readCountdown = () => {
     const box = document.querySelector('.countdown');
     if (!box) return null;
-    const units = box.querySelector('.countdown-units'), message = box.querySelector('.countdown-message');
+    const units = box.querySelector('.countdown-units'), message = box.querySelector('.countdown-message'), ops = box.querySelector('.countdown-ops');
     return {
       heading: (box.querySelector('.countdown-heading')?.textContent || '').trim(),
       date: (box.querySelector('.countdown-date')?.textContent || '').replace(/^[\s·]+/, '').trim(),
       units: units && !units.hidden ? [...box.querySelectorAll('.countdown-unit')].map(unit => [(unit.querySelector('.countdown-value')?.textContent || '').trim(), (unit.querySelector('.countdown-label')?.textContent || '').trim()]) : [],
-      message: message && !message.hidden ? message.textContent.trim() : ''
+      message: message && !message.hidden ? message.textContent.trim() : '',
+      ops: ops && !ops.hidden ? {
+        day: ops.querySelector('.countdown-ops-n').textContent.trim(),
+        of: ops.querySelector('.countdown-ops-of').textContent.trim(),
+        done: parseFloat(ops.querySelector('.countdown-ops-bar').style.getPropertyValue('--done')) || 0,
+        ends: [...ops.querySelectorAll('.countdown-ops-ends > span')].map(span => span.textContent.trim())
+      } : null
     };
   };
   function countdownCard(ctx, x, y, w, h) {
     const now = readCountdown();
-    if (!now || (!now.units.length && !now.message)) return false;
+    if (!now || (!now.units.length && !now.message && !now.ops)) return false;
     ctx.save();
     ctx.shadowColor = '#0008';
     ctx.shadowBlur = 40;
@@ -2143,6 +2173,28 @@ reducedMotion.addEventListener('change', () => { if (!motionAllowed()) { panelAn
         label(ctx, unit.toUpperCase(), '20px Arial, Helvetica, sans-serif', '#7a8269', cx, y + h - 34, 3);
         if (i) { ctx.beginPath(); ctx.moveTo(x + 24 + cw * i, y + 82); ctx.lineTo(x + 24 + cw * i, y + h - 26); ctx.stroke(); }
       });
+    } else if (now.ops) {
+      // the operational day, large, then the bar from the first day to the last
+      const o = now.ops, big = '400 76px Georgia, "Times New Roman", serif', small = 'italic 38px Georgia, "Times New Roman", serif';
+      ctx.font = big;
+      const dw = ctx.measureText(o.day).width;
+      ctx.font = small;
+      const ow = ctx.measureText(o.of).width, x0 = x + w / 2 - (dw + 18 + ow) / 2;
+      ctx.textAlign = 'left';
+      ctx.font = big; ctx.fillStyle = '#2f3d2c'; ctx.fillText(o.day, x0, y + 136);
+      ctx.font = small; ctx.fillStyle = '#7a8269'; ctx.fillText(o.of, x0 + dw + 18, y + 136);
+      const bx = x + 56, bw = w - 112, by = y + 160;
+      ctx.fillStyle = '#dcdcca';
+      ctx.beginPath(); ctx.roundRect ? ctx.roundRect(bx, by, bw, 12, 6) : ctx.rect(bx, by, bw, 12); ctx.fill();
+      ctx.fillStyle = '#87634c';
+      ctx.beginPath(); ctx.roundRect ? ctx.roundRect(bx, by, Math.max(12, bw * o.done / 100), 12, 6) : ctx.rect(bx, by, bw * o.done / 100, 12); ctx.fill();
+      const [first, mid, last] = o.ends, f = '600 19px Arial, Helvetica, sans-serif';
+      ctx.font = f; ctx.fillStyle = '#7a8269';
+      if ('letterSpacing' in ctx) ctx.letterSpacing = '2px';
+      ctx.textAlign = 'left'; ctx.fillText((first || '').toUpperCase(), bx, y + h - 24);
+      ctx.textAlign = 'right'; ctx.fillText((last || '').toUpperCase(), bx + bw, y + h - 24);
+      ctx.textAlign = 'center'; ctx.fillStyle = '#87634c'; ctx.fillText((mid || '').toUpperCase(), x + w / 2, y + h - 24);
+      if ('letterSpacing' in ctx) ctx.letterSpacing = '0px';
     } else {
       label(ctx, now.message, 'italic 40px Georgia, "Times New Roman", serif', '#2f3d2c', x + w / 2, y + h / 2 + 34);
     }
@@ -2595,17 +2647,17 @@ reducedMotion.addEventListener('change', () => { if (!motionAllowed()) { panelAn
   night.classList.add('is-armed');
 })();
 
-// Perjalanan kami: the journal chapters as a strip of prints. Scrolling down the page slides it sideways;
-// a tap on a print opens the journal at that chapter. The prints are read from the journal itself,
+// Perjalanan kami: the journal chapters as a strip of prints that the visitor swipes sideways (a mouse gets arrows).
+// A tap on a print opens the journal at that chapter. The prints are read from the journal itself,
 // so a new chapter there appears here too.
 (() => {
   const section = document.querySelector('#perjalanan');
   if (!section) return;
-  const trip = section.querySelector('.trip');
   const track = section.querySelector('.trip-track');
   const rail = section.querySelector('.trip-rail');
   const dots = section.querySelector('.trip-dots');
-  const hint = section.querySelector('.trip-hint');
+  const prev = section.querySelector('.trip-step.is-prev');
+  const next = section.querySelector('.trip-step.is-next');
   const longDate = new Intl.DateTimeFormat('id-ID', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Asia/Jakarta' });
   const make = (tag, className, text) => {
     const node = document.createElement(tag);
@@ -2655,71 +2707,29 @@ reducedMotion.addEventListener('change', () => { if (!motionAllowed()) { panelAn
     return dot;
   });
 
-  // Page scroll drives the strip: the section is as tall as the screen plus the sideways distance, so one
-  // pixel down is one pixel across. Off screen, nothing is measured or moved.
-  let span = 0, queued = 0, active = false;
-  const measure = () => {
-    if (!cards.length) return;
-    const first = cards[0], last = cards[cards.length - 1];
-    span = (last.offsetLeft + last.offsetWidth / 2) - (first.offsetLeft + first.offsetWidth / 2);
-    trip.style.setProperty('--trip-h', `${Math.round(innerHeight + span)}px`);
-  };
-  const paint = () => {
+  // The print nearest the middle is the current one: it stands straight, and the route fills up to its dot.
+  let current = -1, queued = 0;
+  const centreOf = card => card.offsetLeft + card.offsetWidth / 2;
+  const update = () => {
     queued = 0;
-    const box = trip.getBoundingClientRect();
-    const travel = Math.max(1, box.height - innerHeight);
-    const p = Math.min(1, Math.max(0, -box.top / travel));
-    track.style.setProperty('--x', `${(-p * span).toFixed(1)}px`);
-    rail.style.setProperty('--p', p.toFixed(4));
-    const at = p * (cards.length - 1);
-    cards.forEach((card, i) => card.classList.toggle('is-near', Math.abs(i - at) < .5));
-    marks.forEach((dot, i) => dot.classList.toggle('is-passed', i <= at + .02));
-  };
-  const onScroll = () => { if (!queued) queued = requestAnimationFrame(paint); };
-  // Without motion the strip stays a plain sideways swipe, and its dots follow that swipe instead.
-  const onSwipe = () => {
-    const centre = track.scrollLeft + track.clientWidth / 2;
+    const middle = track.scrollLeft + track.clientWidth / 2;
     let near = 0;
-    cards.forEach((card, i) => { if (Math.abs(card.offsetLeft + card.offsetWidth / 2 - centre) < Math.abs(cards[near].offsetLeft + cards[near].offsetWidth / 2 - centre)) near = i; });
-    const p = cards.length > 1 ? near / (cards.length - 1) : 0;
-    rail.style.setProperty('--p', p.toFixed(4));
+    cards.forEach((card, i) => { if (Math.abs(centreOf(card) - middle) < Math.abs(centreOf(cards[near]) - middle)) near = i; });
+    if (near === current) return;
+    current = near;
+    cards.forEach((card, i) => card.classList.toggle('is-near', i === near));
     marks.forEach((dot, i) => dot.classList.toggle('is-passed', i <= near));
+    rail.style.setProperty('--p', (cards.length > 1 ? near / (cards.length - 1) : 0).toFixed(4));
+    prev.disabled = near === 0;
+    next.disabled = near === cards.length - 1;
   };
-  const mode = () => {
-    const pin = motionAllowed();
-    trip.classList.toggle('is-pinned', pin);
-    hint.textContent = `${pin ? 'Gulir' : 'Geser'} untuk menyusuri, ketuk foto untuk membaca ceritanya.`;
-    if (pin) {
-      track.scrollLeft = 0;
-      measure();
-      onScroll();
-    } else {
-      trip.style.removeProperty('--trip-h');
-      track.style.removeProperty('--x');
-      cards.forEach(card => card.classList.remove('is-near'));
-      onSwipe();
-    }
+  track.addEventListener('scroll', () => { if (!queued) queued = requestAnimationFrame(update); }, { passive: true });
+  addEventListener('resize', () => { current = -1; update(); });
+  const go = i => {
+    const card = cards[Math.max(0, Math.min(cards.length - 1, i))];
+    if (card) track.scrollTo({ left: centreOf(card) - track.clientWidth / 2, behavior: motionAllowed() ? 'smooth' : 'instant' });
   };
-  new IntersectionObserver(([entry]) => {
-    active = entry.isIntersecting;
-    if (active) { addEventListener('scroll', onScroll, { passive: true }); onScroll(); }
-    else removeEventListener('scroll', onScroll);
-  }).observe(trip);
-  track.addEventListener('scroll', () => { if (!trip.classList.contains('is-pinned')) onSwipe(); }, { passive: true });
-  // Tabbing to a print that is still off to the side scrolls the page until that print sits in the middle.
-  const pin = section.querySelector('.trip-pin');
-  track.addEventListener('focusin', event => {
-    if (!trip.classList.contains('is-pinned')) return;
-    const i = cards.findIndex(card => card.contains(event.target));
-    if (i < 0) return;
-    pin.scrollLeft = 0;
-    track.scrollLeft = 0;
-    const box = trip.getBoundingClientRect();
-    const travel = Math.max(0, box.height - innerHeight);
-    scrollTo({ top: scrollY + box.top + travel * (cards.length > 1 ? i / (cards.length - 1) : 0), behavior: 'instant' });
-  });
-  addEventListener('resize', () => { if (trip.classList.contains('is-pinned')) { measure(); onScroll(); } });
-  motionButton.addEventListener('click', mode);
-  reducedMotion.addEventListener('change', mode);
-  mode();
+  prev.addEventListener('click', () => go(current - 1));
+  next.addEventListener('click', () => go(current + 1));
+  update();
 })();
