@@ -40,7 +40,6 @@ body.motion-paused .bird,body.motion-paused .bird img,body.motion-paused .scene>
 .anatomy-head{grid-area:head;padding-right:40px}
 .philosophy-eyebrow{font-size:9px;letter-spacing:2px;color:#5d6852;margin:2px 0 0}
 .philosophy-card h2{font-size:clamp(36px,4vw,46px);letter-spacing:-1.5px;line-height:1.05;margin:8px 0 10px}
-.anatomy-hint{max-width:390px;margin:0;font-size:13.5px;line-height:1.65;color:#5d6852}
 .anatomy-stage{grid-area:stage;position:relative;align-self:center;width:100%;max-width:460px;aspect-ratio:1;margin:0 auto}
 .anatomy-stage::before{content:"";position:absolute;inset:12.4%;border-radius:50%;background:radial-gradient(circle at 50% 38%,#fff 0,#fffdf7 60%,#fbf6e9 100%);box-shadow:0 0 0 7px #faf8ef,0 0 0 8px #dcd8c4,0 22px 50px #3a4e3024}
 .anatomy-stage::after{content:"";position:absolute;inset:2%;z-index:-1;border-radius:50%;background:radial-gradient(circle,var(--glow,#e4e8d2) 0,transparent 68%);opacity:.9;transition:opacity .7s}
@@ -101,8 +100,6 @@ body.motion-paused .bird,body.motion-paused .bird img,body.motion-paused .scene>
 .makna h3 i{color:var(--accent)}
 .makna p{margin:0;font-size:14px;line-height:1.75;color:#5d6852}
 .makna p+p{margin-top:10px}
-.makna .makna-close{margin-top:14px;padding-top:14px;border-top:1px dashed #d6cfbb;font:400 16px/1.55 Georgia,'Times New Roman',serif;color:var(--ink)}
-.makna-close i{color:var(--accent)}
 .makna-quote{margin:16px 0 0;padding:12px 16px 13px;border-left:3px solid #e8b257;border-radius:0 14px 14px 0;background:#fbefd8}
 .makna .makna-quote p{font:italic 19px/1.3 Georgia,'Times New Roman',serif;color:#74501f}
 .makna-quote span{display:block;margin-top:5px;font-size:12px;line-height:1.5;color:#6f5d43}
@@ -432,8 +429,6 @@ body.is-past-hero .bird,body.is-past-hero .bird img,body.is-past-hero .scene>img
 .theme-term{cursor:pointer}
 .theme-term:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
 .theme-statement figcaption{display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px;margin-top:22px;padding-top:18px;border-top:1px dashed var(--line);font-size:12px;line-height:1.6;color:#5d6852}
-.theme-hint{display:inline-flex;align-items:center;gap:7px;color:var(--accent)}
-.theme-hint .icon{width:15px;height:15px}
 /* Tema, satu batang tiga cabang: the statement is the trunk, and the three clusters grow out of it as branches. */
 :is(.cluster,.members-dialog,.members-tabs [role="tab"])[data-cluster="medika"]{--k:#f4ab90;--k-ink:#9a4a2f;--k-soft:#f7e4da;--k-glow:#f4ab9017;--k-line:#f4ab9070}
 :is(.cluster,.members-dialog,.members-tabs [role="tab"])[data-cluster="saintek"]{--k:#fccc3d;--k-ink:#7a5c0a;--k-soft:#fbefc9;--k-glow:#fccc3d14;--k-line:#fccc3d70}
@@ -450,7 +445,7 @@ body.is-past-hero .bird,body.is-past-hero .bird img,body.is-past-hero .scene>img
 .js .term-panel.is-leaving{visibility:visible}
 .theme-gloss.is-moving{overflow:clip}
 html:not(.js) .theme-gloss{gap:12px;margin-top:24px}
-html:not(.js) :is(.term-foot,.term-close,.theme-hint){display:none}
+html:not(.js) :is(.term-foot,.term-close){display:none}
 .term-panel{position:relative;display:flex;flex-direction:column;gap:14px;min-width:0;padding:18px 18px 16px;border:1px solid #e6dcc8;border-radius:20px;background:#f3ede0}
 .term-head{display:flex;align-items:center;gap:12px;padding-right:46px}
 .term-icon{flex:none;display:grid;place-items:center;width:42px;height:42px;border-radius:50%;background:#17352f;color:#fccc3d}
@@ -655,8 +650,6 @@ body.motion-paused .members-dialog[open] .members-card{animation:none}
 .map-legend i{width:12px;height:12px;border-radius:4px;background:#ece9da;border:1px solid #cdc8b1}
 .map-legend .is-target i{background:#dfe4cf;border-color:#6f7d57}
 .map-legend .is-selected i{background:#c6a07d;border-color:#6d4c37}
-.map-credit{margin:8px 6px 0;font-size:10px;color:#5d6852}
-.map-credit a{color:inherit}
 .map-tip{position:absolute;z-index:2;padding:7px 11px;border-radius:10px;background:var(--ink);color:var(--paper);font:italic 13px/1.2 Georgia,'Times New Roman',serif;white-space:nowrap;pointer-events:none;opacity:0;transform:translate(-50%,calc(-100% - 10px));transition:opacity .15s}
 .map-tip.is-shown{opacity:1}
 .map-tip small{display:block;margin-top:3px;font:normal 8px/1 Arial,Helvetica,sans-serif;letter-spacing:1.4px;text-transform:uppercase;color:#cdd3bd}
@@ -937,7 +930,7 @@ body.motion-paused .senja-keepsake,body.motion-paused .senja-keepsake::after{ani
 @media(pointer:coarse){.map-switch button{min-height:40px}}
 .places-map .gmap{position:absolute;inset:clamp(8px,1.2vw,12px);z-index:2;width:auto;margin:0;aspect-ratio:auto;min-height:0;border-radius:20px;visibility:hidden;opacity:0;transition:opacity .35s,visibility .35s}
 .places-map[data-view="google"] .gmap{visibility:visible;opacity:1}
-.places-map[data-view="google"] :is(.map-stage,.map-legend,.map-credit){visibility:hidden}
+.places-map[data-view="google"] :is(.map-stage,.map-legend){visibility:hidden}
 .places-map .gmap-facade{padding:72px 24px 24px}
 body.motion-paused .places-map .gmap{transition:none}
 .places-map[data-view="google"] .gmap{transition:opacity .35s,visibility 0s}
@@ -954,7 +947,6 @@ html:not(.js) :is(.map-switch,.place-button.is-map){display:none}
 .map-switch{grid-area:1/2/2/3;flex-direction:column;width:auto;margin:0;border-radius:18px}
 .map-switch button{padding:0 8px;font-size:11.5px}
 .map-legend{flex-direction:column;gap:8px;margin:0}
-.map-credit{margin:0;line-height:1.45}
 .places-map .gmap-facade{padding:104px 16px 20px}
 .places-map .gmap-view{top:104px;right:4px;bottom:auto;left:auto;flex-direction:column}
 .region-label.is-target{font-size:21px;letter-spacing:.6px}
@@ -1060,7 +1052,6 @@ body.motion-paused dialog[open] .kilas-card{animation:none}
 .kilas-sign span{display:block;margin-top:.35em;font:max(8.5px,.62em) Arial,Helvetica,sans-serif;letter-spacing:1.2px;text-transform:uppercase;color:#5d6653}
 .kilas-actions .kilas-flip{flex:none;display:grid;place-items:center;width:46px;padding:0;border:1px solid #f6f1e466;background:#f6f1e40f;color:#f6f1e4}
 .kilas-flip .icon{width:18px;height:18px}
-.kilas-hint{margin:0;font-size:12px;text-align:center;color:#b9c0a8}
 .kilas-actions{display:flex;gap:8px}
 .kilas-actions button{flex:1;display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:46px;border-radius:999px;font-size:13.5px}
 .kilas-share{border:1px solid #f6f1e466;background:#f6f1e40f;color:#f6f1e4}
@@ -1196,9 +1187,7 @@ body.motion-paused .kilas-progress i::after,body.motion-paused .kilas-post-inner
 [data-tier="utama"] .sponsor[data-nama="sembunyi"]{--box-h:104px;--base:104px}
 @media(min-width:600px){[data-tier="utama"] .sponsor[data-nama="sembunyi"]{--box-h:128px;--base:128px}}
 @media(min-width:900px){[data-tier="utama"] .sponsor[data-nama="sembunyi"]{--box-h:136px;--base:136px}}
-/* Linked cards carry a small arrow, like every other outside link on the page. */
-a.sponsor-card::before{content:"";position:absolute;top:8px;right:8px;width:11px;height:11px;background:#87634c;opacity:.75;-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 18 18 6M8 6h10v10'/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 18 18 6M8 6h10v10'/%3E%3C/svg%3E") center/contain no-repeat}
-.sponsor.is-light a.sponsor-card::before{background:#e2c3a0}
+/* Linked cards carry no corner mark: the whole card is the link, and it lifts under the mouse. */
 /* The aura: a gold halo hugging each card, painted once; only its opacity and scale ever move. Its warm fill shows as a rim of light when it swells.
    It sits on the list item (which must never become a stacking context), so every halo stays behind every card. */
 .sponsor::before{content:"";position:absolute;inset:0;z-index:0;border-radius:16px;background:#fff1c4;box-shadow:0 0 12px 2px var(--aura),0 0 40px 10px var(--aura-soft);opacity:var(--aura-rest);pointer-events:none;transition:opacity .35s}
@@ -1350,7 +1339,6 @@ body.motion-paused .chapter-sponsor :is(.sponsor-card,.sponsor-name,.sponsor-via
 .trip-step:disabled{opacity:.35;cursor:default}
 @media(hover:hover) and (pointer:fine){.trip-step{display:grid}.trip-step:not(:disabled):hover{background:#efe4cf}}
 .trip-step:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
-.trip-hint{margin:0 auto;font-size:12px;color:#535e48;text-align:center}
 body.motion-paused :is(.trip-bird,.trip-print,.trip-card,.trip-line i){transition:none}
 /* The Senja easter egg: the whole page dims, the constellation lifts to the middle and writes the name large. */
 body.egg-open{overflow:hidden}

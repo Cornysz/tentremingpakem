@@ -1180,7 +1180,6 @@ reducedMotion.addEventListener('change', () => { if (!motionAllowed()) { panelAn
   const bloomButton = scene.querySelector('.senja-bloom');
   const keepsake = scene.querySelector('.senja-keepsake');
   const linePath = sky.querySelector('path');
-  const coarse = matchMedia('(pointer: coarse)');
   // where each star lands on the drawn sprig (264 x 244 units), in SLOTS order: stem base, junction, stem tip, leaf 1, leaf 2, leaf 4
   const TIPS = [[6, 238], [112, 154], [258, 5], [62, 88], [111, 20], [258, 174]];
   const FOLDS = { 1: 50, 4: -45, 2: 40, 3: -20 };
@@ -1482,7 +1481,6 @@ reducedMotion.addEventListener('change', () => { if (!motionAllowed()) { panelAn
     scene.dataset.finale = 'await';
     step('await');
     if (bloomQueued) { bloom(); return; }
-    hint(coarse.matches ? 'Ketuk untuk menyalakan rasi.' : 'Klik atau tekan Enter untuk menyalakan rasi.');
     armAuto();
   }
   // with no tap, the constellation lights itself, but only while someone can see it
@@ -1977,7 +1975,6 @@ reducedMotion.addEventListener('change', () => { if (!motionAllowed()) { panelAn
     const sway = modal.querySelector('[data-fill="tally-sway"]');
     sway.hidden = !s.sways;
     sway.textContent = `Daun digoyang: ${s.sways} kali`;
-    set('flip-hint', coarse.matches ? 'Ketuk kartu untuk membaliknya.' : 'Klik kartu untuk membaliknya.');
     const says = [
       'Enam bintang, setangkai daun. Kamu menyalakan langit di kaki Merapi.',
       `Waktumu ${time.text}, dari sentuhan pertama sampai bintang keenam. Senja turun ${s.sunsets} kali, matahari kamu geser ${s.moves} kali, tangkapan tercepat ${fastest} detik.`,
@@ -2741,7 +2738,7 @@ reducedMotion.addEventListener('change', () => { if (!motionAllowed()) { panelAn
   function visit(item) {
     if (!motionAllowed() || !item.classList.contains('is-lit') || item.classList.contains('is-landing') || item.classList.contains('is-visited')) return;
     const spark = document.createElement('span'), w = item.offsetWidth / 2, h = item.offsetHeight / 2;
-    const cx = 18 - w, cy = 1 - h, sx = cx - 30 - Math.random() * 40, sy = cy - 50 - Math.random() * 30; // perches on the top edge, left, clear of the logo and the link arrow
+    const cx = 18 - w, cy = 1 - h, sx = cx - 30 - Math.random() * 40, sy = cy - 50 - Math.random() * 30; // perches on the top edge, left, clear of the logo
     spark.className = 'sponsor-spark';
     item.append(spark);
     run(spark, [
