@@ -116,7 +116,7 @@ Semua perubahan ada di index.html. Sisipkan tiga blok berurutan, selalu sebelum 
 2. Panel di `.story-panels` dengan `data-next`, yaitu tulisan tombol menuju bab sesudahnya.
 3. Foto di `.journal-view`: `figure.journal-spread` dengan `hidden`. Kelas `journal-collage-pair` untuk dua foto bertumpuk, `journal-collage` untuk tiga foto.
 
-Penghitung halaman dan tulisan tombol berikutnya dihitung otomatis dari urutan itu. Titik di garis hitung mundur juga muncul sendiri, dari tanggal `<time datetime>` di panel dan judul foto bab itu. Foto di dalam `.journal-collage` otomatis bisa diperbesar, dan keterangan pratinjaunya diambil dari teks `alt` foto. Jangan lupa perbarui juga kalimat `journey-connection` dan `data-next` pada bab sebelumnya supaya ceritanya tetap nyambung.
+Penghitung halaman dan tulisan tombol berikutnya dihitung otomatis dari urutan itu. Kartu bab di bagian Perjalanan kami juga muncul sendiri, dari foto pertama, tanggal, dan judul foto bab itu. Foto di dalam `.journal-collage` otomatis bisa diperbesar, dan keterangan pratinjaunya diambil dari teks `alt` foto. Jangan lupa perbarui juga kalimat `journey-connection` dan `data-next` pada bab sebelumnya supaya ceritanya tetap nyambung.
 
 ## Sumber informasi Pakem
 
