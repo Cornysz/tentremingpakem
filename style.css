@@ -1092,7 +1092,7 @@ body.motion-paused .kilas-progress i::after,body.motion-paused .kilas-post-inner
 /* 04 Sponsor dan mitra: a small night between Lokasi and the Senja sky. The title rolls through the ways to say thanks,
    a firefly writes the last words in light, then fireflies carry that light down to each sponsor's card. */
 /* The section ships with the hidden attribute and shows itself once a <li class="sponsor"> exists (script.js, or :has() without JS). */
-.chapter-sponsor{padding:clamp(8px,2vw,24px) 0 clamp(56px,7vw,96px);background:#e6ece0}
+.chapter-sponsor{padding:clamp(8px,2vw,24px) 0 clamp(56px,7vw,96px);background:linear-gradient(180deg,#f4ead6 0,#f4ead6 18%,#e6ece0 calc(100% - clamp(56px,7vw,96px)))}
 .chapter-sponsor[hidden]:has(.sponsor),.sponsor-group[hidden]:has(.sponsor){display:block!important}
 .sponsor-night{--spring:cubic-bezier(.34,1.56,.64,1);position:relative;isolation:isolate;overflow:clip;width:calc(100% - 20px);max-width:1120px;margin:0 auto;padding:34px 14px 40px;border-radius:24px;background:radial-gradient(110% 55% at 50% 0,#2e46624d,#2e466200 70%),radial-gradient(60% 40% at 80% 100%,#fccc3d12,#fccc3d00 70%),linear-gradient(180deg,#15233a 0,#142a31 58%,#12261f 100%);box-shadow:0 18px 40px -16px #0a1a1452,inset 0 0 0 1px #f6f1e412;text-align:center;color:#e8e6d6}
 @media(min-width:600px){.sponsor-night{width:min(1120px,calc(100% - 2 * clamp(20px,5vw,64px)));padding:clamp(44px,5.4vw,72px) clamp(24px,4.4vw,56px) clamp(52px,6vw,80px);border-radius:32px}}
@@ -1308,8 +1308,9 @@ body.motion-paused .chapter-sponsor :is(.sponsor-card,.sponsor-name,.sponsor-via
 @media(max-width:760px){.story-tabs{margin-bottom:20px}.story-tabs button{padding:6px 4px 12px}.story-tabs .tab-day{font-size:22px}}
 
 /* Perjalanan kami: the journal prints as a sideways strip you swipe yourself; the route dots and the bird follow it. */
-.chapter-trip{background:#e6ece0}
-.trip-pin{display:flex;flex-direction:column;gap:clamp(18px,3vw,30px);padding:clamp(56px,8vw,96px) 0 clamp(40px,6vw,64px)}
+.chapter-trip{--trip-sand:#f4ead6;padding:clamp(64px,7vw,96px) 0 clamp(64px,6vw,80px);background:radial-gradient(60% 46% at 86% 64%,#fccc3d1a,#fccc3d00 70%),linear-gradient(180deg,#e6ece0 0,var(--trip-sand) clamp(200px,24vw,340px),var(--trip-sand) calc(100% - 160px),var(--trip-tail,var(--trip-sand)) 100%)}
+.chapter-trip:not(:has(+ .chapter-sponsor .sponsor)){--trip-tail:#e6ece0}
+.trip-pin{display:flex;flex-direction:column;gap:clamp(18px,3vw,30px)}
 .trip-head{margin:0 auto}
 .trip-head .section-title{margin-bottom:0}
 .trip-track{--card:min(300px,72vw);display:flex;align-items:flex-start;gap:clamp(18px,3vw,40px);margin:0;padding:10px calc((100% - var(--card)) / 2) 18px;list-style:none;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;scrollbar-width:none;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch}
@@ -1317,36 +1318,36 @@ body.motion-paused .chapter-sponsor :is(.sponsor-card,.sponsor-name,.sponsor-via
 .trip-card{flex:none;width:var(--card);scroll-snap-align:center;transition:opacity .4s ease}
 .trip-card:not(.is-near){opacity:.6}
 .trip-open{display:flex;flex-direction:column;gap:7px;width:100%;margin:0;padding:0;border:0;background:none;color:inherit;text-align:left;cursor:pointer;-webkit-tap-highlight-color:transparent}
-.trip-print{display:block;padding:7px 7px 18px;background:#faf7ed;box-shadow:0 0 0 1px #dcdcca,0 10px 24px #2435202b;transform:rotate(var(--tilt,0deg));transition:transform .5s var(--ease),box-shadow .5s var(--ease)}
+.trip-print{display:block;padding:7px 7px 18px;background:#fcfaf3;box-shadow:0 0 0 1px #e2d5bd,0 1px 3px #5a3f2514,0 10px 22px #5a3f2524;transform:rotate(var(--tilt,0deg));transition:transform .5s var(--ease),box-shadow .5s var(--ease)}
 .trip-card:nth-child(odd){--tilt:-1.6deg}.trip-card:nth-child(even){--tilt:1.8deg}
 .trip-card.is-near .trip-print{transform:rotate(0deg)}
 .trip-print img{display:block;width:100%;height:auto;aspect-ratio:4/3;object-fit:cover;object-position:50% 35%}
-.trip-date{margin-top:12px;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#5d6852}
+.trip-date{margin-top:12px;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#535e48}
 .trip-title{font:italic 400 clamp(24px,6.4vw,30px)/1.05 Georgia,'Times New Roman',serif;letter-spacing:-.6px;color:var(--ink)}
-.trip-sub{font-size:12.5px;line-height:1.45;color:#5d6852}
+.trip-sub{font-size:12.5px;line-height:1.45;color:#535e48}
 .trip-open:focus-visible{outline:2px solid var(--accent);outline-offset:6px}
-@media(hover:hover) and (pointer:fine){.trip-open:hover .trip-print{transform:rotate(0deg) translateY(-4px);box-shadow:0 0 0 1px #dcdcca,0 16px 30px #24352033}}
+@media(hover:hover) and (pointer:fine){.trip-open:hover .trip-print{transform:rotate(0deg) translateY(-4px);box-shadow:0 0 0 1px #e2d5bd,0 1px 3px #5a3f2514,0 16px 30px #5a3f2530}}
 /* The waiting page at the end: a blank print with the bird. */
-.trip-card.is-waiting .trip-print{display:grid;place-items:center;background:#f6f1e4}
+.trip-card.is-waiting .trip-print{display:grid;place-items:center;background:#f9f4e8}
 .trip-card.is-waiting .trip-print span{display:grid;place-items:center;gap:10px;width:100%;aspect-ratio:4/3;font:italic 15px Georgia,serif;color:#7a8269}
 .trip-card.is-waiting .trip-print img{width:34px;height:auto;aspect-ratio:auto;object-fit:contain}
 /* The route: a line that fills, one dot per chapter, the bird on the front of it, and arrows for a mouse. */
 .trip-route{display:flex;align-items:center;justify-content:center;gap:14px;width:min(640px,calc(100% - 2 * clamp(20px,5vw,64px)));margin:0 auto}
 .trip-rail{position:relative;flex:1;height:28px}
-.trip-line{position:absolute;left:0;right:0;top:13px;height:2px;border-radius:2px;background:#cfd6bf;overflow:hidden}
+.trip-line{position:absolute;left:0;right:0;top:13px;height:2px;border-radius:2px;background:#dccdb1;overflow:hidden}
 .trip-line i{position:absolute;inset:0;background:#87634c;transform-origin:0 50%;transform:scaleX(var(--p,0));transition:transform .35s var(--ease)}
 .trip-dots{position:absolute;inset:0}
-.trip-dots i{position:absolute;top:9px;width:10px;height:10px;margin-left:-5px;border-radius:50%;background:#e6ece0;box-shadow:inset 0 0 0 2px #b9c2a6;transition:background .3s,box-shadow .3s}
+.trip-dots i{position:absolute;top:9px;width:10px;height:10px;margin-left:-5px;border-radius:50%;background:var(--trip-sand,#f4ead6);box-shadow:inset 0 0 0 2px #c3b08f;transition:background .3s,box-shadow .3s}
 .trip-dots i.is-passed{background:#87634c;box-shadow:inset 0 0 0 2px #87634c}
 .trip-bird{position:absolute;top:-14px;left:calc(var(--p,0) * 100%);width:22px;height:auto;margin-left:-11px;transition:left .35s var(--ease),transform .3s var(--ease)}
 /* the bird faces the way it flies: going back to an earlier chapter, it turns around */
 .trip-rail[data-dir="back"] .trip-bird{transform:scaleX(-1)}
-.trip-step{display:none;flex:none;place-items:center;width:40px;height:40px;padding:0;border:1px solid #c5ceb3;border-radius:50%;background:#f6f1e4;color:var(--ink);transition:background .25s,opacity .25s}
+.trip-step{display:none;flex:none;place-items:center;width:40px;height:40px;padding:0;border:1px solid #d6c5a6;border-radius:50%;background:#fbf7ec;color:var(--ink);transition:background .25s,opacity .25s}
 .trip-step .icon{width:17px;height:17px}
 .trip-step:disabled{opacity:.35;cursor:default}
-@media(hover:hover) and (pointer:fine){.trip-step{display:grid}.trip-step:not(:disabled):hover{background:#e6eadb}}
+@media(hover:hover) and (pointer:fine){.trip-step{display:grid}.trip-step:not(:disabled):hover{background:#efe4cf}}
 .trip-step:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
-.trip-hint{margin:0 auto;font-size:12px;color:#5d6852;text-align:center}
+.trip-hint{margin:0 auto;font-size:12px;color:#535e48;text-align:center}
 body.motion-paused :is(.trip-bird,.trip-print,.trip-card,.trip-line i){transition:none}
 /* The Senja easter egg: the whole page dims, the constellation lifts to the middle and writes the name large. */
 body.egg-open{overflow:hidden}
