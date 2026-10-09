@@ -181,6 +181,7 @@ body.motion-paused .journal-next-page img{animation-play-state:paused}
 .journal-dump img:nth-child(3){transform:translate(6px,-4px) rotate(2deg);z-index:3}
 .journal-dump img:nth-child(4){transform:translate(-4px,4px) rotate(-3deg);z-index:4}
 .journal-dump img:nth-child(5){transform:translate(2px,-6px) rotate(1.5deg);z-index:5}
+.journal-dump:not(:has(>:nth-child(4))) img:first-child{grid-column:1/-1;justify-self:center;width:84%;aspect-ratio:16/10;transform:rotate(-2deg);margin-bottom:-4px}
 .journal-dump:has(>:nth-child(5)) img:first-child{grid-column:1/-1;justify-self:center;width:78%;aspect-ratio:16/10;transform:rotate(-2deg);margin-bottom:-4px}
 
 /* A quiet way back, mirroring the next button. */
@@ -1309,3 +1310,14 @@ body.motion-paused .chapter-sponsor .sponsor-crown>span{opacity:0}
 .chapter-sponsor .sponsor:is(.is-focus,.is-color) .sponsor-via,.chapter-sponsor .sponsor:focus-within .sponsor-via{color:#0a66c2}
 .chapter-sponsor .sponsor-via:focus-visible{outline:2px solid #e2c3a0;outline-offset:-3px}
 body.motion-paused .chapter-sponsor :is(.sponsor-card,.sponsor-name,.sponsor-via,.sponsor-mark img){transition:none}
+/* Journal dates read as small chips: the day large, the month small under it, so five or six fit a phone without crowding. */
+.story-tabs{gap:2px;justify-content:space-between}
+.story-tabs button{display:grid;justify-items:center;align-content:center;gap:5px;flex:1 0 auto;min-width:50px;min-height:58px;padding:6px 6px 12px;color:#8a917c}
+.story-tabs .tab-day,.story-tabs .tab-month{display:block;margin:0;opacity:1}
+.story-tabs .tab-day{font:400 23px/1 Georgia,"Times New Roman",serif;letter-spacing:-.5px;transition:color .3s}
+.story-tabs .tab-month{font:600 9.5px/1 Arial,Helvetica,sans-serif;letter-spacing:1.6px;text-transform:uppercase}
+.story-tabs button[aria-selected="true"]{color:#55654a}
+.story-tabs button[aria-selected="true"] .tab-day{color:var(--ink)}
+.story-tabs button::after{left:50%;right:auto;width:26px;margin-left:-13px}
+@media(hover:hover) and (pointer:fine){.story-tabs button:not([aria-selected="true"]):hover .tab-day{color:#4c5d41}}
+@media(max-width:760px){.story-tabs{margin-bottom:20px}.story-tabs button{padding:6px 4px 12px}.story-tabs .tab-day{font-size:22px}}

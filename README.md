@@ -111,7 +111,7 @@ Sebelum push
 
 Semua perubahan ada di index.html. Sisipkan tiga blok berurutan, selalu sebelum halaman "Nanti, ya":
 
-1. Tab di `.story-tabs`, misalnya `<button id="tab-5-oktober" role="tab" aria-selected="false" aria-controls="panel-5-oktober" tabindex="-1">`.
+1. Tab di `.story-tabs`, misalnya `<button id="tab-5-oktober" role="tab" aria-selected="false" aria-controls="panel-5-oktober" tabindex="-1"><span class="tab-day">5</span> <span class="tab-month">Okt</span></button>`. Tanggal tampil besar dan bulan kecil di bawahnya.
 2. Panel di `.story-panels` dengan `data-next`, yaitu tulisan tombol menuju bab sesudahnya.
 3. Foto di `.journal-view`: `figure.journal-spread` dengan `hidden`. Kelas `journal-collage-pair` untuk dua foto bertumpuk, `journal-collage` untuk tiga foto.
 
