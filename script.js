@@ -87,6 +87,9 @@ function selectStory(index, moveFocus = false) {
     panels[i].hidden = i !== currentStory;
   });
   if (moveFocus) tabs[currentStory].focus({ preventScroll: true });
+  // the tab strip scrolls sideways when the dates no longer fit, so the chosen date slides into view
+  const strip = tabs[currentStory].parentElement, chosen = tabs[currentStory].getBoundingClientRect(), view = strip.getBoundingClientRect();
+  if (chosen.left < view.left || chosen.right > view.right) strip.scrollTo({ left: strip.scrollLeft + chosen.left - view.left - (view.width - chosen.width) / 2, behavior: motionAllowed() ? 'smooth' : 'instant' });
   updateNavigation();
   journalPhotos.forEach((photo, i) => { photo.hidden = i !== currentStory; });
   dialog.querySelector('.postcard').scrollTo({ top: 0, behavior: motionAllowed() ? 'smooth' : 'instant' });
@@ -2364,7 +2367,8 @@ reducedMotion.addEventListener('change', () => { if (!motionAllowed()) { panelAn
       card.target = '_blank';
       card.rel = 'noopener noreferrer';
       const name = (card.querySelector('.sponsor-name')?.textContent || '').replace(/\s+/g, ' ').trim();
-      if (name) card.setAttribute('aria-label', `${name}, membuka tab baru`); // the visible name comes first (label in name)
+      const via = (card.querySelector('.sponsor-via')?.textContent || '').trim();
+      if (name) card.setAttribute('aria-label', via ? `${name} di ${via}, membuka tab baru` : `${name}, membuka tab baru`); // the visible text stays inside the name (label in name)
     }
   });
 

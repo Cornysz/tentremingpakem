@@ -172,6 +172,17 @@ body.motion-paused .journal-next-page img{animation-play-state:paused}
 .journal-collage-pair img+img{grid-column:1;width:76%;justify-self:end;margin-top:-26px;transform:rotate(3deg);z-index:2}
 @media(max-width:760px){.journal-collage-pair{gap:0;padding:6px 5px 12px}.journal-collage-pair img{border-width:5px;border-bottom-width:12px}.journal-collage-pair img+img{margin-top:-22px}}
 
+/* A photo dump: four or five loose prints, a little crooked and overlapping, like a handful dropped on the table. */
+.journal-dump{grid-template-columns:1fr 1fr;gap:0;padding:6px 6px 14px;background:transparent;border:0;box-shadow:none;transform:none;isolation:isolate}
+.journal-dump img{position:relative;width:100%;aspect-ratio:4/3;object-fit:cover;object-position:50% 35%;border:5px solid #faf7ed;border-bottom-width:12px;box-shadow:0 0 0 1px #dcdcca,0 6px 14px #24352022}
+.journal-dump img:first-child{grid-column:auto}
+.journal-dump img:nth-child(1){transform:rotate(-3deg);z-index:1}
+.journal-dump img:nth-child(2){transform:translate(-8px,10px) rotate(2.5deg);z-index:2}
+.journal-dump img:nth-child(3){transform:translate(6px,-4px) rotate(2deg);z-index:3}
+.journal-dump img:nth-child(4){transform:translate(-4px,4px) rotate(-3deg);z-index:4}
+.journal-dump img:nth-child(5){transform:translate(2px,-6px) rotate(1.5deg);z-index:5}
+.journal-dump:has(>:nth-child(5)) img:first-child{grid-column:1/-1;justify-self:center;width:78%;aspect-ratio:16/10;transform:rotate(-2deg);margin-bottom:-4px}
+
 /* A quiet way back, mirroring the next button. */
 .story-navigation{gap:12px}.story-count{margin-right:auto;white-space:nowrap}
 .previous-story{display:flex;align-items:center;flex-shrink:0;padding:8px 8px 8px 0;border:0;background:none;color:#46573b}
@@ -181,8 +192,12 @@ body.motion-paused .journal-next-page img{animation-play-state:paused}
 .previous-story:disabled{opacity:.35;cursor:default}
 .next-story{text-align:right}
 
-/* Four date tabs still fit on one line on narrow phones. */
-@media(max-width:760px){.story-tabs button{padding-left:4px;padding-right:4px}.story-tabs button::after{left:6px;right:6px}}
+/* The date tabs scroll sideways once there are more than fit; the chosen one always slides into view. */
+.story-tabs{overflow-x:auto;overflow-y:hidden;overscroll-behavior-x:contain;scrollbar-width:none}
+.story-tabs::-webkit-scrollbar{display:none}
+.story-tabs button{flex:none}
+.story-tabs button::after{bottom:0}
+@media(max-width:760px){.story-tabs button{padding-left:6px;padding-right:6px}.story-tabs button::after{left:6px;right:6px}}
 @media(max-width:345px){.story-tabs button span{display:none}}
 
 /* Journal photos open in a larger preview that grows out of the print and settles back into it. */
@@ -1262,3 +1277,9 @@ body.motion-paused .chapter-sponsor .sponsor-crown>span{opacity:0}
 .sponsor-cta .icon{flex:none;width:17px;height:17px;color:#e2c3a0}
 @media(hover:hover) and (pointer:fine){.sponsor-cta a:hover{background:#f6f1e41f}}
 .chapter-sponsor .sponsor-cta a:focus-visible{outline:2px solid #e2c3a0;outline-offset:3px}
+/* A sponsor link can name where it goes (data on the card: span.sponsor-via), shown small under the logo instead of the corner arrow. */
+.sponsor-via{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;letter-spacing:.4px;color:#87634c}
+.sponsor-via .icon{width:12px;height:12px}
+a.sponsor-card:has(.sponsor-via)::before{content:none}
+.sponsor[data-nama="sembunyi"] .sponsor-card:has(.sponsor-via){grid-template-rows:var(--box-h) auto;gap:8px}
+@media(hover:hover) and (pointer:fine){a.sponsor-card:hover .sponsor-via{text-decoration:underline;text-underline-offset:3px}}

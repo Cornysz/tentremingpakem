@@ -94,6 +94,7 @@ Sponsor yang sudah terpasang: Hassa Batik dan PT Sandang Andalan Indonesia (kedu
 6. Ukuran logo, jumlah kolom, dan animasi menyesuaikan sendiri dari 1 sampai sekitar 24 sponsor. Tidak ada angka yang perlu diisi.
 
 Pilihan tambahan
+- Bila tautannya bukan situs resmi (misalnya LinkedIn, seperti kartu Hassa Batik), tambahkan `<span class="sponsor-via">LinkedIn</span>` di dalam kartu. Tulisan kecil itu tampil di bawah logo menggantikan panah di pojok, dan ikut dibacakan ("Hassa Batik di LinkedIn").
 - Logo PT Sandang Andalan Indonesia aslinya memakai teks dengan font Plus Jakarta Sans. Di `assets/sponsor/` teksnya sudah diubah jadi garis (outline), supaya tampil sama di semua HP tanpa memuat font.
 - Logo terlalu pucat di kartu krem, atau logo putih yang tidak terdeteksi: `<li class="sponsor" data-latar="gelap">`. Sebaliknya, `data-latar="terang"` memaksa kartu krem.
 - Menyembunyikan nama di bawah logo (misalnya bila logonya sudah memuat nama): tambahkan `data-nama="sembunyi"` pada `<li class="sponsor">` untuk satu sponsor (seperti Hassa Batik), atau pada `<section id="sponsor" ...>` untuk semuanya. Nama tetap dibacakan pembaca layar, dan logonya membesar mengisi tempat nama.
