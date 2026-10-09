@@ -2480,7 +2480,8 @@ reducedMotion.addEventListener('change', () => { if (!motionAllowed()) { panelAn
       card.target = '_blank';
       card.rel = 'noopener noreferrer';
       const name = (card.querySelector('.sponsor-name')?.textContent || '').replace(/\s+/g, ' ').trim();
-      if (name) card.setAttribute('aria-label', `${name}, membuka tab baru`); // the visible name comes first (label in name)
+      // a label written in the HTML (e.g. a LinkedIn page) is kept; otherwise the visible name comes first (label in name)
+      if (name && !card.hasAttribute('aria-label')) card.setAttribute('aria-label', `${name}, membuka tab baru`);
     }
   });
 
