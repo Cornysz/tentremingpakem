@@ -2304,11 +2304,32 @@ reducedMotion.addEventListener('change', () => { if (!motionAllowed()) { panelAn
     }
     return true;
   }
+  // the ground under the hills: it darkens towards the bottom and fireflies glow over it, one per column, larger the nearer they are
+  function meadow(ctx, W, top, bottom, count) {
+    let seed = (Math.round(stats.duration) * 7 + 13) % 2147483646 + 1;
+    const rand = () => (seed = seed * 16807 % 2147483647) / 2147483647;
+    const depth = ctx.createLinearGradient(0, top, 0, bottom);
+    depth.addColorStop(0, 'rgba(8,14,10,0)');
+    depth.addColorStop(1, 'rgba(8,14,10,.6)');
+    ctx.fillStyle = depth;
+    ctx.fillRect(0, top, W, bottom - top);
+    for (let i = 0; i < count; i += 1) {
+      const near = rand(), x = 50 + (i + .15 + rand() * .7) * (W - 100) / count, y = top + 30 + near * (bottom - top - 60), r = 16 + near * 22;
+      const glow = ctx.createRadialGradient(x, y, 0, x, y, r);
+      glow.addColorStop(0, `rgba(243,226,122,${(.32 + near * .2).toFixed(2)})`);
+      glow.addColorStop(1, 'rgba(243,226,122,0)');
+      ctx.fillStyle = glow;
+      ctx.fillRect(x - r, y - r, r * 2, r * 2);
+      ctx.fillStyle = '#fff6b8';
+      ctx.beginPath(); ctx.arc(x, y, 2.4 + near * 2.4, 0, 7); ctx.fill();
+    }
+  }
   // 1080 x 1920 for Instagram Story: the visitor's sky, the wordmark, the countdown under it, then Senja di Pakem.
   // Nothing important sits in the top 220px or the bottom 280px, where Instagram draws its own bars.
   function drawStory() {
     const at = Date.now();
     const { canvas, ctx } = paintNight(1080, 1920, { starCount: 210, starDepth: 1300, hills: [-1177, 1033, 1.7], shade: [540, 960, 720], sky: [150, 220, 780, 520], mark: [150, 540, 900, 1038] });
+    meadow(ctx, 1080, 1700, 1920, 16);
     const card = countdownCard(ctx, 150, 1140, 780, 240);
     const base = card ? 1530 : 1340;
     label(ctx, 'KKN PPM UGM PAKEM 2026', '30px Arial, Helvetica, sans-serif', '#e2c3a0', 540, base, 5);
@@ -2763,6 +2784,7 @@ reducedMotion.addEventListener('change', () => { if (!motionAllowed()) { panelAn
   const dots = section.querySelector('.trip-dots');
   const prev = section.querySelector('.trip-step.is-prev');
   const next = section.querySelector('.trip-step.is-next');
+  const bird = rail.querySelector('.trip-bird');
   const longDate = new Intl.DateTimeFormat('id-ID', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Asia/Jakarta' });
   const make = (tag, className, text) => {
     const node = document.createElement(tag);
@@ -2812,6 +2834,19 @@ reducedMotion.addEventListener('change', () => { if (!motionAllowed()) { panelAn
     return dot;
   });
 
+  // On its way to the next dot the bird beats its wings twice (the same beat as the birds in the hero) and lifts a little.
+  // It uses the separate translate and scale properties, so it never fights the turn, which lives on transform.
+  const flap = () => {
+    if (!motionAllowed()) return;
+    bird.getAnimations().filter(a => a.id === 'flap').forEach(a => a.cancel());
+    bird.animate([
+      { translate: '0 0', scale: '1 1' },
+      { translate: '0 -4px', scale: '1 .56', offset: .25 },
+      { translate: '0 -7px', scale: '1 1', offset: .5 },
+      { translate: '0 -4px', scale: '1 .6', offset: .75 },
+      { translate: '0 0', scale: '1 1' }
+    ], { duration: 460, easing: 'ease-in-out', id: 'flap' });
+  };
   // The print nearest the middle is the current one: it stands straight, and the route fills up to its dot.
   let current = -1, queued = 0;
   const centreOf = card => card.offsetLeft + card.offsetWidth / 2;
@@ -2821,6 +2856,10 @@ reducedMotion.addEventListener('change', () => { if (!motionAllowed()) { panelAn
     let near = 0;
     cards.forEach((card, i) => { if (Math.abs(centreOf(card) - middle) < Math.abs(centreOf(cards[near]) - middle)) near = i; });
     if (near === current) return;
+    if (current !== -1) {
+      rail.dataset.dir = near < current ? 'back' : 'fwd';
+      flap();
+    }
     current = near;
     cards.forEach((card, i) => card.classList.toggle('is-near', i === near));
     marks.forEach((dot, i) => dot.classList.toggle('is-passed', i <= near));

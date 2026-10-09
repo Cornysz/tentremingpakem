@@ -758,7 +758,10 @@ body.motion-paused .senja-lines path{transition:none}
 body.motion-paused .senja.is-complete .senja-lines path{transition:none}
 .senja[data-finale="mark"] .senja-constellation,.senja[data-finale="mark"] .firefly.is-caught{visibility:hidden;transition:none}
 .senja[data-finale="mark"] .senja-lines path{opacity:0;transition:none}
-.senja-veil{position:absolute;inset:0;z-index:3;pointer-events:none;background:radial-gradient(ellipse 64% 60% at 50% var(--mark-y),#0a1322d9,#0a132200 72%);opacity:0}
+.senja-veil{position:absolute;inset:0;z-index:3;pointer-events:none;background:radial-gradient(ellipse 64% 60% at 50% var(--mark-y),#0a1322d9,#0a132200 72%);opacity:0;-webkit-mask-image:linear-gradient(180deg,transparent,#000 34%);mask-image:linear-gradient(180deg,transparent,#000 34%)}
+/* the veil fades in with the sky, so its ellipse is never cut by the top edge of the scene */
+/* the sky leaves the page colour slowly (eased stops), so the top of the scene has no visible starting line */
+@supports (background:color-mix(in srgb,red,blue)){.senja{background:linear-gradient(180deg,#e6ece0 0,color-mix(in srgb,#e6ece0 94%,var(--sky-top,#d8c3c3)) 7%,color-mix(in srgb,#e6ece0 78%,var(--sky-top,#d8c3c3)) 15%,color-mix(in srgb,#e6ece0 50%,var(--sky-top,#d8c3c3)) 23%,color-mix(in srgb,#e6ece0 20%,var(--sky-top,#d8c3c3)) 31%,var(--sky-top,#d8c3c3) 40%,var(--sky-bottom,#efa56d) 88%)}}
 .senja[data-finale] .senja-veil{opacity:1}
 .senja-halo{position:absolute;z-index:3;left:var(--stage-x,50%);top:var(--stage-y,var(--mark-y));width:calc(var(--stage-w,160px) * 1.7);aspect-ratio:1;translate:-50% -50%;border-radius:50%;pointer-events:none;background:radial-gradient(circle,#fff2c466 0,#fff2c42b 38%,#fff2c400 68%);opacity:0}
 .senja-bloom{position:absolute;z-index:5;left:var(--stage-x,50%);top:var(--stage-y,var(--mark-y));width:calc(var(--stage-w,160px) * 1.15);aspect-ratio:1;translate:-50% -50%;padding:0;border:0;border-radius:50%;background:none;cursor:pointer;-webkit-tap-highlight-color:transparent}
@@ -1335,7 +1338,9 @@ body.motion-paused .chapter-sponsor :is(.sponsor-card,.sponsor-name,.sponsor-via
 .trip-dots{position:absolute;inset:0}
 .trip-dots i{position:absolute;top:9px;width:10px;height:10px;margin-left:-5px;border-radius:50%;background:#e6ece0;box-shadow:inset 0 0 0 2px #b9c2a6;transition:background .3s,box-shadow .3s}
 .trip-dots i.is-passed{background:#87634c;box-shadow:inset 0 0 0 2px #87634c}
-.trip-bird{position:absolute;top:-14px;left:calc(var(--p,0) * 100%);width:22px;height:auto;margin-left:-11px;transition:left .35s var(--ease)}
+.trip-bird{position:absolute;top:-14px;left:calc(var(--p,0) * 100%);width:22px;height:auto;margin-left:-11px;transition:left .35s var(--ease),transform .3s var(--ease)}
+/* the bird faces the way it flies: going back to an earlier chapter, it turns around */
+.trip-rail[data-dir="back"] .trip-bird{transform:scaleX(-1)}
 .trip-step{display:none;flex:none;place-items:center;width:40px;height:40px;padding:0;border:1px solid #c5ceb3;border-radius:50%;background:#f6f1e4;color:var(--ink);transition:background .25s,opacity .25s}
 .trip-step .icon{width:17px;height:17px}
 .trip-step:disabled{opacity:.35;cursor:default}
