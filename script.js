@@ -1213,7 +1213,7 @@ reducedMotion.addEventListener('change', () => { if (!motionAllowed()) { panelAn
     const dark = isNight();
     if (stage === 'play') {
       if (dark) say(caught ? `Kunang-kunang tertangkap: ${caught} dari ${SLOTS.length}.` : `Kunang-kunang keluar. Ketuk untuk menangkap: 0 dari ${SLOTS.length}.`);
-      else say('Geser mataharinya. Saat gelap, kunang-kunang keluar.');
+      else say('Benamkan mataharinya di balik bukit.');
     }
     // one tab stop for the fireflies: the first one still flying, and only at night
     const flying = [...field.children].filter(fly => !fly.classList.contains('is-caught'));
@@ -1235,7 +1235,7 @@ reducedMotion.addEventListener('change', () => { if (!motionAllowed()) { panelAn
     const dark = isNight();
     if (dark && !wasNight) stats.sunsets += 1;
     wasNight = dark;
-    let [x, y] = sunPath(p);
+    let [x, y] = free ? [free.x, free.y] : sunPath(p);
     // a sun focused from the keyboard stays on screen, so the focus ring never disappears below the hills
     if (sun.matches(':focus-visible')) { x = clamp(x, 6, 94); y = Math.min(y, 72); }
     sun.style.left = `${x}%`;
@@ -1247,42 +1247,79 @@ reducedMotion.addEventListener('change', () => { if (!motionAllowed()) { panelAn
   const tick = () => {
     p += (target - p) * .14;
     if (Math.abs(target - p) < .002) p = target;
+    let moving = p !== target;
+    if (free && goal) {
+      free.x += (goal.x - free.x) * .2;
+      free.y += (goal.y - free.y) * .2;
+      if (Math.hypot(goal.x - free.x, goal.y - free.y) < .05) Object.assign(free, goal);
+      else moving = true;
+    }
     paint();
-    frame = p === target ? 0 : requestAnimationFrame(tick);
+    frame = moving ? requestAnimationFrame(tick) : 0;
   };
   function goTo(next) {
     target = clamp(next, 0, MAX);
-    if (!motionAllowed()) { p = target; paint(); return; }
+    if (!motionAllowed()) { p = target; if (free && goal) Object.assign(free, goal); paint(); return; }
     if (!frame) frame = requestAnimationFrame(tick);
   }
-  const fromX = clientX => {
-    const box = scene.getBoundingClientRect();
-    const share = (clientX - box.left) / box.width;
-    return narrow.matches ? (share - .12) / .76 : (.88 - share) / .76;
-  };
-  // the time of day whose point on the sun's path is nearest the finger, searched near where the sun already is,
-  // so the sun follows the finger along the arc and never jumps across it
-  const fromPoint = (cx, cy) => {
-    const box = scene.getBoundingClientRect();
-    let best = target, far = Infinity;
-    for (let q = Math.max(0, target - .3); q <= Math.min(MAX, target + .3); q += .005) {
-      const [x, y] = sunPath(q), d = (box.left + x / 100 * box.width - cx) ** 2 + (box.top + y / 100 * box.height - cy) ** 2;
-      if (d < far) { far = d; best = q; }
+  // The sun can also be put anywhere in the sky (a drag or a tap). Then its time of day comes from how high it stands
+  // over the hills right under it: high is midday, low is late afternoon, and with its middle behind the ridge it is night.
+  // free is where it stands now (in % of the scene), goal is where it is going; keyboard and auto setting use the arc.
+  let free = null, goal = null, horizon = null;
+  const hills = scene.querySelector('.senja-hills'), ridge = hills.querySelector('.hill-back');
+  // the top of the hills at 49 points across the scene, in % of its height, read from the drawn ridge itself
+  const measureHorizon = () => {
+    const box = scene.getBoundingClientRect(), m = hills.getScreenCTM();
+    if (!m || !box.width || !box.height) return null;
+    const inv = m.inverse(), pt = hills.createSVGPoint(), out = [];
+    for (let c = 0; c <= 48; c += 1) {
+      pt.x = box.left + box.width * c / 48;
+      let lo = box.top, hi = box.bottom + 1;
+      for (let k = 0; k < 12; k += 1) {
+        pt.y = (lo + hi) / 2;
+        if (ridge.isPointInFill(pt.matrixTransform(inv))) hi = pt.y; else lo = pt.y;
+      }
+      out.push((hi - box.top) / box.height * 100);
     }
-    return best;
+    return out;
   };
+  const horizonAt = x => {
+    horizon ||= measureHorizon();
+    if (!horizon) return 82;
+    const f = clamp(x, 0, 100) / 100 * 48, i = Math.min(47, Math.floor(f));
+    return horizon[i] + (horizon[i + 1] - horizon[i]) * (f - i);
+  };
+  const timeAt = (x, y) => {
+    const h = horizonAt(x);
+    // the upper third of the sky reads as midday, then the light warms quickly as the sun nears the ridge
+    if (y <= h) return 1 - .55 * Math.sqrt(clamp((h - y) / Math.max(1, h - 8), 0, 1));
+    return 1 + .2 * clamp((y - h) / 10, 0, 1);
+  };
+  const toScene = (clientX, clientY) => {
+    const box = scene.getBoundingClientRect();
+    return [(clientX - box.left) / box.width * 100, (clientY - box.top) / box.height * 100];
+  };
+  function place(x, y) {
+    x = clamp(x, 4, 96);
+    y = clamp(y, 6, Math.min(horizonAt(x) + 16, 106));
+    if (!free) { const [sx, sy] = sunPath(p); free = { x: sx, y: sy }; }
+    goal = { x, y };
+    goTo(timeAt(x, y));
+  }
+  const toArc = () => { free = goal = null; };
   // the clock for the recap starts at the first real touch, not when the sun only gets keyboard focus
   const touch = (clock = true) => { touched = true; if (clock && !stats.start) stats.start = performance.now(); scene.classList.add('is-touched'); };
 
-  // A drag that starts on the sun moves it in any direction, following its path. Anywhere else only a sideways drag
-  // moves the sun, so vertical scrolling over the scene stays a scroll.
+  // A drag that starts on the sun moves it freely, held where it was picked up. A drag that starts anywhere else moves
+  // the sun to the finger once it goes sideways, so vertical scrolling over the scene stays a scroll.
   let press = null;
   let dragged = false;
   scene.addEventListener('pointerdown', event => {
     if (event.target.closest('.firefly, .senja-reset, .senja-keepsake, .senja-bloom')) return;
     if (FINALE.includes(stage)) return;
     const onSun = stage === 'play' && !!event.target.closest('.senja-sun');
-    press = { id: event.pointerId, x: event.clientX, y: event.clientY, lastX: event.clientX, dragging: false, sun: onSun, slack: event.pointerType === 'mouse' ? 3 : onSun ? 4 : 8 };
+    const grab = onSun ? (() => { const q = sun.getBoundingClientRect(); return [q.left + q.width / 2 - event.clientX, q.top + q.height / 2 - event.clientY]; })() : [0, 0];
+    press = { id: event.pointerId, x: event.clientX, y: event.clientY, lastX: event.clientX, dragging: false, sun: onSun, grab, slack: event.pointerType === 'mouse' ? 3 : onSun ? 4 : 8 };
     dragged = false;
   });
   scene.addEventListener('pointermove', event => {
@@ -1298,7 +1335,7 @@ reducedMotion.addEventListener('change', () => { if (!motionAllowed()) { panelAn
     }
     // after the finale the same gesture blows wind through the sprig instead of moving the sun
     if (stage === 'mark') { gust(clamp(event.clientX - press.lastX, -30, 30) * 1.4); press.lastX = event.clientX; return; }
-    goTo(press.sun ? fromPoint(event.clientX, event.clientY) : fromX(event.clientX));
+    place(...toScene(event.clientX + press.grab[0], event.clientY + press.grab[1]));
   });
   const release = event => {
     if (!press || press.id !== event.pointerId) return;
@@ -1319,7 +1356,7 @@ reducedMotion.addEventListener('change', () => { if (!motionAllowed()) { panelAn
     if (event.target.closest('.firefly, .senja-reset, .senja-sun')) return;
     touch();
     stats.moves += 1;
-    goTo(fromX(event.clientX));
+    place(...toScene(event.clientX, event.clientY));
   });
   sun.addEventListener('keydown', event => {
     const step = { ArrowRight: .05, ArrowUp: .05, ArrowLeft: -.05, ArrowDown: -.05, PageUp: .2, PageDown: -.2 }[event.key];
@@ -1327,6 +1364,7 @@ reducedMotion.addEventListener('change', () => { if (!motionAllowed()) { panelAn
     event.preventDefault();
     touch();
     if (!event.repeat) stats.moves += 1;
+    toArc();
     goTo(event.key === 'Home' ? 0 : event.key === 'End' ? MAX : target + step);
   });
   sun.addEventListener('focus', () => { touch(false); paint(); });
@@ -1719,6 +1757,7 @@ reducedMotion.addEventListener('change', () => { if (!motionAllowed()) { panelAn
     resetStats();
     spawn();
     touch();
+    toArc();
     goTo(.3);
     if (focusSun) sun.focus({ preventScroll: true });
   }
@@ -1828,6 +1867,7 @@ reducedMotion.addEventListener('change', () => { if (!motionAllowed()) { panelAn
   new ResizeObserver(([entry]) => {
     const size = `${Math.round(entry.contentRect.width)}x${Math.round(entry.contentRect.height)}`;
     if (lastSize && size !== lastSize && FINALE.includes(stage)) finishEgg();
+    if (size !== lastSize) horizon = null;
     lastSize = size;
   }).observe(scene);
   const settle = () => {
@@ -1851,7 +1891,7 @@ reducedMotion.addEventListener('change', () => { if (!motionAllowed()) { panelAn
     const box = scene.getBoundingClientRect();
     const atEnd = scrollY + innerHeight >= document.documentElement.scrollHeight - 2;
     const rise = atEnd ? 1 : clamp((innerHeight - (box.top + box.height / 2)) / (innerHeight * .55), 0, 1);
-    goTo(.78 + .36 * rise);
+    goTo(.78 + .2 * rise); // down to the ridge, golden; sinking it is the visitor's move
   };
   const onScroll = () => { if (!queued) queued = requestAnimationFrame(follow); };
   new IntersectionObserver(([entry]) => {
