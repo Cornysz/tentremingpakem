@@ -53,7 +53,7 @@ function connectDialog(modal, trigger, surfaceSelector) {
       ], { duration: 550, easing: 'cubic-bezier(.22,1,.36,1)' });
     }
   };
-  trigger.addEventListener('click', () => open());
+  trigger?.addEventListener('click', () => open());
   closeButton.addEventListener('click', close);
   modal.addEventListener('cancel', event => { event.preventDefault(); close(); });
   modal.addEventListener('click', event => {
@@ -63,7 +63,8 @@ function connectDialog(modal, trigger, surfaceSelector) {
   });
   return { open, close };
 }
-const story = connectDialog(dialog, discover, '.postcard');
+// the journal opens from Jurnal in the nav and footer, and from the Perjalanan prints; the hero button is Instagram
+const story = connectDialog(dialog, null, '.postcard');
 const philosophy = connectDialog(philosophyDialog, brand, '.philosophy-card');
 
 const pad = number => String(number).padStart(2, '0');
