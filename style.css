@@ -712,7 +712,9 @@ body.motion-paused .members-dialog[open] .members-card{animation:none}
 /* a press on the sun never scrolls the page, and its grip reaches a little past the disc so a thumb finds it */
 .senja-sun{touch-action:none;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
 .sun-grip{position:absolute;inset:-14px;border-radius:50%}
-.senja-sun::before{content:"";position:absolute;inset:-150%;border-radius:50%;background:radial-gradient(circle,#f6a94566,#f6a94500 65%);opacity:var(--glow,1);pointer-events:none}
+/* a sun sunk behind the hills takes no touches: a swipe there scrolls the page, and a sideways pull on the sky still brings it back */
+.senja.is-night .senja-sun{pointer-events:none}
+.senja-sun::before{content:"";position:absolute;inset:-150%;border-radius:50%;background:radial-gradient(circle,#f6a94566,#f6a94500 65%);opacity:calc(var(--glow,1) * var(--edge,1));pointer-events:none}
 .senja-sun::after{content:"";position:absolute;inset:-6px;border:2px solid #fbf8efcc;border-radius:50%;opacity:0;pointer-events:none}
 .senja:not(.is-touched):not(.is-night) .senja-sun::after{animation:sun-hint 2.6s ease-out 1s infinite}
 .site-footer .senja-sun:focus-visible{outline:2px solid #303e31;outline-offset:4px;box-shadow:0 0 0 2px #a3561a,0 0 0 7px #fbf8efb3}

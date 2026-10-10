@@ -1212,7 +1212,7 @@ reducedMotion.addEventListener('change', () => { if (!motionAllowed()) { panelAn
   function story() {
     const dark = isNight();
     if (stage === 'play') {
-      if (dark) say(caught ? `Kunang-kunang tertangkap: ${caught} dari ${SLOTS.length}.` : `Kunang-kunang keluar. Ketuk untuk menangkap: 0 dari ${SLOTS.length}.`);
+      if (dark) say(caught ? `Kunang-kunang tertangkap: ${caught} dari ${SLOTS.length}.` : `Kunang-kunang keluar: 0 dari ${SLOTS.length}.`);
       else say('Benamkan mataharinya di balik bukit.');
     }
     // one tab stop for the fireflies: the first one still flying, and only at night
@@ -1240,6 +1240,8 @@ reducedMotion.addEventListener('change', () => { if (!motionAllowed()) { panelAn
     if (sun.matches(':focus-visible')) { x = clamp(x, 6, 94); y = Math.min(y, 72); }
     sun.style.left = `${x}%`;
     sun.style.top = `${y}%`;
+    // near the top edge the glow would be cut straight by the scene, so it fades out there
+    sun.style.setProperty('--edge', clamp((y - 8) / 16, .2, 1).toFixed(2));
     sun.setAttribute('aria-valuenow', String(Math.round(p / MAX * 100)));
     sun.setAttribute('aria-valuetext', phase(p));
     story();
@@ -1249,23 +1251,29 @@ reducedMotion.addEventListener('change', () => { if (!motionAllowed()) { panelAn
     if (Math.abs(target - p) < .002) p = target;
     let moving = p !== target;
     if (free && goal) {
-      free.x += (goal.x - free.x) * .2;
-      free.y += (goal.y - free.y) * .2;
-      if (Math.hypot(goal.x - free.x, goal.y - free.y) < .05) Object.assign(free, goal);
-      else moving = true;
+      if (goal.arc) [goal.x, goal.y] = sunPath(p);
+      const k = goal.fast ? .45 : .2;
+      free.x += (goal.x - free.x) * k;
+      free.y += (goal.y - free.y) * k;
+      if (Math.hypot(goal.x - free.x, goal.y - free.y) < .05) {
+        free.x = goal.x;
+        free.y = goal.y;
+        if (goal.arc && p === target) toArc();
+        else if (goal.arc) moving = true;
+      } else moving = true;
     }
     paint();
     frame = moving ? requestAnimationFrame(tick) : 0;
   };
   function goTo(next) {
     target = clamp(next, 0, MAX);
-    if (!motionAllowed()) { p = target; if (free && goal) Object.assign(free, goal); paint(); return; }
+    if (!motionAllowed()) { p = target; if (goal && goal.arc) toArc(); else if (free && goal) Object.assign(free, goal); paint(); return; }
     if (!frame) frame = requestAnimationFrame(tick);
   }
   // The sun can also be put anywhere in the sky (a drag or a tap). Then its time of day comes from how high it stands
   // over the hills right under it: high is midday, low is late afternoon, and with its middle behind the ridge it is night.
   // free is where it stands now (in % of the scene), goal is where it is going; keyboard and auto setting use the arc.
-  let free = null, goal = null, horizon = null;
+  let free = null, goal = null, pick = null, horizon = null;
   const hills = scene.querySelector('.senja-hills'), ridge = hills.querySelector('.hill-back');
   // the top of the hills at 49 points across the scene, in % of its height, read from the drawn ridge itself
   const measureHorizon = () => {
@@ -1299,14 +1307,17 @@ reducedMotion.addEventListener('change', () => { if (!motionAllowed()) { panelAn
     const box = scene.getBoundingClientRect();
     return [(clientX - box.left) / box.width * 100, (clientY - box.top) / box.height * 100];
   };
-  function place(x, y) {
+  // fast: a held sun follows the finger tightly; a tap or a pull glides there
+  function place(x, y, fast = false) {
     x = clamp(x, 4, 96);
-    y = clamp(y, 6, Math.min(horizonAt(x) + 16, 106));
-    if (!free) { const [sx, sy] = sunPath(p); free = { x: sx, y: sy }; }
-    goal = { x, y };
-    goTo(timeAt(x, y));
+    y = clamp(y, (sun.offsetWidth / 2 + 3) / Math.max(1, scene.clientHeight) * 100, Math.min(horizonAt(x) + 16, 106));
+    if (!free) { const [sx, sy] = sunPath(p); free = { x: sx, y: sy }; pick = { x: sx, y: sy, bias: p - timeAt(sx, sy) }; }
+    goal = { x, y, fast };
+    // a sun picked up from the arc keeps its sky: the difference to the free reading fades over the first stretch
+    const fade = pick ? clamp(1 - Math.hypot(x - pick.x, y - pick.y) / 15, 0, 1) : 0;
+    goTo(timeAt(x, y) + (pick ? pick.bias * fade : 0));
   }
-  const toArc = () => { free = goal = null; };
+  const toArc = () => { free = goal = pick = null; };
   // the clock for the recap starts at the first real touch, not when the sun only gets keyboard focus
   const touch = (clock = true) => { touched = true; if (clock && !stats.start) stats.start = performance.now(); scene.classList.add('is-touched'); };
 
@@ -1317,7 +1328,7 @@ reducedMotion.addEventListener('change', () => { if (!motionAllowed()) { panelAn
   scene.addEventListener('pointerdown', event => {
     if (event.target.closest('.firefly, .senja-reset, .senja-keepsake, .senja-bloom')) return;
     if (FINALE.includes(stage)) return;
-    const onSun = stage === 'play' && !!event.target.closest('.senja-sun');
+    const onSun = stage === 'play' && !isNight() && !!event.target.closest('.senja-sun');
     const grab = onSun ? (() => { const q = sun.getBoundingClientRect(); return [q.left + q.width / 2 - event.clientX, q.top + q.height / 2 - event.clientY]; })() : [0, 0];
     press = { id: event.pointerId, x: event.clientX, y: event.clientY, lastX: event.clientX, dragging: false, sun: onSun, grab, slack: event.pointerType === 'mouse' ? 3 : onSun ? 4 : 8 };
     dragged = false;
@@ -1335,7 +1346,7 @@ reducedMotion.addEventListener('change', () => { if (!motionAllowed()) { panelAn
     }
     // after the finale the same gesture blows wind through the sprig instead of moving the sun
     if (stage === 'mark') { gust(clamp(event.clientX - press.lastX, -30, 30) * 1.4); press.lastX = event.clientX; return; }
-    place(...toScene(event.clientX + press.grab[0], event.clientY + press.grab[1]));
+    place(...toScene(event.clientX + press.grab[0], event.clientY + press.grab[1]), press.sun);
   });
   const release = event => {
     if (!press || press.id !== event.pointerId) return;
@@ -1364,7 +1375,8 @@ reducedMotion.addEventListener('change', () => { if (!motionAllowed()) { panelAn
     event.preventDefault();
     touch();
     if (!event.repeat) stats.moves += 1;
-    toArc();
+    // a sun put by hand glides back onto the arc instead of jumping there
+    if (free) { goal = { x: free.x, y: free.y, arc: true }; pick = null; }
     goTo(event.key === 'Home' ? 0 : event.key === 'End' ? MAX : target + step);
   });
   sun.addEventListener('focus', () => { touch(false); paint(); });
@@ -1867,7 +1879,15 @@ reducedMotion.addEventListener('change', () => { if (!motionAllowed()) { panelAn
   new ResizeObserver(([entry]) => {
     const size = `${Math.round(entry.contentRect.width)}x${Math.round(entry.contentRect.height)}`;
     if (lastSize && size !== lastSize && FINALE.includes(stage)) finishEgg();
-    if (size !== lastSize) horizon = null;
+    if (size !== lastSize) {
+      // a free sun keeps its height over the ridge under it, so night stays night and day stays day after a rotation
+      const keep = free && horizon ? [free, goal].map(q => q && q.y - horizonAt(q.x)) : null;
+      horizon = null;
+      if (keep) {
+        [free, goal].forEach((q, i) => { if (q) q.y = clamp(horizonAt(q.x) + keep[i], 6, Math.min(horizonAt(q.x) + 16, 106)); });
+        paint();
+      }
+    }
     lastSize = size;
   }).observe(scene);
   const settle = () => {
