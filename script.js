@@ -1419,6 +1419,10 @@ reducedMotion.addEventListener('change', () => { if (!motionAllowed()) { panelAn
   const eggActions = egg.querySelector('.egg-actions');
   const eggKilas = egg.querySelector('.egg-kilas');
   eggKilas.prepend(document.querySelector('#spark-icon').content.cloneNode(true));
+  // a tap on a word, a tap on the sprig and the wind all work on a face: the small name in the scene or the large one here
+  const sceneFace = { mark, sway: swayGroup, leaners, glints };
+  const eggFace = { mark: eggMark, sway: eggMark.querySelector('.mark-sway'), leaners: [...eggMark.querySelectorAll('.mark-word'), eggDot], glints: eggGlints, egg: true };
+  let eggPress = null, eggSwiped = false;
   const step = name => { egg.dataset.step = name; };
   let wantKilas = false, doneAt = 0;
   const hint = words => { eggHint.textContent = words; };
@@ -1461,6 +1465,7 @@ reducedMotion.addEventListener('change', () => { if (!motionAllowed()) { panelAn
     Object.assign(eggSky.style, { left: `${box.left}px`, top: `${box.top}px`, width: `${box.width}px`, height: `${box.height}px` });
     eggActions.hidden = true;
     hint('');
+    eggHint.style.top = '';
     step('gather');
     egg.showModal();
     document.documentElement.classList.add('egg-open');
@@ -1566,15 +1571,49 @@ reducedMotion.addEventListener('change', () => { if (!motionAllowed()) { panelAn
   }
   egg.addEventListener('click', event => {
     if (event.target.closest('button')) return;
-    // during the show any tap moves it along; afterwards a tap outside the name closes it,
-    // but not in the first second, when a tap is more likely a late one meant to hurry the show
-    if (FINALE.includes(stage)) advance();
-    else if (performance.now() - doneAt > 1000 && !event.target.closest('.egg-mark, .egg-actions')) closeEgg();
+    // during the show any tap moves it along
+    if (FINALE.includes(stage)) { advance(); return; }
+    if (eggSwiped) { eggSwiped = false; return; } // that was wind, not a tap
+    // afterwards the name plays as in the scene: a word hops and says what it means, anything else rings the stars
+    if (event.target.closest('.egg-mark')) {
+      const word = event.target.closest('.mark-word');
+      if (word) poke(word, eggFace);
+      else ring(eggFace);
+      return;
+    }
+    // a tap in the dark closes it, but not in the first second, when it is more likely a late one meant to hurry the show
+    if (performance.now() - doneAt > 1000 && !event.target.closest('.egg-actions')) closeEgg();
   });
+  // a sideways swipe over the written name is wind, as in the scene
+  egg.addEventListener('pointerdown', event => {
+    eggSwiped = false;
+    eggPress = stage === 'mark' && !egg.classList.contains('is-closing') && !event.target.closest('button') ? { id: event.pointerId, x: event.clientX, y: event.clientY, lastX: event.clientX, on: false } : null;
+  });
+  egg.addEventListener('pointermove', event => {
+    if (!eggPress || eggPress.id !== event.pointerId) return;
+    if (!eggPress.on) {
+      const dx = Math.abs(event.clientX - eggPress.x), dy = Math.abs(event.clientY - eggPress.y);
+      if (dx < 8 || dx < dy) return;
+      eggPress.on = eggSwiped = true;
+      if (motionAllowed()) stats.sways += 1;
+    }
+    gust(clamp(event.clientX - eggPress.lastX, -30, 30) * 1.4, eggFace);
+    eggPress.lastX = event.clientX;
+  });
+  const eggRelease = event => { if (eggPress && eggPress.id === event.pointerId) eggPress = null; };
+  egg.addEventListener('pointerup', eggRelease);
+  egg.addEventListener('pointercancel', eggRelease);
   egg.addEventListener('keydown', event => {
     if ((event.key === 'Enter' || event.key === ' ') && FINALE.includes(stage) && !event.target.closest('button')) {
       event.preventDefault();
       advance();
+    }
+    // the arrow keys blow wind through the written name, as on the scene's words
+    const push = { ArrowRight: 70, ArrowLeft: -70 }[event.key];
+    if (push !== undefined && stage === 'mark' && !egg.classList.contains('is-closing')) {
+      event.preventDefault();
+      if (motionAllowed()) stats.sways += 1;
+      gust(push, eggFace);
     }
   });
   // Escape skips to the written name first, and closes on the second press
@@ -1590,6 +1629,11 @@ reducedMotion.addEventListener('change', () => { if (!motionAllowed()) { panelAn
     wantKilas = false;
     egg.classList.remove('is-closing');
     eggMark.getAnimations().forEach(a => a.cancel());
+    if (wind.face === eggFace) stopWind();
+    eggMark.classList.remove('is-bright');
+    hint('');
+    eggHint.style.top = '';
+    eggPress = null;
     document.documentElement.classList.remove('egg-open');
     document.body.classList.remove('egg-open');
     scene.classList.remove('is-egg');
@@ -1681,9 +1725,11 @@ reducedMotion.addEventListener('change', () => { if (!motionAllowed()) { panelAn
   scene.addEventListener('senja-restart', () => restart(true));
 
   // After the finale, a sideways swipe is wind: a damped spring sways the sprig, and the words lean a few frames late.
-  const wind = { angle: 0, speed: 0, frame: 0, last: 0, trail: [] };
-  function gust(push) {
+  const wind = { angle: 0, speed: 0, frame: 0, last: 0, trail: [], face: null };
+  function gust(push, face = sceneFace) {
     if (!motionAllowed() || stage !== 'mark') return;
+    if (wind.face && wind.face !== face) stopWind();
+    wind.face = face;
     wind.speed += push;
     if (!wind.frame) { wind.last = performance.now(); wind.frame = requestAnimationFrame(blow); }
   }
@@ -1694,8 +1740,8 @@ reducedMotion.addEventListener('change', () => { if (!motionAllowed()) { panelAn
     wind.angle = clamp(wind.angle + wind.speed * dt, -14, 14);
     wind.trail.unshift(wind.angle);
     wind.trail.length = Math.min(wind.trail.length, 16);
-    swayGroup.style.transform = `rotate(${wind.angle.toFixed(2)}deg)`;
-    leaners.forEach((el, i) => {
+    wind.face.sway.style.transform = `rotate(${wind.angle.toFixed(2)}deg)`;
+    wind.face.leaners.forEach((el, i) => {
       const lean = wind.trail[Math.min(wind.trail.length - 1, 2 + i * 3)];
       el.style.transform = `skewX(${(-lean * .35).toFixed(2)}deg)`;
     });
@@ -1704,12 +1750,13 @@ reducedMotion.addEventListener('change', () => { if (!motionAllowed()) { panelAn
   }
   function stopWind() {
     cancelAnimationFrame(wind.frame);
-    Object.assign(wind, { angle: 0, speed: 0, frame: 0, trail: [] });
-    swayGroup.style.transform = '';
-    leaners.forEach(el => { el.style.transform = ''; });
+    const face = wind.face || sceneFace;
+    Object.assign(wind, { angle: 0, speed: 0, frame: 0, trail: [], face: null });
+    face.sway.style.transform = '';
+    face.leaners.forEach(el => { el.style.transform = ''; });
   }
   // the site's own spark burst, as on the title
-  function spark(el) {
+  function spark(el, host = document.body) {
     const rect = el.getBoundingClientRect(), s = document.createElement('span');
     s.className = 'spark';
     s.setAttribute('aria-hidden', 'true');
@@ -1718,30 +1765,37 @@ reducedMotion.addEventListener('change', () => { if (!motionAllowed()) { panelAn
     s.style.top = `${rect.top}px`;
     s.style.setProperty('--dx', `${Math.round((Math.random() - .5) * 24)}px`);
     s.style.setProperty('--dy', '-30px');
-    document.body.append(s);
+    host.append(s);
     setTimeout(() => s.remove(), 900);
   }
   // a tapped word hops and its meaning, read from the name gloss in the Pakem section, shows in the caption
-  function poke(word) {
+  // (in the egg, just above the large name)
+  function poke(word, face = sceneFace) {
     if (motionAllowed()) stats.sways += 1;
     const gloss = document.querySelector(`.gloss-meaning[data-word="${word.dataset.word}"]`);
     if (gloss) {
-      const line = gloss.textContent.replace(/\s+/g, ' ').trim();
-      say(line.charAt(0).toUpperCase() + line.slice(1));
+      const line = gloss.textContent.replace(/\s+/g, ' ').trim(), meaning = line.charAt(0).toUpperCase() + line.slice(1);
       clearTimeout(glossTimer);
-      glossTimer = setTimeout(() => { if (stage === 'mark') say(SIGNOFF, true); }, 4200);
+      if (face.egg) {
+        hint(meaning);
+        eggHint.style.top = `${Math.round(eggMark.getBoundingClientRect().top - 14)}px`;
+        glossTimer = setTimeout(() => hint(''), 4200);
+      } else {
+        say(meaning);
+        glossTimer = setTimeout(() => { if (stage === 'mark') say(SIGNOFF, true); }, 4200);
+      }
     }
     if (!motionAllowed()) return;
     word.animate([{ transform: 'none' }, { transform: 'translateY(-.16em)', offset: .32 }, { transform: 'translateY(.03em) scaleY(.96)', offset: .62 }, { transform: 'none' }], { duration: 520, easing: 'cubic-bezier(.3,.7,.4,1)' });
-    spark(word);
-    gust(word.dataset.word === 'pakem' ? -26 : 26);
+    spark(word, face.egg ? egg : document.body);
+    gust(word.dataset.word === 'pakem' ? -26 : 26, face);
   }
   // tapping the sprig or the period rings its six stars
-  function ring() {
+  function ring(face = sceneFace) {
     if (motionAllowed()) stats.sways += 1;
-    if (!motionAllowed()) { mark.classList.toggle('is-bright'); return; }
-    [0, 1, 3, 4, 5, 2].forEach((n, i) => glints[n].animate([{ transform: 'none' }, { transform: 'scale(2.4)', offset: .35 }, { transform: 'none' }], { duration: 560, delay: i * 90, easing: 'ease-out' }));
-    gust(60);
+    if (!motionAllowed()) { face.mark.classList.toggle('is-bright'); return; }
+    [0, 1, 3, 4, 5, 2].forEach((n, i) => face.glints[n].animate([{ transform: 'none' }, { transform: 'scale(2.4)', offset: .35 }, { transform: 'none' }], { duration: 560, delay: i * 90, easing: 'ease-out' }));
+    gust(60, face);
   }
   mark.addEventListener('click', event => {
     if (stage !== 'mark' || (dragged && event.detail !== 0)) return;

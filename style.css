@@ -1345,7 +1345,7 @@ body.egg-open{overflow:hidden}
 /* the scrollbar gutter stays (html has scrollbar-gutter:stable); darken it with the dim */
 html{transition:background-color .8s ease}
 html.egg-open{background:#111418}
-dialog.senja-egg{position:fixed;inset:0;width:100%;height:100%;max-width:none;max-height:none;margin:0;padding:0;overflow:hidden;background:transparent;color:#f6f1e4;outline:none}
+dialog.senja-egg{position:fixed;inset:0;width:100%;height:100%;max-width:none;max-height:none;margin:0;padding:0;overflow:hidden;background:transparent;color:#f6f1e4;outline:none;touch-action:none}
 dialog.senja-egg::backdrop{background:#04070dd9;-webkit-backdrop-filter:none;backdrop-filter:none;animation:egg-dim .8s ease both}
 dialog.senja-egg.is-closing::backdrop{animation:egg-undim .7s ease both}
 @keyframes egg-dim{from{opacity:0}}
@@ -1360,6 +1360,9 @@ dialog.senja-egg.is-closing::backdrop{animation:egg-undim .7s ease both}
 .egg-mark{position:absolute;left:50%;top:46%;margin:0;translate:-50% -50%;transform-origin:50% 50%;font:400 clamp(54px,min(17vw,13svh),136px)/.92 Georgia,'Times New Roman',serif;letter-spacing:-.058em;text-align:center;white-space:nowrap;color:#f6f1e4;text-shadow:0 0 .35em #f3e27a40;visibility:hidden;pointer-events:none}
 .senja-egg:is([data-step="bloom"],[data-step="done"]) .egg-mark{visibility:visible}
 .senja-egg[data-step="done"] .egg-mark{pointer-events:auto}
+/* the meaning of a tapped word sits just above the large name (its top is set from script) */
+.senja-egg[data-step="done"] .egg-hint{translate:0 -100%}
+.egg-mark.is-bright .mark-glint circle:first-child{fill-opacity:.75}
 .egg-mark i{font-size:.81em;color:#e2c3a0}
 .senja-egg[data-step="done"] .mark-glint{animation:glint-twinkle 2.6s ease-in-out var(--tw,0s) infinite}
 .senja-egg[data-step="done"] .mark-sprig{animation:sprig-sway 7s ease-in-out infinite}
