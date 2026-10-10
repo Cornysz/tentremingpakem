@@ -1380,3 +1380,110 @@ dialog.senja-egg.is-closing::backdrop{animation:egg-undim .7s ease both}
 /* the scene hands its stars and its name to the egg while the egg is open */
 .senja.is-egg[data-finale] :is(.senja-constellation,.firefly.is-caught,.senja-mark,.senja-caption){visibility:hidden}
 body.motion-paused .senja-egg *,body.motion-paused .senja-egg *::after{animation:none!important}
+/* Panggung sponsor. The clue on the page first: while the sun is held against the top or side edges of the Senja scene,
+   the sponsor panel above lights up along its edges and calls from its bottom edge, more the harder the push. */
+.sponsor-aura{position:absolute;z-index:1;border-radius:24px;box-shadow:inset 0 0 0 1.5px #f3e27ad9,inset 0 0 30px 2px #f3e27a66,0 0 0 1px #e9b949b3,0 0 22px 4px #f0b43ab3,0 0 56px 14px #f0b43a59;opacity:0;pointer-events:none;transition:opacity .5s ease}
+.sponsor-call{position:absolute;left:0;bottom:-80px;z-index:0;width:320px;height:190px;margin-left:-160px;border-radius:50%;background:radial-gradient(closest-side,#fff2c4a6,#f3e27a52 42%,#f3e27a00);opacity:0;pointer-events:none;transition:opacity .5s ease}
+.chapter-sponsor.is-calling :is(.sponsor-aura,.sponsor-call){transition-duration:.12s}
+.chapter-sponsor.is-calling .sponsor-call{animation:call-breathe 1.6s ease-in-out infinite}
+@keyframes call-breathe{50%{scale:1.14}}
+body.motion-paused .chapter-sponsor .sponsor-call{animation:none}
+@media(prefers-reduced-motion:reduce){.chapter-sponsor .sponsor-call{animation:none}}
+/* the held sun leans toward the panel (script.js sets its scale); it is inside the panel while the stage is open */
+.senja-sun{transition:scale .18s ease-out}
+.senja.is-given .senja-sun{visibility:hidden}
+/* The stage: everything below rests at its final state; script.js only animates towards it,
+   so a skip, reduced motion or the pause button simply cancel the animations and leave the end in place. */
+html.stage-open{background:#0a1322}
+body.stage-open{overflow:hidden}
+dialog.sponsor-stage{position:fixed;inset:0;width:100%;height:100%;max-width:none;max-height:none;margin:0;padding:0;overflow:hidden;overflow:clip;background:transparent;color:#f6f1e4;outline:none;touch-action:none;-webkit-user-select:none;user-select:none}
+dialog.sponsor-stage::backdrop{background:transparent;-webkit-backdrop-filter:none;backdrop-filter:none;animation:none}
+.stage-night{position:absolute;inset:0;background:radial-gradient(130% 75% at 50% 0,#15253c 0,#0d1829 46%,#070c16 100%)}
+.stage-light,.stage-halo,.stage-fx{position:absolute;inset:0;pointer-events:none}
+/* the sun, now a stage light: a soft source at the top and a cone of light down to the cards */
+.stage-beam{position:absolute;inset:0;transform-origin:50% 0;background:conic-gradient(from calc(180deg - var(--beam,22deg)) at 50% 0,#fff2c400,#fff2c414 calc(var(--beam,22deg) * .45),#fff2c42b var(--beam,22deg),#fff2c414 calc(var(--beam,22deg) * 1.55),#fff2c400 calc(var(--beam,22deg) * 2));-webkit-mask:linear-gradient(#000 35%,#0000 97%);mask:linear-gradient(#000 35%,#0000 97%)}
+.stage-source{position:absolute;left:50%;top:0;width:min(280px,70vw);aspect-ratio:1;translate:-50% -50%;border-radius:50%;background:radial-gradient(closest-side,#fffbe6 0,#fff6b8 13%,#f3e27a8c 30%,#f3e27a2e 56%,#f3e27a00)}
+.stage-pool{position:absolute;left:var(--pool-x,50%);top:var(--pool-y,70%);width:var(--pool-w,360px);height:calc(var(--pool-w,360px) * .2);translate:-50% -50%;border-radius:50%;background:radial-gradient(closest-side,#f3e27a3d,#f3e27a14 60%,#f3e27a00)}
+.stage-dust{position:absolute;inset:0}
+.stage-dust i{position:absolute;left:var(--x);top:-12px;width:var(--s,2px);height:var(--s,2px);border-radius:50%;background:#f8e9a0;box-shadow:0 0 4px 1px #f3e27a99;opacity:0;animation:stage-dust var(--dur,12s) linear var(--delay,0s) infinite}
+@keyframes stage-dust{0%{opacity:0;transform:translate(0,0)}10%{opacity:var(--o,.7)}50%{transform:translate(var(--dx,10px),52vh)}85%{opacity:var(--o,.7)}100%{opacity:0;transform:translate(0,104vh)}}
+/* the fireflies of the halo, with the site's firefly light painted as one gradient (no blur) */
+.stage-fly{position:absolute;left:var(--x);top:var(--y);width:var(--s,24px);height:var(--s,24px);margin:calc(var(--s,24px) / -2) 0 0 calc(var(--s,24px) / -2);animation:firefly-drift var(--dur,7s) ease-in-out var(--delay,0s) infinite}
+.stage-fly::before,.stage-jewel::before{content:"";position:absolute;inset:0;border-radius:50%;background:radial-gradient(closest-side,#fffbe6 0,#fff6b8 18%,#f3e27a 30%,#f3e27a59 52%,#f3e27a00);animation:firefly-glow 2.2s ease-in-out var(--delay,0s) infinite alternate}
+.stage-close{position:absolute;top:max(12px,env(safe-area-inset-top));right:max(12px,env(safe-area-inset-right));z-index:3;display:grid;place-items:center;width:44px;height:44px;padding:0;border:1px solid #f6f1e440;border-radius:50%;background:#0a132280;color:#f6f1e4d9;transition:background .25s,color .25s}
+.stage-close .icon{width:18px;height:18px}
+@media(hover:hover) and (pointer:fine){.stage-close:hover{background:#f6f1e41a;color:#f6f1e4}}
+.sponsor-stage :focus-visible{outline:2px solid #f3e27a;outline-offset:3px}
+.stage-body{position:absolute;inset:0;z-index:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:clamp(16px,5svh,56px);padding:max(64px,env(safe-area-inset-top)) 16px max(28px,env(safe-area-inset-bottom));text-align:center}
+.stage-title{margin:0;font:400 clamp(34px,min(9.4vw,7svh),64px)/1.02 Georgia,'Times New Roman',serif;letter-spacing:-.035em;color:#f6f1e4;text-shadow:0 0 .5em #f3e27a2e}
+.stage-title i{color:#e2c3a0}
+.stage-word,.stage-line{display:inline-block}
+.stage-line{position:relative;white-space:nowrap}
+.stage-wipe{display:inline-block;margin:-.1em -.14em -.2em -.06em;padding:.1em .14em .2em .06em}
+.stage-colon{display:inline-block;color:#e2c3a0;transform-origin:50% 90%}
+.stage-pen{position:absolute;left:0;bottom:.16em;width:.1em;height:.1em;margin-left:-.05em;border-radius:50%;background:#fffbe6;box-shadow:0 0 .08em .04em #fff2c4,0 0 .36em .14em #f3e27a59;opacity:0;pointer-events:none}
+/* the cards: lit cream plinths that keep every logo in its own colours; main sponsors are larger and crowned in gold */
+.stage-field{--u:1;display:grid;gap:calc(26px * var(--u));width:100%;max-width:1160px}
+.stage-group{display:grid;gap:calc(14px * var(--u))}
+.stage-tier{display:flex;align-items:center;justify-content:center;gap:12px;margin:0;font:700 10.5px/1.3 Arial,Helvetica,sans-serif;letter-spacing:2.4px;text-transform:uppercase;color:#e2c3a0}
+.stage-tier::before,.stage-tier::after{content:"";flex:0 1 56px;height:1px;background:#e2c3a059}
+.stage-group[data-tier="utama"] .stage-tier{color:#f3dfb4}
+.sponsor-stage.is-one-tier .stage-tier{display:none}
+.stage-list{--cols:1;--w:330px;--h:122px;--base:106px;--pad:22px;--gap:18px;display:flex;flex-wrap:wrap;justify-content:center;gap:calc(var(--gap) * var(--u));margin:0;padding:0;list-style:none}
+.stage-group[data-tier="pendukung"] .stage-list{--cols:2;--w:210px;--h:84px;--base:70px;--pad:16px;--gap:12px}
+.stage-group[data-tier="mitra"] .stage-list{--cols:3;--w:150px;--h:62px;--base:50px;--pad:11px;--gap:10px}
+.stage-group[data-tier="utama"] .stage-list:has(>:nth-child(4)){--cols:2;--w:220px;--h:92px;--base:78px;--pad:16px;--gap:12px}
+/* a long list on a phone: main sponsors go two to a row before anything shrinks much */
+@media(max-width:599px){.stage-field.is-dense .stage-group[data-tier="utama"] .stage-list{--cols:2;--w:220px;--h:92px;--base:78px;--pad:16px;--gap:12px}}
+@media(min-width:600px){
+.stage-list{--cols:3;--w:330px;--h:118px;--base:106px}
+.stage-group[data-tier="utama"] .stage-list:has(>:nth-child(4)){--cols:4;--w:250px;--h:100px;--base:86px}
+.stage-group[data-tier="pendukung"] .stage-list{--cols:4;--w:220px;--h:88px;--base:74px}
+.stage-group[data-tier="mitra"] .stage-list{--cols:5;--w:170px;--h:68px;--base:56px}
+}
+@media(min-width:900px){.stage-group[data-tier="utama"] .stage-list:not(:has(>:nth-child(4))){--w:360px;--h:132px;--base:118px;--gap:28px}}
+@media(min-width:1400px) and (min-height:860px){.stage-group[data-tier="utama"] .stage-list:not(:has(>:nth-child(4))){--w:420px;--h:154px;--base:138px;--gap:32px}.stage-field{max-width:1400px}.stage-title{font-size:72px}.stage-wordmark{font-size:34px}}
+.stage-item{position:relative;flex:0 0 auto;width:min(calc(var(--w) * var(--u)),calc((100% - (var(--cols) - 1) * var(--gap) * var(--u)) / var(--cols)))}
+.stage-card{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;height:calc(var(--h) * var(--u));padding:0 calc(var(--pad) * var(--u));border-radius:18px;overflow:hidden;background:linear-gradient(180deg,#fffdf6,#f8f3e6 62%,#efe5cf);box-shadow:inset 0 0 0 1px #fffdf6,inset 0 -12px 24px -16px #c99a4e80,0 22px 36px -18px #000d,0 0 46px -6px #f3e27a5c;color:#5d6852;text-decoration:none;-webkit-tap-highlight-color:transparent;transition:transform .35s cubic-bezier(.22,1,.36,1)}
+.stage-logo{display:flex;align-items:center;justify-content:center;width:100%;min-height:0;height:calc((var(--h) - var(--pad) * 1.4) * var(--u))}
+.stage-fit{position:relative;display:block;max-width:100%}
+.stage-fit img{display:block;max-width:100%;max-height:calc((var(--h) - var(--pad) * 1.4) * var(--u));width:auto;height:auto;mix-blend-mode:multiply}
+.stage-item.is-fit .stage-fit{width:min(100%,calc(var(--base) * var(--u) * var(--lw)),calc((var(--h) - var(--pad) * 1.4) * var(--u) * var(--r)));aspect-ratio:var(--r)}
+.stage-item.is-fit .stage-fit img{position:absolute;left:calc(var(--ox) * -100%);top:calc(var(--oy) * -100%);width:calc(var(--zx) * 100%);max-width:none;max-height:none;height:auto}
+.stage-name{max-width:100%;font-size:11.5px;line-height:1.3;text-wrap:balance;overflow-wrap:anywhere}
+.stage-item:not(.is-named):not(.is-broken) .stage-name{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.stage-item.is-named .stage-logo{height:calc((var(--h) - var(--pad) * 1.4 - 22px) * var(--u))}
+.stage-item.is-broken .stage-name{font:italic 400 calc(17px * var(--u))/1.15 Georgia,'Times New Roman',serif;color:#303e31}
+.stage-item.is-light .stage-card{background:linear-gradient(180deg,#22383c,#172a2d);box-shadow:inset 0 0 0 1px #f6f1e42e,0 22px 36px -18px #000d,0 0 46px -6px #f3e27a4d;color:#d9dccb}
+.stage-item.is-light .stage-fit img{mix-blend-mode:normal}
+.stage-item.is-light.is-broken .stage-name{color:#f6f1e4}
+.stage-sheen{position:absolute;inset:0;background:linear-gradient(105deg,#fff8dc00 32%,#fff8dcc2 48%,#fff8dc00 64%);transform:translateX(-115%);pointer-events:none}
+.stage-bloom{position:absolute;inset:-30px -22px;z-index:0;border-radius:44px;background:radial-gradient(closest-side,#fff2c480,#f3e27a38 55%,#f3e27a00);opacity:0;pointer-events:none}
+.stage-plinth{position:absolute;left:6%;right:6%;bottom:-16px;z-index:0;height:30px;border-radius:50%;background:radial-gradient(closest-side,#f3e27a52,#f3e27a00);pointer-events:none}
+.stage-crown{position:absolute;inset:-3px;z-index:2;padding:1.5px;border-radius:21px;overflow:hidden;pointer-events:none;-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0)}
+.stage-crown>i{position:absolute;inset:0;background:linear-gradient(135deg,#f6dd9a,#c99a4e 38%,#f3e2b0 62%,#b88a40)}
+.stage-crown>span{position:absolute;inset:-100%;background:conic-gradient(from 0deg,#fff8dc00 0 70%,#fff2c4 86%,#fffbe6 93%,#fff8dc00 100%);opacity:0}
+.stage-jewel{position:absolute;left:18px;top:-1.5px;z-index:3;width:20px;height:20px;margin:-10px 0 0 -10px;pointer-events:none}
+.stage-jewel+.stage-jewel{left:calc(100% - 18px)}
+.stage-jewel::before{animation:star-twinkle 2.6s ease-in-out var(--delay,0s) infinite alternate}
+@media(hover:hover) and (pointer:fine){.sponsor-stage[data-step="done"] a.stage-card:hover{transform:translateY(-3px)}}
+.sponsor-stage[data-step="done"] a.stage-card:active{transform:scale(.97)}
+.stage-sign{display:grid;justify-items:center;gap:8px;margin:0}
+.stage-wordmark{font:400 clamp(22px,6vw,30px)/1 Georgia,'Times New Roman',serif;letter-spacing:-.045em;color:#f6f1e4;white-space:nowrap}
+.stage-wordmark svg{display:inline-block;width:.714em;height:.66em;margin-left:.16em;vertical-align:-.04em;color:#c9a27f}
+.stage-wordmark i,.stage-wordmark span{color:#c9a27f}
+.stage-wordmark i{font-size:.81em}
+.stage-unit{font:700 10px/1.3 Arial,Helvetica,sans-serif;letter-spacing:2.4px;text-transform:uppercase;color:#b9c0a8}
+/* the moment the sun is drawn into the panel; all of it is gone in the final state */
+.stage-fx>span{position:absolute;left:0;top:0;opacity:0}
+.stage-sun{width:var(--sun,48px);height:var(--sun,48px);margin:calc(var(--sun,48px) / -2) 0 0 calc(var(--sun,48px) / -2);border-radius:50%;background:radial-gradient(circle at 50% 35%,#fdd75a,#ef8b2a);box-shadow:0 0 0 2px #a3561a,0 0 34px 10px #f6a94566}
+.stage-stream{height:4px;margin-top:-2px;transform-origin:0 50%;border-radius:2px;background:linear-gradient(90deg,#fff2c400,#fff2c48c 60%,#fffbe6)}
+.stage-vortex{width:170px;height:170px;margin:-85px 0 0 -85px;border:2px solid #fff2c4e6;border-radius:50%;box-shadow:0 0 24px 4px #f3e27a80,inset 0 0 24px 4px #f3e27a59}
+.stage-flash{width:260px;height:260px;margin:-130px 0 0 -130px;border-radius:50%;background:radial-gradient(closest-side,#fffbe6,#fff2c4cc 22%,#f3e27a59 50%,#f3e27a00)}
+.stage-panel{border-radius:24px;box-shadow:0 0 0 1.5px #f3e27acc,0 0 26px 6px #f3e27a8c,0 0 70px 18px #fccc3d40,inset 0 0 0 1px #fff2c480,inset 0 0 60px 8px #f3e27a40}
+.stage-seed{width:44px;height:44px;margin:-22px 0 0 -22px;border-radius:50%;background:radial-gradient(closest-side,#fffbe6,#fff6b8 30%,#f3e27a80 55%,#f3e27a00)}
+/* nothing loops unseen, and nothing loops at all with reduced motion or the pause button */
+.sponsor-stage.is-still *,.sponsor-stage.is-still *::before{animation-play-state:paused!important}
+body.motion-paused .sponsor-stage *,body.motion-paused .sponsor-stage *::before{animation:none!important}
+@media(prefers-reduced-motion:reduce){.sponsor-stage *,.sponsor-stage *::before{animation:none!important}}
+@media(forced-colors:active){.stage-card{outline:1px solid CanvasText}.sponsor-aura,.sponsor-call{display:none}}

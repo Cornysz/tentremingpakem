@@ -1346,12 +1346,15 @@ reducedMotion.addEventListener('change', () => { if (!motionAllowed()) { panelAn
     }
     // after the finale the same gesture blows wind through the sprig instead of moving the sun
     if (stage === 'mark') { gust(clamp(event.clientX - press.lastX, -30, 30) * 1.4); press.lastX = event.clientX; return; }
-    place(...toScene(event.clientX + press.grab[0], event.clientY + press.grab[1]), press.sun);
+    const vx = event.clientX + press.grab[0], vy = event.clientY + press.grab[1];
+    if (press.sun && reach(vx, vy)) return;
+    place(...toScene(vx, vy), press.sun);
   });
   const release = event => {
     if (!press || press.id !== event.pointerId) return;
     press = null;
     scene.classList.remove('is-dragging');
+    letGo();
   };
   scene.addEventListener('pointerup', release);
   scene.addEventListener('pointercancel', release);
@@ -1382,6 +1385,108 @@ reducedMotion.addEventListener('change', () => { if (!motionAllowed()) { panelAn
   sun.addEventListener('focus', () => { touch(false); paint(); });
   sun.addEventListener('blur', paint);
   narrow.addEventListener('change', paint);
+
+  // The sun can also be carried up out of the scene into the sponsor panel just above it: the panel draws it in and the
+  // thanks to the sponsors play (Panggung sponsor, below). On the way, a sun held against the scene's top or side edges
+  // makes the panel light up along its edges and call from its bottom edge, more the harder it is pushed, and a sun pushed
+  // up past the top leans toward the panel. The panel takes the sun as soon as the sun touches it from below, but a quick
+  // flick off the sun is not a carry: then the finger has to stay there until the sun has been held for a moment.
+  const sponsorPanel = document.querySelector('#sponsor .sponsor-night');
+  const stageModal = document.querySelector('.sponsor-stage');
+  const HOLD = 260;
+  let aura = null, call = null, auraK = 0, lean = 0, pressedAt = 0, waitTimer = 0;
+  scene.addEventListener('pointerdown', () => { pressedAt = performance.now(); });
+  function glow(k, x = 0, pull = 0) {
+    if (!sponsorPanel) return;
+    // the held sun stretches a little toward the panel while it is pushed up past the top of the scene
+    lean = motionAllowed() ? pull : 0;
+    sun.style.scale = lean ? `${(1 - .07 * lean).toFixed(3)} ${(1 + .1 * lean).toFixed(3)}` : '';
+    if (!k && !auraK) return;
+    if (!aura) {
+      aura = document.createElement('span');
+      call = document.createElement('span');
+      aura.className = 'sponsor-aura';
+      call.className = 'sponsor-call';
+      aura.setAttribute('aria-hidden', 'true');
+      call.setAttribute('aria-hidden', 'true');
+      sponsorPanel.after(aura);
+      sponsorPanel.append(call);
+    }
+    if (k && !auraK) {
+      // the panel's own box in its section (its reveal shift is long over); read once per push
+      const { offsetLeft: left, offsetTop: top, offsetWidth: width, offsetHeight: height } = sponsorPanel;
+      Object.assign(aura.style, { left: `${left}px`, top: `${top}px`, width: `${width}px`, height: `${height}px`, borderRadius: getComputedStyle(sponsorPanel).borderRadius });
+    }
+    if (k) call.style.translate = `${x.toFixed(1)}px 0`;
+    if (Math.abs(k - auraK) < .01 && k) return;
+    auraK = k;
+    aura.style.opacity = k.toFixed(3);
+    call.style.opacity = Math.min(1, k * 1.15).toFixed(3);
+    sponsorPanel.parentElement.classList.toggle('is-calling', k > 0);
+  }
+  // the finger lifts (or the sun is given): the clue fades and a waiting flick is dropped
+  function letGo() {
+    clearTimeout(waitTimer);
+    waitTimer = 0;
+    glow(0);
+  }
+  const ready = () => stage === 'play' && !isNight() && !document.querySelector('dialog[open]') && typeof stageModal.showModal === 'function';
+  // vx, vy: where the held sun would stand (its centre on screen) if the scene did not keep it inside
+  function reach(vx, vy) {
+    if (!sponsorPanel || !stageModal) return false;
+    const P = sponsorPanel.getBoundingClientRect();
+    if (!P.width) return false;
+    const r = sun.offsetWidth / 2, box = scene.getBoundingClientRect(), roof = box.top + r + 3;
+    // under the panel and touching it (or inside it), with the panel at least partly on screen
+    const inside = vx >= P.left && vx <= P.right && vy - r <= P.bottom && vy >= Math.max(0, P.top) && P.bottom > 0 && P.top < innerHeight;
+    if (inside && ready()) {
+      const wait = pressedAt + HOLD - performance.now();
+      if (wait <= 0) {
+        give(vx, vy, P);
+        return true;
+      }
+      press.want = [vx, vy];
+      if (!waitTimer) {
+        const held = press;
+        waitTimer = setTimeout(() => {
+          waitTimer = 0;
+          if (press === held && held.want) reach(...held.want);
+        }, wait + 5);
+      }
+    } else press.want = null;
+    const up = roof - vy, side = Math.max(box.left + box.width * .04 - vx, vx - box.left - box.width * .96);
+    const near = up > 0 ? clamp(up / Math.max(40, roof - P.bottom - r), 0, 1) : 0;
+    const k = Math.max(up > 0 ? .3 + .7 * near : 0, side > 0 ? .3 + .7 * clamp(side / 36, 0, 1) : 0);
+    glow(k, clamp(vx - P.left, 40, P.width - 40), near);
+    return false;
+  }
+  // the sun leaves the scene: the stage takes it from where it stands now and draws it a little way into the panel
+  function give(vx, vy, P) {
+    const id = press.id, stretch = lean;
+    press = null;
+    try { scene.releasePointerCapture(id); } catch { /* already released */ }
+    scene.classList.remove('is-dragging');
+    letGo();
+    const from = sun.getBoundingClientRect(), size = sun.offsetWidth;
+    const at = [clamp(vx, P.left + 36, P.right - 36), clamp(Math.min(vy, P.bottom) - Math.min(120, innerHeight * .14), Math.max(0, P.top) + 36, Math.min(P.bottom, innerHeight) - 30)];
+    scene.classList.add('is-given');
+    scene.dispatchEvent(new CustomEvent('senja-sponsor', { detail: { from, size, lean: stretch, at, panel: P } }));
+    if (!stageModal.open) scene.classList.remove('is-given');
+  }
+  // Back from the stage: the sun stands high in the sky again, and the game is as it was. keep: it is only put there,
+  // still hidden, while the stage flies its light back down; pop: it springs into place by itself.
+  scene.addEventListener('senja-sunrise', event => {
+    const { keep = false, pop = false } = event.detail || {};
+    cancelAnimationFrame(frame);
+    frame = 0;
+    toArc();
+    p = target = .45;
+    quietUntil = performance.now() + 450;
+    paint();
+    if (keep) return;
+    scene.classList.remove('is-given');
+    if (pop && motionAllowed() && scene.classList.contains('is-inview')) sun.animate([{ transform: 'scale(.2)', opacity: 0 }, { transform: 'none', opacity: 1 }], { duration: 750, easing: SPRING });
+  });
 
   function spawn() {
     field.replaceChildren(...SLOTS.map(() => {
@@ -3002,4 +3107,419 @@ reducedMotion.addEventListener('change', () => { if (!motionAllowed()) { panelAn
   prev.addEventListener('click', () => go(current - 1));
   next.addEventListener('click', () => go(current + 1));
   update();
+})();
+
+// Panggung sponsor: the sun carried up from Senja di Pakem into the sponsor panel is drawn in, the whole screen goes dark,
+// the swallowed light rises to become a stage light, fireflies stream in from the edges into a halo round the stage, and the
+// sponsors rise one by one onto lit cream cards (main sponsors larger, crowned in gold as two fireflies circle them).
+// Sponsors are read from the sponsor section at every opening, in order and with their tiers, so a new one appears by itself.
+// The dialog rests at its final state in CSS and the show only animates towards it: a first tap hurries it, a second one
+// (or Escape, a resize, reduced motion) ends it at once. Afterwards a tap outside the logos, Escape or the close button
+// closes it, and the panel gives the sun back: its light arcs down to stand high in the sky again.
+(() => {
+  const modal = document.querySelector('.sponsor-stage');
+  const scene = document.querySelector('.senja');
+  const section = document.querySelector('#sponsor');
+  if (!modal || !scene || !section) return;
+  const pick = name => modal.querySelector(`.stage-${name}`);
+  const [night, light, beam, source, pool, dust, halo, closeButton, body, word, pen, wipe, colon, field, sign, ghost, stream, vortex, flash, panelGlow] =
+    ['night', 'light', 'beam', 'source', 'pool', 'dust', 'halo', 'close', 'body', 'word', 'pen', 'wipe', 'colon', 'field', 'sign', 'sun', 'stream', 'vortex', 'flash', 'panel'].map(pick);
+  const seeds = [...modal.querySelectorAll('.stage-seed')];
+  const title = pick('title');
+  const narrow = matchMedia('(max-width: 599px)');
+  const EASE = 'cubic-bezier(.22,1,.36,1)', GLIDE = 'cubic-bezier(.65,0,.35,1)', WRITE = 'cubic-bezier(.45,0,.25,1)';
+  const COMET = [{ opacity: 0, transform: 'rotate(-40deg)' }, { opacity: 1, offset: .12 }, { opacity: 1, offset: .82 }, { opacity: 0, transform: 'rotate(680deg)' }];
+  const SHEEN = [{ transform: 'translateX(-115%)' }, { transform: 'translateX(115%)' }];
+  const BLOOM = [{ opacity: 0, transform: 'scale(.6)' }, { opacity: 1, transform: 'scale(1.04)', offset: .35 }, { opacity: 0, transform: 'scale(1.14)' }];
+  const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+  const px = v => `${v.toFixed(1)}px`;
+  let anims = [], state = 'idle', generation = 0, hurried = false, closing = false, risen = true, openedAt = 0, doneAt = 0, opener = null, size = '', byKey = false;
+  const run = (el, keyframes, delay, duration, easing = EASE, fill = 'backwards') => {
+    const a = el.animate(keyframes, { delay, duration, easing, fill });
+    anims.push(a);
+    return a;
+  };
+  const live = () => anims.filter(a => a.playState === 'running' || a.playState === 'paused');
+
+  // the cards are copied from the sponsor section as it is now: its order, its tiers, its trimmed logos and its links
+  function build() {
+    const groups = [...section.querySelectorAll('.sponsor-group')].filter(group => group.querySelector('.sponsor'));
+    const single = groups.length < 2 && groups[0]?.dataset.tier !== 'utama';
+    modal.classList.toggle('is-one-tier', single);
+    field.replaceChildren(...groups.map((group, g) => {
+      const box = document.createElement('div'), label = document.createElement('p'), list = document.createElement('ul');
+      box.className = 'stage-group';
+      box.dataset.tier = group.dataset.tier || '';
+      label.className = 'stage-tier';
+      label.id = `stage-tier-${g}`;
+      label.textContent = (group.querySelector('.sponsor-tier')?.textContent || '').trim();
+      list.className = 'stage-list';
+      list.setAttribute('role', 'list');
+      if (single || !label.textContent) list.setAttribute('aria-label', 'Daftar sponsor dan mitra');
+      else list.setAttribute('aria-labelledby', label.id);
+      list.append(...[...group.querySelectorAll('.sponsor')].map(item => copy(item, group.dataset.tier === 'utama')));
+      box.append(label, list);
+      return box;
+    }));
+  }
+  const part = (tag, name) => { const el = document.createElement(tag); el.className = name; el.setAttribute('aria-hidden', 'true'); return el; };
+  function copy(item, main) {
+    const li = document.createElement('li'), from = item.querySelector('.sponsor-card'), img = item.querySelector('img');
+    const name = (item.querySelector('.sponsor-name')?.textContent || '').replace(/\s+/g, ' ').trim();
+    const card = document.createElement(from?.matches('a[href]') ? 'a' : 'div');
+    li.className = 'stage-item';
+    ['is-fit', 'is-light', 'is-broken'].forEach(c => li.classList.toggle(c, item.classList.contains(c)));
+    li.classList.toggle('is-main', main);
+    li.classList.toggle('is-named', item.dataset.nama !== 'sembunyi' && section.dataset.nama !== 'sembunyi');
+    ['--r', '--lw', '--zx', '--ox', '--oy'].forEach(v => { const value = item.style.getPropertyValue(v); if (value) li.style.setProperty(v, value); });
+    card.className = 'stage-card';
+    if (card.tagName === 'A') {
+      card.href = from.href;
+      card.target = '_blank';
+      card.rel = 'noopener noreferrer';
+      card.setAttribute('aria-label', from.getAttribute('aria-label') || `${name}, membuka tab baru`);
+    }
+    if (img && !li.classList.contains('is-broken')) {
+      const logo = part('span', 'stage-logo'), fit = document.createElement('span'), pic = document.createElement('img');
+      fit.className = 'stage-fit';
+      pic.alt = '';
+      pic.decoding = 'async';
+      pic.src = img.currentSrc || img.src;
+      fit.append(pic);
+      logo.append(fit);
+      card.append(logo);
+    }
+    const label = document.createElement('span');
+    label.className = 'stage-name';
+    label.textContent = name;
+    card.append(label, part('span', 'stage-sheen'));
+    li.append(part('span', 'stage-bloom'), part('span', 'stage-plinth'), card);
+    if (main) {
+      const crown = part('span', 'stage-crown');
+      crown.append(document.createElement('i'), document.createElement('span'));
+      li.append(crown);
+      [0, 1].forEach(k => { const jewel = part('span', 'stage-jewel'); jewel.style.setProperty('--delay', `${-k * 1.3}s`); li.append(jewel); });
+    }
+    return li;
+  }
+
+  // n points spread evenly along an ellipse (by length, not by angle), from the top, clockwise
+  function along(n, a, b) {
+    const N = 240, pts = [], len = [0];
+    for (let i = 0; i <= N; i++) {
+      const t = -Math.PI / 2 + i / N * Math.PI * 2;
+      pts.push([a * Math.cos(t), b * Math.sin(t)]);
+      if (i) len.push(len[i - 1] + Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]));
+    }
+    const out = [];
+    for (let k = 0, j = 0; k < n; k++) {
+      const s = k / n * len[N];
+      while (len[j + 1] < s) j++;
+      const f = (s - len[j]) / Math.max(1e-6, len[j + 1] - len[j]);
+      out.push([pts[j][0] + (pts[j + 1][0] - pts[j][0]) * f, pts[j][1] + (pts[j + 1][1] - pts[j][1]) * f]);
+    }
+    return out;
+  }
+  // the cards shrink together until the whole stage fits the screen; returns their scale
+  function fit() {
+    field.style.setProperty('--u', '1');
+    const cs = getComputedStyle(body), gap = parseFloat(cs.rowGap) || 0, pad = parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom);
+    for (let k = 0; k < 4; k++) {
+      const parts = [...body.children], need = parts.reduce((sum, el) => sum + el.offsetHeight, 0) + gap * (parts.length - 1) + pad;
+      const over = need - body.clientHeight, h = field.offsetHeight;
+      if (over < 1 || !h) break;
+      field.style.setProperty('--u', Math.max(.4, parseFloat(field.style.getPropertyValue('--u')) * (h - over - 2) / h).toFixed(3));
+    }
+    return parseFloat(field.style.getPropertyValue('--u'));
+  }
+  // fit the stage (a long list on a phone first puts main sponsors two to a row), then lay the light, the pool,
+  // the dust and the halo out around the cards
+  function layout() {
+    field.classList.remove('is-dense');
+    if (fit() < .8) { field.classList.add('is-dense'); fit(); }
+    const W = modal.clientWidth, H = modal.clientHeight;
+    size = `${W}x${H}`;
+    let L = W, R = 0, B = 0;
+    field.querySelectorAll('.stage-item').forEach(li => { const q = li.getBoundingClientRect(); L = Math.min(L, q.left); R = Math.max(R, q.right); B = Math.max(B, q.bottom); });
+    const T = field.getBoundingClientRect().top, t = title.getBoundingClientRect().bottom, s = sign.getBoundingClientRect().top;
+    const cx = (L + R) / 2, cy = (T + B) / 2;
+    const rx = clamp((R - L) / 2 + Math.max(22, (R - L) * .07), 60, W / 2 - 12);
+    const ry = Math.max(36, Math.min((B - T) / 2 + 30, cy - t - 14, s - cy - 16));
+    const angle = clamp(Math.atan2((R - L) / 2 * 1.15 + 24, B), .16, .6);
+    modal.style.setProperty('--beam', `${(angle * 180 / Math.PI).toFixed(2)}deg`);
+    modal.style.setProperty('--pool-x', px(cx));
+    modal.style.setProperty('--pool-y', px(B + 10));
+    modal.style.setProperty('--pool-w', px((R - L) * 1.3 + 60));
+    const perimeter = Math.PI * (3 * (rx + ry) - Math.sqrt((3 * rx + ry) * (rx + 3 * ry)));
+    const n = Math.round(clamp(perimeter / 40, 14, narrow.matches ? 26 : 36));
+    halo.replaceChildren(...along(n, rx, ry).map(([x, y]) => {
+      const fly = document.createElement('span'), d = Math.hypot(x, y) || 1, j = (Math.random() - .5) * 12;
+      fly.className = 'stage-fly';
+      fly.style.cssText = `--x:${px(cx + x + x / d * j)};--y:${px(cy + y + y / d * j)};--s:${Math.round(16 + Math.random() * 12)}px;--dx:${Math.round(4 + Math.random() * 7)}px;--dy:${Math.round(3 + Math.random() * 6)}px;--dur:${(5 + Math.random() * 4).toFixed(1)}s;--delay:${(-Math.random() * 6).toFixed(1)}s`;
+      return fly;
+    }));
+    const spread = Math.tan(angle) * H * .45;
+    dust.replaceChildren(...Array.from({ length: narrow.matches ? 12 : 18 }, () => {
+      const mote = document.createElement('i');
+      mote.style.cssText = `--x:${px(W / 2 + (Math.random() * 2 - 1) * spread)};--s:${(1.5 + Math.random() * 1.6).toFixed(1)}px;--o:${(.35 + Math.random() * .5).toFixed(2)};--dx:${Math.round((Math.random() * 2 - 1) * 18)}px;--dur:${(9 + Math.random() * 7).toFixed(1)}s;--delay:${(-Math.random() * 14).toFixed(1)}s`;
+      return mote;
+    }));
+    return { W, H, cx, cy };
+  }
+
+  // two fireflies circle a main card once and stay on its top corners; a comet of light runs round its gold rim
+  function crown(li, at) {
+    const ring = li.querySelector('.stage-crown');
+    run(ring.firstElementChild, [{ opacity: 0 }, { opacity: 1 }], at + 350, 1200, 'ease');
+    run(ring.lastElementChild, COMET, at, 1900, WRITE, 'none');
+    const w = li.offsetWidth, h = li.offsetHeight, r = 18;
+    const loop = [[r, 0], [w - r, 0], [w, r], [w, h - r], [w - r, h], [r, h], [0, h - r], [0, r], [r, 0]];
+    const len = [0];
+    for (let i = 1; i < loop.length; i++) len.push(len[i - 1] + Math.hypot(loop[i][0] - loop[i - 1][0], loop[i][1] - loop[i - 1][1]));
+    const total = len[len.length - 1];
+    const onRim = s => {
+      s = ((s % total) + total) % total;
+      let i = 1;
+      while (len[i] < s) i++;
+      const f = (s - len[i - 1]) / Math.max(1e-6, len[i] - len[i - 1]);
+      return [loop[i - 1][0] + (loop[i][0] - loop[i - 1][0]) * f, loop[i - 1][1] + (loop[i][1] - loop[i - 1][1]) * f];
+    };
+    li.querySelectorAll('.stage-jewel').forEach((jewel, k) => {
+      const rest = k ? [w - r, 0] : [r, 0], s0 = k ? w - 2 * r : 0;
+      const frames = Array.from({ length: 17 }, (_, i) => {
+        const [x, y] = onRim(s0 + total * i / 16);
+        return { transform: `translate(${px(x - rest[0])},${px(y - rest[1])})`, opacity: i === 0 ? 0 : 1 };
+      });
+      run(jewel, frames, at + 180 + k * 140, 1500, 'cubic-bezier(.4,0,.3,1)');
+    });
+  }
+  function play({ from, size = from.width, lean = 0, at, panel }, { W, H }, id) {
+    const sx = from.left + from.width / 2, sy = from.top + from.height / 2, [tx, ty] = at;
+    const dx = tx - sx, dy = ty - sy, dist = Math.hypot(dx, dy), rot = `rotate(${(Math.atan2(dy, dx) * 180 / Math.PI).toFixed(2)}deg)`;
+    // 1. the panel draws the sun in: it gives a little, then is pulled long and thin and swallowed (0 to 0.8 s)
+    ghost.style.setProperty('--sun', px(size));
+    Object.assign(ghost.style, { left: px(sx), top: px(sy) });
+    Object.assign(stream.style, { left: px(sx), top: px(sy), width: px(dist) });
+    [vortex, flash].forEach(el => Object.assign(el.style, { left: px(tx), top: px(ty) }));
+    Object.assign(panelGlow.style, { left: px(panel.left), top: px(panel.top), width: px(panel.width), height: px(panel.height), borderRadius: getComputedStyle(section.querySelector('.sponsor-night')).borderRadius });
+    run(ghost, [
+      { transform: `translate(0px,0px) ${rot} scale(${(1 + .1 * lean).toFixed(3)},${(1 - .07 * lean).toFixed(3)})`, opacity: 1, easing: 'cubic-bezier(.3,0,.4,1)' },
+      { transform: `translate(${px(-dx * .04)},${px(-dy * .04)}) ${rot} scale(.9,1.08)`, opacity: 1, offset: .2, easing: 'cubic-bezier(.6,0,.9,.45)' },
+      { transform: `translate(${px(dx * .72)},${px(dy * .72)}) ${rot} scale(1.75,.5)`, opacity: 1, offset: .84 },
+      { transform: `translate(${px(dx)},${px(dy)}) ${rot} scale(.06)`, opacity: .4 }
+    ], 0, 800, 'linear', 'none');
+    run(stream, [
+      { transform: `${rot} translateX(0px) scaleX(0)`, opacity: 0, easing: 'ease-out' },
+      { transform: `${rot} translateX(0px) scaleX(1)`, opacity: 1, offset: .3, easing: 'cubic-bezier(.6,0,.9,.45)' },
+      { transform: `${rot} translateX(${px(dist * .72)}) scaleX(.28)`, opacity: 1, offset: .84 },
+      { transform: `${rot} translateX(${px(dist)}) scaleX(0)`, opacity: 0 }
+    ], 0, 800, 'linear', 'none');
+    run(vortex, [{ opacity: 0, transform: 'scale(1.9)' }, { opacity: .9, transform: 'scale(1)', offset: .55 }, { opacity: 0, transform: 'scale(.15)' }], 120, 720, 'cubic-bezier(.5,0,.8,.4)', 'none');
+    // 2. the panel answers with light, and the whole screen goes dark
+    run(flash, [{ opacity: 0, transform: 'scale(.2)' }, { opacity: 1, transform: 'scale(1)', offset: .22 }, { opacity: 0, transform: 'scale(2.4)' }], 760, 950, 'ease-out', 'none');
+    run(panelGlow, [{ opacity: 0 }, { opacity: 1, offset: .3 }, { opacity: 0 }], 700, 1100, 'ease-out', 'none');
+    run(night, [{ opacity: 0 }, { opacity: 1 }], 650, 950, 'ease-in-out');
+    run(closeButton, [{ opacity: 0 }, { opacity: 1 }], 1000, 700, 'ease');
+    // 3. the swallowed light rises to the top of the screen, a short trail behind it, and opens as a stage light
+    const mx = tx + (W / 2 - tx) * .25, my = ty * .45;
+    seeds.forEach((seed, i) => {
+      const k = 1 - i * .28;
+      run(seed, [
+        { transform: `translate(${px(tx)},${px(ty)}) scale(${.4 * k})`, opacity: 0 },
+        { transform: `translate(${px(tx)},${px(ty)}) scale(${1.1 * k})`, opacity: 1, offset: .14 },
+        { transform: `translate(${px(mx)},${px(my)}) scale(${1.4 * k})`, opacity: 1 - i * .25, offset: .6 },
+        { transform: `translate(${px(W / 2)},0px) scale(${3 * k})`, opacity: 0 }
+      ], 950 + i * 70, 1000, GLIDE, 'none');
+    });
+    run(source, [{ opacity: 0, transform: 'scale(.3)' }, { opacity: 1, transform: 'none' }], 1650, 1000);
+    run(beam, [{ opacity: 0, transform: 'scaleX(.12)' }, { opacity: 1, transform: 'none' }], 1750, 1300);
+    run(pool, [{ opacity: 0, transform: 'scale(.4)' }, { opacity: 1, transform: 'none' }], 2500, 1200);
+    run(dust, [{ opacity: 0 }, { opacity: 1 }], 2400, 1800, 'ease');
+    // 4. fireflies stream in from the edges, round the stage clockwise from the top, and settle into a halo
+    const C = [W / 2, H / 2];
+    [...halo.children].forEach(fly => {
+      const x = parseFloat(fly.style.getPropertyValue('--x')), y = parseFloat(fly.style.getPropertyValue('--y'));
+      const vx = x - C[0] || .01, vy = y - C[1] || .01;
+      const k = Math.min(vx > 0 ? (W + 30 - x) / vx : (-30 - x) / vx, vy > 0 ? (H + 30 - y) / vy : (-30 - y) / vy);
+      const ox = vx * k, oy = vy * k, turn = (Math.random() < .5 ? -1 : 1) * .45;
+      const mxf = .45 * (ox * Math.cos(turn) - oy * Math.sin(turn)), myf = .45 * (ox * Math.sin(turn) + oy * Math.cos(turn));
+      const a = (Math.atan2(vy, vx) + Math.PI * 2.5) % (Math.PI * 2);
+      run(fly, [
+        { transform: `translate(${px(ox)},${px(oy)}) scale(.5)`, opacity: 0 },
+        { transform: `translate(${px(mxf)},${px(myf)}) scale(1)`, opacity: 1, offset: .5 },
+        { transform: 'translate(0px,0px) scale(1)', opacity: 1 }
+      ], 1250 + a / (Math.PI * 2) * 800 + Math.random() * 150, 1300 + Math.random() * 400, GLIDE);
+    });
+    // 5. the heading: "Bermitra" rises, a firefly writes "dengan" in light, the gold colon drops
+    run(word, [{ opacity: 0, transform: 'translateY(.3em)' }, { opacity: 1, transform: 'none' }], 2150, 900);
+    const x0 = wipe.offsetLeft, x1 = x0 + wipe.offsetWidth, WRITE_AT = 2550, LINE = 720; // the offset parent is .stage-line
+    run(pen, [{ transform: `translate(${x0 - 30}px,-36px)`, opacity: 0 }, { transform: `translate(${x0}px,0px)`, opacity: 1 }], WRITE_AT - 340, 340, EASE, 'none');
+    run(wipe, [{ clipPath: 'inset(0 100% 0 0)' }, { clipPath: 'inset(0 0% 0 0)' }], WRITE_AT, LINE, WRITE);
+    run(pen, [{ transform: `translateX(${x0}px)`, opacity: 1 }, { opacity: 1, offset: .86 }, { transform: `translateX(${x1}px)`, opacity: 0 }], WRITE_AT, LINE, WRITE, 'none');
+    run(colon, [{ opacity: 0, transform: 'translateY(-1.1em) scale(.5)' }, { opacity: 1, transform: 'translateY(.06em) scale(1.2,.85)', offset: .55 }, { opacity: 1, transform: 'translateY(-.04em) scale(.95,1.05)', offset: .8 }, { opacity: 1, transform: 'none' }], WRITE_AT + LINE - 60, 750);
+    // 6. the sponsors rise one by one, in page order; main sponsors are crowned, the others catch a sheen of light
+    const items = [...field.querySelectorAll('.stage-item')], C0 = 3000, step = items.length > 1 ? clamp(1600 / (items.length - 1), 150, 650) : 0;
+    items.forEach((li, i) => {
+      const at = C0 + i * step, group = li.closest('.stage-group');
+      if (li === group.querySelector('.stage-item')) run(group.querySelector('.stage-tier'), [{ opacity: 0, letterSpacing: '7px' }, { opacity: 1, letterSpacing: '2.4px' }], at - 150, 900);
+      run(li.querySelector('.stage-card'), [{ opacity: 0, transform: 'translateY(40px) scale(.9)' }, { opacity: 1, transform: 'translateY(-4px) scale(1.01)', offset: .62 }, { opacity: 1, transform: 'none' }], at, 950);
+      run(li.querySelector('.stage-plinth'), [{ opacity: 0, transform: 'scaleX(.3)' }, { opacity: 1, transform: 'none' }], at + 150, 900);
+      run(li.querySelector('.stage-bloom'), BLOOM, at + 320, 1400, 'ease-out', 'none');
+      if (li.classList.contains('is-main')) crown(li, at + 260);
+      else run(li.querySelector('.stage-sheen'), SHEEN, at + 380, 850, WRITE, 'none');
+    });
+    // 7. it ends calm, signed with the unit's name
+    run(sign, [{ opacity: 0, transform: 'translateY(12px)' }, { opacity: 1, transform: 'none' }], C0 + (items.length - 1) * step + 800, 1000);
+    Promise.all(anims.map(a => a.finished)).then(() => { if (id === generation && state === 'show') finish(); }, () => {});
+  }
+
+  scene.addEventListener('senja-sponsor', event => {
+    if (modal.open || document.querySelector('dialog[open]') || typeof modal.showModal !== 'function') return;
+    opener = scene.querySelector('.senja-sun');
+    build();
+    // a ring left on the sun from an earlier keyboard close would pass on to the dialog and back to the sun
+    if (document.activeElement && document.activeElement !== document.body) document.activeElement.blur();
+    modal.showModal();
+    document.documentElement.classList.add('stage-open');
+    document.body.classList.add('stage-open');
+    modal.focus({ preventScroll: true }); // the dialog itself, so its name is read and no ring sits on the close button
+    openedAt = performance.now();
+    closing = hurried = risen = byKey = false;
+    state = 'show';
+    modal.dataset.step = 'show';
+    const id = ++generation, geo = layout();
+    if (!motionAllowed()) { finish(); return; }
+    play(event.detail, geo, id);
+    if (document.hidden) pauseOrPlay();
+  });
+  // the show stands at its end: every animation is dropped and the CSS holds the same picture
+  function finish() {
+    if (state !== 'show') return;
+    anims.forEach(a => a.cancel());
+    anims = [];
+    hurried = false;
+    state = 'done';
+    modal.dataset.step = 'done';
+    doneAt = performance.now();
+  }
+  // a tap during the show speeds it up three times; a second one ends it
+  function advance() {
+    if (state !== 'show') return;
+    if (hurried || !motionAllowed()) { finish(); return; }
+    hurried = true;
+    live().forEach(a => a.updatePlaybackRate(3));
+  }
+  // a tap on a card after the show lights it once more
+  function shine(item) {
+    if (!motionAllowed()) return;
+    run(item.querySelector('.stage-bloom'), BLOOM, 0, 1400, 'ease-out', 'none');
+    if (item.classList.contains('is-main')) run(item.querySelector('.stage-crown>span'), COMET, 0, 1900, WRITE, 'none');
+    else run(item.querySelector('.stage-sheen'), SHEEN, 0, 850, WRITE, 'none');
+  }
+  // the sun shows in the scene again; pop: it springs in by itself, when no light flew it back
+  const rise = (pop = false) => { if (risen) return; risen = true; scene.dispatchEvent(new CustomEvent('senja-sunrise', { detail: { pop } })); };
+  // The panel gives the sun back: once the cards have faded it flashes where it took the sun, and the light pops out and
+  // arcs down to the sun's place, high in the sky, as the dark lifts. Nothing flies when the scene is off screen (a rotation).
+  function giveBack() {
+    const real = scene.querySelector('.senja-sun'), q = real.getBoundingClientRect(), d = real.offsetWidth;
+    if (!d || q.bottom < 0 || q.top > innerHeight) return [];
+    const panel = section.querySelector('.sponsor-night'), P = panel.getBoundingClientRect();
+    const tx = q.left + q.width / 2, ty = q.top + q.height / 2, seen = P.width && P.bottom > 0 && P.top < innerHeight;
+    const sx = seen ? clamp(tx, P.left + 36, P.right - 36) : tx;
+    const sy = seen ? clamp(P.bottom - 56, Math.max(0, P.top) + 30, Math.min(P.bottom, innerHeight) - 24) : -d;
+    const dx = sx - tx, dy = sy - ty, bend = clamp(-dx * .3, -40, 40) + (dx >= 0 ? 18 : -18);
+    ghost.style.setProperty('--sun', px(d));
+    Object.assign(ghost.style, { left: px(tx), top: px(ty) });
+    Object.assign(flash.style, { left: px(sx), top: px(sy) });
+    const out = [];
+    if (seen) {
+      Object.assign(panelGlow.style, { left: px(P.left), top: px(P.top), width: px(P.width), height: px(P.height), borderRadius: getComputedStyle(panel).borderRadius });
+      out.push(run(panelGlow, [{ opacity: 0 }, { opacity: .9, offset: .3 }, { opacity: 0 }], 100, 900, 'ease-out', 'none'));
+      out.push(run(flash, [{ opacity: 0, transform: 'scale(.2)' }, { opacity: .85, transform: 'scale(.7)', offset: .25 }, { opacity: 0, transform: 'scale(1.6)' }], 160, 800, 'ease-out', 'none'));
+    }
+    out.push(run(ghost, [
+      { transform: `translate(${px(dx)},${px(dy)}) scale(.15)`, opacity: 0, easing: 'cubic-bezier(.2,.8,.3,1)' },
+      { transform: `translate(${px(dx * .94)},${px(dy * .94 + 8)}) scale(1.15)`, opacity: 1, offset: .2, easing: 'cubic-bezier(.45,0,.4,1)' },
+      { transform: `translate(${px(dx * .4 + bend)},${px(dy * .4)}) scale(1)`, opacity: 1, offset: .55, easing: 'cubic-bezier(.3,0,.4,1)' },
+      { transform: 'translate(0px,-5px) scale(1)', opacity: 1, offset: .84, easing: 'ease-out' },
+      { transform: 'translate(0px,2px) scale(1.08,.92)', opacity: 1, offset: .93, easing: 'ease-in-out' },
+      { transform: 'none', opacity: 1 }
+    ], 200, 900, 'linear', 'forwards'));
+    return out;
+  }
+  // the stage fades, the page comes back, and the sun is up again in the scene
+  function close() {
+    if (!modal.open || closing) return;
+    finish();
+    closing = true;
+    // the real sun shows under the landed light just before the stage goes, so no frame is without a sun
+    const done = () => { rise(); if (modal.open) modal.close(); };
+    if (!motionAllowed()) { done(); return; }
+    scene.dispatchEvent(new CustomEvent('senja-sunrise', { detail: { keep: true } }));
+    const out = [body, halo, light, closeButton].map(el => run(el, [{ opacity: 1 }, { opacity: 0 }], 0, 300, 'ease-in', 'forwards'));
+    out.push(run(night, [{ opacity: 1 }, { opacity: 0 }], 200, 650, 'ease', 'forwards'), ...giveBack());
+    Promise.all(out.map(a => a.finished)).then(done, done);
+  }
+  modal.addEventListener('click', event => {
+    const link = event.target.closest('a');
+    // the end of the drag that opened the stage, or a tap on a card still rising, never follows a link
+    if (closing || performance.now() - openedAt < 450) { if (link) event.preventDefault(); return; }
+    if (event.target.closest('.stage-close')) { byKey = event.detail === 0; close(); return; }
+    if (state === 'show') { if (link) event.preventDefault(); advance(); return; }
+    const item = event.target.closest('.stage-item');
+    if (item) { if (!link) shine(item); return; }
+    // a tap in the dark closes it, but not in the first moment after the end, when it is more likely a late hurry
+    if (performance.now() - doneAt > 900) close();
+  });
+  // Enter or Space moves the show along, as a tap does
+  modal.addEventListener('keydown', event => {
+    if ((event.key === 'Enter' || event.key === ' ') && state === 'show' && !event.target.closest('a, button')) {
+      event.preventDefault();
+      advance();
+    }
+  });
+  // Escape ends the show first, and closes on the next press; a press the browser will not let us hold closes it at once
+  modal.addEventListener('cancel', event => {
+    byKey = true;
+    if (!event.cancelable) return; // the close event tidies up
+    event.preventDefault();
+    if (state === 'show') finish();
+    else close();
+  });
+  modal.addEventListener('close', () => {
+    generation += 1;
+    anims.forEach(a => a.cancel());
+    anims = [];
+    state = 'idle';
+    closing = hurried = false;
+    delete modal.dataset.step;
+    modal.classList.remove('is-still');
+    document.documentElement.classList.remove('stage-open');
+    document.body.classList.remove('stage-open');
+    [halo, dust, field].forEach(el => el.replaceChildren());
+    rise(true);
+    // focus goes back to the sun, with its ring only when the stage was closed from the keyboard
+    if (opener?.isConnected) {
+      opener.focus({ preventScroll: true, focusVisible: byKey });
+      if (!byKey && opener.matches(':focus-visible')) opener.blur(); // a browser that keeps the ring after a tap
+    }
+    opener = null;
+  });
+  // nothing plays unseen: a hidden tab pauses the show and its loops
+  function pauseOrPlay() {
+    if (!modal.open) return;
+    modal.classList.toggle('is-still', document.hidden);
+    anims.forEach(a => {
+      if (document.hidden && a.playState === 'running') a.pause();
+      else if (!document.hidden && a.playState === 'paused') a.play();
+    });
+  }
+  document.addEventListener('visibilitychange', pauseOrPlay);
+  // a real resize (a rotation) makes the measured light stale: end the show and lay the stage out again
+  addEventListener('resize', () => {
+    if (!modal.open || closing || `${modal.clientWidth}x${modal.clientHeight}` === size) return;
+    finish();
+    layout();
+  });
+  reducedMotion.addEventListener('change', () => { if (modal.open && !motionAllowed()) finish(); });
 })();
